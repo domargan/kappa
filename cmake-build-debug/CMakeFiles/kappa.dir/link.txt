@@ -1,0 +1,1 @@
+/usr/bin/c++  -g   CMakeFiles/kappa.dir/main.cpp.o  -o kappa 
