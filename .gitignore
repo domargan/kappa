@@ -30,3 +30,12 @@
 *.exe
 *.out
 *.app
+
+
+## JetBrains stuff
+
+# User-specific stuff:
+.idea
+
+## CMake build folders
+cmake-*
