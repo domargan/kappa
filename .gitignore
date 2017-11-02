@@ -32,10 +32,13 @@
 *.app
 
 
-## JetBrains stuff
-
-# User-specific stuff:
+# JetBrains user-specific stuff:
 .idea
 
-## CMake build folders
+# CMake build folders
 cmake-*
+
+# Build, lib, and bin dirs
+build
+lib/*
+bin/*
