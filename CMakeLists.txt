@@ -5,4 +5,16 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ansi -pedantic-errors -Wall -Wextra")
 
 set(PROJECT_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
-add_subdirectory(${PROJECT_SOURCE_DIR})
+
+file(GLOB_RECURSE kappa_SOURCES "${PROJECT_SOURCE_DIR}/*.cpp")
+file(GLOB_RECURSE kappa_HEADERS "${PROJECT_SOURCE_DIR}/*.h")
+
+set (kappa_INCLUDE_DIRS "")
+foreach (_headerFile ${kappa_HEADERS})
+    get_filename_component(_dir ${_headerFile} PATH)
+    list (APPEND kappa_INCLUDE_DIRS ${_dir})
+endforeach()
+list(REMOVE_DUPLICATES kappa_INCLUDE_DIRS)
+
+add_executable (kappa ${kappa_SOURCES})
+target_include_directories(kappa PRIVATE ${kappa_INCLUDE_DIRS})
