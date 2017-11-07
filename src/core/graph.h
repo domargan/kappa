@@ -6,7 +6,7 @@
 #define KAPPA_GRAPH_H
 
 
-class graph {
+class Graph {
 
 };
 
