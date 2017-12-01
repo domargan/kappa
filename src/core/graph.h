@@ -8,14 +8,17 @@
 #include <vector>
 #include <iostream>
 
-typedef std::vector<std::vector<int>> edge_array;
+typedef std::vector<std::vector<int>> edge_vector;
 
 class Graph {
 private:
-    edge_array edges;
+    edge_vector edges;
 public:
-    explicit Graph(int);
-    edge_array get_edge_array();
+    explicit Graph(unsigned long);
+    edge_vector get_edge_vector();
+    void print_edge_vector();
+    void add_edge(int, int);
+    void remove_edge(int, int);
 };
 
 
