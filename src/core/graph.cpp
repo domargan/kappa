@@ -6,7 +6,7 @@ Graph::Graph(unsigned int v_num) {
 
     max_vertex_number = v_num;
     // std::vector.assign() has O(n) in this case.
-    edges.assign(max_vertex_number, std::set<unsigned int>());
+    edges.assign(max_vertex_number, std::vector<unsigned int>());
 
     std::cout << "Graph structure initialized with " << v_num << " vertex entries.\n" << std::endl;
 }
@@ -29,16 +29,18 @@ void Graph::print_edge_vector() {
 }
 
 bool Graph::edge_exists(unsigned int src_v, unsigned  int dst_v){
-    // std::set.find() has a worst-case of O(log(n)).
-    return edges[src_v].find(dst_v) != edges[src_v].end();
+    // std::find() has a worst-case time of O(n) in the distance between first and last.
+    return std::find(edges[src_v].begin(), edges[src_v].end(), dst_v) != edges[src_v].end();
 }
 
 void Graph::add_edge(unsigned int src_v, unsigned int dst_v) {
-    // std::set.insert() has a worst-case of O(log(n)).
-    edges[src_v].insert(dst_v);
+    // std::vector.push_back() has a O(1) amortized time.
+    // Reallocation may happen.
+    // If a reallocation happens, the reallocation is O(n).
+    edges[src_v].push_back(dst_v);
 }
 
 void Graph::remove_edge(unsigned int src_v, unsigned int dst_v) {
-    // std::set.erase() for a single element has a time of amortized O(1).
-    edges[src_v].erase(dst_v);
+    // Erase-remove has a worst-case time of O(n).
+    edges[src_v].erase(std::remove(edges[src_v].begin(), edges[src_v].end(), dst_v), edges[src_v].end());;
 }

@@ -5,11 +5,10 @@
 #include <iostream>
 #include <set>
 
-// edge_vector is the main data structure for our graph: a std::vector of std::sets of integers.
-// std::set is implemented as a red-black binary search tree.
+// edge_vector is the main data structure for our graph: a std::vector of std::vectors of integers.
 // Outer vector's indices represents source vertices' IDs.
-// Inner sets hold destination vertices' IDs for each source vertex.
-typedef std::vector<std::set<unsigned int>> edge_vector;
+// Inner vectorss hold destination vertices' IDs for each source vertex.
+typedef std::vector<std::vector<unsigned int>> edge_vector;
 
 class Graph {
 private:
