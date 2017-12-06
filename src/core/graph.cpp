@@ -28,7 +28,7 @@ void Graph::print_edge_vector() {
     std::cout << std::endl;
 }
 
-bool Graph::edge_exists(unsigned int src_v, unsigned  int dst_v){
+bool Graph::has_edge(unsigned int src_v, unsigned int dst_v){
     // std::find() has a worst-case time of O(n) in the distance between first and last.
     return std::find(edges[src_v].begin(), edges[src_v].end(), dst_v) != edges[src_v].end();
 }
@@ -54,5 +54,13 @@ int Graph::out_degree(unsigned int) {
 }
 
 int Graph::degree(unsigned int) {
+    return 0;
+}
+
+int Graph::order() {
+    return 0;
+}
+
+int Graph::size() {
     return 0;
 }
