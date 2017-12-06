@@ -44,3 +44,15 @@ void Graph::remove_edge(unsigned int src_v, unsigned int dst_v) {
     // Erase-remove has a worst-case time of O(n).
     edges[src_v].erase(std::remove(edges[src_v].begin(), edges[src_v].end(), dst_v), edges[src_v].end());;
 }
+
+int Graph::in_degree(unsigned int) {
+    return 0;
+}
+
+int Graph::out_degree(unsigned int) {
+    return 0;
+}
+
+int Graph::degree(unsigned int) {
+    return 0;
+}

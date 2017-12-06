@@ -21,6 +21,9 @@ public:
     void add_edge(unsigned int, unsigned int);
     void remove_edge(unsigned int, unsigned int);
     bool edge_exists(unsigned int src_v, unsigned int dst_v);
+    int in_degree(unsigned int);
+    int out_degree(unsigned int);
+    int degree(unsigned int);
 };
 
 
