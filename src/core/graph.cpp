@@ -8,7 +8,7 @@ Graph::Graph(unsigned int v_num) {
 
     max_vertex_number = v_num;
 
-    for (int i=0; i<max_vertex_number; i++) {
+    for (int i = 0; i < max_vertex_number; i++) {
         uvertex uv{};
         uv.neighbors = new neighbors_vector;
         uv.degree = 0;
@@ -18,7 +18,7 @@ Graph::Graph(unsigned int v_num) {
         topology.push_back(uv);
     }
 
-        std::cout << "Graph structure initialized with " << v_num << " vertex entries.\n" << std::endl;
+    std::cout << "Graph structure initialized with " << v_num << " vertex entries.\n" << std::endl;
 
     order = 0;
     size = 0;
@@ -30,7 +30,7 @@ graph_vector Graph::get_graph_vector() {
 
 
 void Graph::print_edges() {
-    for(std::vector<uvertex>::size_type v = 0; v != topology.size(); v++) {
+    for (std::vector<uvertex>::size_type v = 0; v != topology.size(); v++) {
         std::cout << "v" << v << ": " << std::endl;
         for (unsigned int neighbor : *topology[v].neighbors) {
             std::cout << neighbor << " " << std::endl;
@@ -40,7 +40,7 @@ void Graph::print_edges() {
     std::cout << std::endl;
 }
 
-bool Graph::has_edge(unsigned int src_v, unsigned int dst_v){
+bool Graph::has_edge(unsigned int src_v, unsigned int dst_v) {
     // std::find() has a worst-case time of O(n) in the distance between first and last.
     return std::find(topology[src_v].neighbors->begin(), topology[src_v].neighbors->end(), dst_v)
            != topology[src_v].neighbors->end();
@@ -55,8 +55,9 @@ void Graph::add_edge(unsigned int src_v, unsigned int dst_v) {
 
 void Graph::remove_edge(unsigned int src_v, unsigned int dst_v) {
     // Erase-remove has a worst-case time of O(n).
-    //edges[src_v].erase(std::remove(edges[src_v].begin(), edges[src_v].end(), dst_v), edges[src_v].end());;
-    topology[src_v].neighbors->erase(std::remove(topology[src_v].neighbors->begin(), topology[src_v].neighbors->end(), dst_v), topology[src_v].neighbors->end());
+    topology[src_v].neighbors->erase
+            (std::remove(topology[src_v].neighbors->begin(), topology[src_v].neighbors->end(), dst_v),
+             topology[src_v].neighbors->end());
 }
 
 
