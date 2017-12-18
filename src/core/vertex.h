@@ -5,10 +5,11 @@ typedef std::vector<unsigned int> neighbors_vector;
 
 typedef struct uvertex {
     //unsigned int id;
-    neighbors_vector neighbors;
-    int degree;
+    neighbors_vector *neighbors;
+    unsigned int degree;
     float state;
     float state_temp;
+
 };
 
 typedef struct dvertex {
