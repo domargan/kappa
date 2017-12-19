@@ -14,8 +14,8 @@ typedef struct uvertex {
 
 typedef struct dvertex {
     //unsigned int id;
-    neighbors_vector in_neighbors;
-    neighbors_vector out_neighbors;
+    neighbors_vector *in_neighbors;
+    neighbors_vector *out_neighbors;
     int in_degree;
     int out_degree;
     float state;
