@@ -47,6 +47,8 @@ bool Graph::has_edge(unsigned int src_v, unsigned int dst_v) {
 }
 
 void Graph::add_edge(unsigned int src_v, unsigned int dst_v) {
+    // TODO: Check if the edge exists already before adding it.
+
     // std::vector.push_back() has a O(1) amortized time.
     // Reallocation may happen.
     // If a reallocation happens, the reallocation is O(n).
