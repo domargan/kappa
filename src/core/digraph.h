@@ -3,7 +3,8 @@
 
 #include <vector>
 #include "vertex.h"
-#include "graph.h"
+
+// TODO: Make Digraph a child class of Graph
 
 typedef std::vector<dvertex> digraph_vector;
 
@@ -11,7 +12,7 @@ class Digraph {
 private:
     unsigned int max_vertex_number; // Set a limit for the maximum possible number of vertices to fit in the graph.
 
-    graph_vector topology; // Graph topology data + some metadata.
+    digraph_vector topology; // Graph topology data + some metadata.
 
     unsigned int order; // Current number of vertices in the graph.
     unsigned int size; // Current number of edges in the graph.
@@ -19,7 +20,7 @@ private:
 public:
     explicit Digraph(unsigned int); // Digraph constructor.
 
-    graph_vector get_graph_vector(); // Return the graph_vector data structure.
+    digraph_vector get_digraph_vector(); // Return the graph_vector data structure.
     void print_edges(); // (use just for testing)
 
     void add_edge(unsigned int, unsigned int); // Add an edge between two vertices.
