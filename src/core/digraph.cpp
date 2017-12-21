@@ -51,18 +51,17 @@ bool Digraph::has_edge(unsigned int src_v, unsigned int dst_v) {
 }
 
 void Digraph::add_edge(unsigned int src_v, unsigned int dst_v) {
-    // TODO: Check if the edge exists already before adding it.
-
-    // std::vector.push_back() has a O(1) amortized time.
-    // Reallocation may happen.
-    // If a reallocation happens, the reallocation is O(n).
-    topology[src_v].out_neighbors->push_back(dst_v);
-    topology[dst_v].in_neighbors->push_back(src_v);
+    if (!has_edge(src_v, dst_v)) {
+        // std::vector.push_back() has a O(1) amortized time.
+        // Reallocation may happen.
+        // If a reallocation happens, the reallocation is O(n).
+        topology[src_v].out_neighbors->push_back(dst_v);
+        topology[dst_v].in_neighbors->push_back(src_v);
+    }
 }
 
 void Digraph::remove_edge(unsigned int src_v, unsigned int dst_v) {
-    //TODO: Rewrite this so that earse-remove is done only one time, without repetition.
-
+    if (has_edge(src_v, dst_v)) {
     // Erase-remove has a worst-case time of O(n).
     topology[src_v].out_neighbors->erase
             (std::remove(topology[src_v].out_neighbors->begin(), topology[src_v].out_neighbors->end(), dst_v),
@@ -71,7 +70,9 @@ void Digraph::remove_edge(unsigned int src_v, unsigned int dst_v) {
     topology[dst_v].in_neighbors->erase
             (std::remove(topology[dst_v].in_neighbors->begin(), topology[dst_v].in_neighbors->end(), src_v),
              topology[dst_v].in_neighbors->end());
+    }
 }
+
 
 neighbors_vector Digraph::get_in_neighborhood(unsigned int v) {
     return *topology[v].in_neighbors;
@@ -87,6 +88,10 @@ unsigned int Digraph::get_in_degree(unsigned int v) {
 
 unsigned int Digraph::get_out_degree(unsigned int v) {
     return static_cast<unsigned int>(get_out_neighborhood(v).size());
+}
+
+unsigned int Digraph::get_degree(unsigned int v) {
+    return get_in_degree(v) + get_out_degree(v);
 }
 
 unsigned int Digraph::get_order() {
