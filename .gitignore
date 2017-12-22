@@ -37,6 +37,7 @@
 
 # CMake build folders
 cmake-*
+CMake*
 
 # Build, lib, and bin dirs
 build
