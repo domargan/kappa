@@ -2,7 +2,16 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <algorithm>
 #include "read_tsv_disk.h"
+
+bool sort_edges_by_src(const std::vector<unsigned int>& vec1, const std::vector<unsigned int>& vec2) {
+    return vec1[0] < vec2[0];
+}
+
+bool sort_edges_by_dst(const std::vector<unsigned int>& vec1, const std::vector<unsigned int>& vec2) {
+    return vec1[1] < vec2[1];
+}
 
 
 raw_edge_array tsv_to_edges(std::string tsv_file, char separator) {
@@ -24,14 +33,29 @@ raw_edge_array tsv_to_edges(std::string tsv_file, char separator) {
             edges.emplace_back();
 
             while (getline(sep, vertex, separator)) {
-                edges.back().push_back(static_cast<unsigned int &&>(stod(vertex)));
+                edges.back().push_back(static_cast<unsigned int &&>(stoi(vertex)));
             }
         }
     }
 
     fs.close();
 
-    std::cout << "Parsing finished. Number of edge array entries: " << edges.size() << std::endl;
+    std::cout << "Parsing finished." << std::endl;
+    std::cout << "Number of edge array entries: " << edges.size() << std::endl;
 
-    return raw_edge_array();
+    std::cout << "Sorting edge array by source vertices..." << std::endl;
+    std::sort(edges.begin(), edges.end(), sort_edges_by_dst);
+    std::cout << "Sorting finished." << std::endl;
+
+    return edges;
+}
+
+
+void print_edge_array(raw_edge_array& edges) {
+    for (auto &edge : edges) {
+        for (auto &vertex : edge) {
+            std::cout << vertex << ' ';
+        }
+        std::cout << std::endl;
+    }
 }
