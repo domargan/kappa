@@ -4,11 +4,15 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <set>
 
 typedef std::vector<std::vector<unsigned int>> raw_edge_array;
 
 raw_edge_array tsv_to_edges(std::string, char);
 bool sort_edges_by_src(const std::vector<unsigned int>&, const std::vector<unsigned int>&);
+bool sort_edges_by_dst(const std::vector<unsigned int>&, const std::vector<unsigned int>&);
+unsigned int unique_vertex_count(std::set<unsigned int>);
+std::set<unsigned int> extract_vertices(raw_edge_array&);
 void print_edge_array(raw_edge_array&);
 
 #endif //KAPPA_READ_TSV_DISK_H

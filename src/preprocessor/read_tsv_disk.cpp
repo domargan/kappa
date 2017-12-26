@@ -3,6 +3,7 @@
 #include <sstream>
 #include <vector>
 #include <algorithm>
+#include <set>
 #include "read_tsv_disk.h"
 
 bool sort_edges_by_src(const std::vector<unsigned int>& vec1, const std::vector<unsigned int>& vec2) {
@@ -13,6 +14,24 @@ bool sort_edges_by_dst(const std::vector<unsigned int>& vec1, const std::vector<
     return vec1[1] < vec2[1];
 }
 
+std::set<unsigned int> extract_vertices(raw_edge_array& edges) {
+    std::set<unsigned int> vertex_set;
+
+    for(int i=0; i<edges.size(); i++){
+        vertex_set.insert(edges[i][0]);
+        vertex_set.insert(edges[i][1]);
+    }
+
+    return vertex_set;
+}
+
+unsigned int unique_vertex_count(std::set<unsigned int> vertex_set){
+    unsigned int v_num = static_cast<unsigned int>(vertex_set.size());
+
+    std::cout << "Number of vertices: " << v_num << std::endl;
+
+    return v_num;
+}
 
 raw_edge_array tsv_to_edges(std::string tsv_file, char separator) {
     raw_edge_array edges;
@@ -41,7 +60,7 @@ raw_edge_array tsv_to_edges(std::string tsv_file, char separator) {
     fs.close();
 
     std::cout << "Parsing finished." << std::endl;
-    std::cout << "Number of edge array entries: " << edges.size() << std::endl;
+    std::cout << "Number of edges: " << edges.size() << std::endl;
 
     std::cout << "Sorting edge array by source vertices..." << std::endl;
     std::sort(edges.begin(), edges.end(), sort_edges_by_dst);
