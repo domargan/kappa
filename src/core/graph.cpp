@@ -6,7 +6,7 @@
 Graph::Graph(unsigned int v_num) {
     std::cout << "Graph constructor called.\n" << std::endl;
 
-    max_vertex_number = v_num;
+    max_vertex_number = v_num + 1;
 
     for (int i = 0; i < max_vertex_number; i++) {
         uvertex uv{};

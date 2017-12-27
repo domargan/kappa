@@ -6,7 +6,7 @@
 Digraph::Digraph(unsigned int v_num) {
     std::cout << "Digraph constructor called.\n" << std::endl;
 
-    max_vertex_number = v_num;
+    max_vertex_number = v_num + 1;
 
     for (int i = 0; i < max_vertex_number; i++) {
         dvertex dv{};
