@@ -57,19 +57,23 @@ void Digraph::add_edge(unsigned int src_v, unsigned int dst_v) {
         // If a reallocation happens, the reallocation is O(n).
         topology[src_v].out_neighbors->push_back(dst_v);
         topology[dst_v].in_neighbors->push_back(src_v);
+
+        increment_size();
     }
 }
 
 void Digraph::remove_edge(unsigned int src_v, unsigned int dst_v) {
     if (has_edge(src_v, dst_v)) {
-    // Erase-remove has a worst-case time of O(n).
-    topology[src_v].out_neighbors->erase
-            (std::remove(topology[src_v].out_neighbors->begin(), topology[src_v].out_neighbors->end(), dst_v),
-             topology[src_v].out_neighbors->end());
+        // Erase-remove has a worst-case time of O(n).
+        topology[src_v].out_neighbors->erase
+                (std::remove(topology[src_v].out_neighbors->begin(), topology[src_v].out_neighbors->end(), dst_v),
+                 topology[src_v].out_neighbors->end());
 
-    topology[dst_v].in_neighbors->erase
-            (std::remove(topology[dst_v].in_neighbors->begin(), topology[dst_v].in_neighbors->end(), src_v),
-             topology[dst_v].in_neighbors->end());
+        topology[dst_v].in_neighbors->erase
+                (std::remove(topology[dst_v].in_neighbors->begin(), topology[dst_v].in_neighbors->end(), src_v),
+                 topology[dst_v].in_neighbors->end());
+
+        decrement_size();
     }
 }
 

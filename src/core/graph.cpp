@@ -52,6 +52,8 @@ void Graph::add_edge(unsigned int src_v, unsigned int dst_v) {
         // If a reallocation happens, the reallocation is O(n).
         topology[src_v].neighbors->push_back(dst_v);
         topology[dst_v].neighbors->push_back(src_v);
+
+        increment_size();
     }
 }
 
@@ -65,6 +67,8 @@ void Graph::remove_edge(unsigned int src_v, unsigned int dst_v) {
         topology[dst_v].neighbors->erase
                 (std::remove(topology[dst_v].neighbors->begin(), topology[dst_v].neighbors->end(), src_v),
                  topology[dst_v].neighbors->end());
+
+        decrement_size();
     }
 }
 
