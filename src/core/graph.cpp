@@ -20,10 +20,10 @@ Graph::Graph(unsigned int v_num) {
         topology.push_back(uv);
     }
 
-    std::cout << "Graph structure initialized with " << v_num << " vertex entries.\n" << std::endl;
-
     order = 0;
     size = 0;
+
+    std::cout << "Graph structure initialized with " << v_num << " vertex entries.\n" << std::endl;
 }
 
 graph_vector Graph::get_graph_vector() {
@@ -45,8 +45,8 @@ void Graph::print_edges() {
     std::cout << std::endl;
 }
 
-bool Graph::has_vertex(unsigned int vertex_id) {
-    return vertex_index[vertex_id];
+bool Graph::has_vertex(unsigned int v) {
+    return vertex_index[v];
 }
 
 bool Graph::has_edge(unsigned int src_v, unsigned int dst_v) {

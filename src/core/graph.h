@@ -1,8 +1,10 @@
 #ifndef KAPPA_GRAPH_H
 #define KAPPA_GRAPH_H
 
-#include <boost/dynamic_bitset.hpp>
 #include <vector>
+
+#include <boost/dynamic_bitset.hpp>
+
 #include "vertex.h"
 
 typedef std::vector<uvertex> graph_vector;

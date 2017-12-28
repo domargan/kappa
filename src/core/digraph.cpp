@@ -22,10 +22,10 @@ Digraph::Digraph(unsigned int v_num) {
         topology.push_back(dv);
     }
 
-    std::cout << "Diraph structure initialized with " << v_num << " vertex entries.\n" << std::endl;
-
     order = 0;
     size = 0;
+
+    std::cout << "Digraph structure initialized with " << v_num << " vertex entries.\n" << std::endl;
 }
 
 digraph_vector Digraph::get_digraph_vector() {
@@ -50,8 +50,8 @@ void Digraph::print_edges() {
     }
 }
 
-bool Digraph::has_vertex(unsigned int vertex_id) {
-    return vertex_index[vertex_id];
+bool Digraph::has_vertex(unsigned int v) {
+    return vertex_index[v];
 }
 
 bool Digraph::has_edge(unsigned int src_v, unsigned int dst_v) {

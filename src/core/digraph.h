@@ -1,8 +1,10 @@
 #ifndef KAPPA_DIGRAPH_H
 #define KAPPA_DIGRAPH_H
 
-#include <boost/dynamic_bitset.hpp>
 #include <vector>
+
+#include <boost/dynamic_bitset.hpp>
+
 #include "vertex.h"
 
 // TODO: Make Digraph a child class of Graph
