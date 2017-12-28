@@ -32,6 +32,10 @@ digraph_vector Digraph::get_digraph_vector() {
     return topology;
 }
 
+vertex_bitset Digraph::get_vertex_index() {
+    return vertex_index;
+}
+
 void Digraph::print_edges() {
     for (std::vector<dvertex>::size_type v = 0; v != topology.size(); v++) {
         std::cout << "v" << v << ": " << std::endl;
@@ -46,8 +50,8 @@ void Digraph::print_edges() {
     }
 }
 
-bool Digraph::has_vertex(unsigned int vertex) {
-    return vertex_index[vertex];
+bool Digraph::has_vertex(unsigned int vertex_id) {
+    return vertex_index[vertex_id];
 }
 
 bool Digraph::has_edge(unsigned int src_v, unsigned int dst_v) {

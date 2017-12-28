@@ -30,6 +30,10 @@ graph_vector Graph::get_graph_vector() {
     return topology;
 }
 
+vertex_bitset Graph::get_vertex_index() {
+    return vertex_index;
+}
+
 void Graph::print_edges() {
     for (std::vector<uvertex>::size_type v = 0; v != topology.size(); v++) {
         std::cout << "v" << v << ": " << std::endl;
@@ -41,8 +45,8 @@ void Graph::print_edges() {
     std::cout << std::endl;
 }
 
-bool Graph::has_vertex(unsigned int vertex) {
-    return vertex_index[vertex];
+bool Graph::has_vertex(unsigned int vertex_id) {
+    return vertex_index[vertex_id];
 }
 
 bool Graph::has_edge(unsigned int src_v, unsigned int dst_v) {
@@ -61,7 +65,7 @@ void Graph::add_edge(unsigned int src_v, unsigned int dst_v) {
 
         vertex_index[src_v] = 1;
         vertex_index[dst_v] = 1;
-        
+
         increment_size();
     }
 }
