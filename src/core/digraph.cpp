@@ -8,6 +8,8 @@ Digraph::Digraph(unsigned int v_num) {
 
     max_vertex_number = v_num + 1;
 
+    vertex_index = boost::dynamic_bitset<>(max_vertex_number);
+
     for (int i = 0; i < max_vertex_number; i++) {
         dvertex dv{};
         dv.in_neighbors = new neighbors_vector;
@@ -44,6 +46,10 @@ void Digraph::print_edges() {
     }
 }
 
+bool Digraph::has_vertex(unsigned int vertex) {
+    return vertex_index[vertex];
+}
+
 bool Digraph::has_edge(unsigned int src_v, unsigned int dst_v) {
     // std::find() has a worst-case time of O(n) in the distance between first and last.
     return std::find(topology[src_v].out_neighbors->begin(), topology[src_v].out_neighbors->end(), dst_v)
@@ -57,6 +63,9 @@ void Digraph::add_edge(unsigned int src_v, unsigned int dst_v) {
         // If a reallocation happens, the reallocation is O(n).
         topology[src_v].out_neighbors->push_back(dst_v);
         topology[dst_v].in_neighbors->push_back(src_v);
+
+        vertex_index[src_v] = 1;
+        vertex_index[dst_v] = 1;
 
         increment_size();
     }
@@ -121,4 +130,3 @@ void Digraph::increment_size() {
 void Digraph::decrement_size() {
     size--;
 }
-

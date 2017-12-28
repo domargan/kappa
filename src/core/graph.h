@@ -1,6 +1,7 @@
 #ifndef KAPPA_GRAPH_H
 #define KAPPA_GRAPH_H
 
+#include <boost/dynamic_bitset.hpp>
 #include <vector>
 #include "vertex.h"
 
@@ -11,6 +12,7 @@ private:
     unsigned int max_vertex_number; // Set a limit for the maximum possible number of vertices to fit in the graph.
 
     graph_vector topology; // Graph topology data + some metadata.
+    boost::dynamic_bitset<unsigned long, std::allocator<unsigned long>> vertex_index; // 1 if the vertex is present, 0 if the vertex is not in the graph.
 
     unsigned int order; // Current number of vertices in the graph.
     unsigned int size; // Current number of edges in the graph.
@@ -20,9 +22,11 @@ public:
     graph_vector get_graph_vector(); // Return the graph_vector data structure.
     void print_edges(); // (use just for testing)
 
+    bool has_vertex(unsigned int); // Return true if the vertex is in the graph.
+
     void add_edge(unsigned int, unsigned int); // Add an edge between two vertices.
     void remove_edge(unsigned int, unsigned int); // Remove the edge between two vertices.
-    bool has_edge(unsigned int, unsigned int); // Return true of the edge is in the graph.
+    bool has_edge(unsigned int, unsigned int); // Return true if the edge is in the graph.
 
     neighbors_vector get_neighborhood(unsigned int); // Return the vector of neighbors of a vertex.
     unsigned int get_degree(unsigned int); // Return the degree of a vertex.

@@ -1,6 +1,7 @@
 #ifndef KAPPA_DIGRAPH_H
 #define KAPPA_DIGRAPH_H
 
+#include <boost/dynamic_bitset.hpp>
 #include <vector>
 #include "vertex.h"
 
@@ -13,6 +14,7 @@ private:
     unsigned int max_vertex_number; // Set a limit for the maximum possible number of vertices to fit in the graph.
 
     digraph_vector topology; // Graph topology data + some metadata.
+    boost::dynamic_bitset<unsigned long, std::allocator<unsigned long>> vertex_index; // 1 if the vertex is present, 0 if the vertex is not in the graph.
 
     unsigned int order; // Current number of vertices in the graph.
     unsigned int size; // Current number of edges in the graph.
@@ -22,6 +24,8 @@ public:
 
     digraph_vector get_digraph_vector(); // Return the graph_vector data structure.
     void print_edges(); // (use just for testing)
+
+    bool has_vertex(unsigned int); // Return true if the vertex is in the graph.
 
     void add_edge(unsigned int, unsigned int); // Add an edge between two vertices.
     void remove_edge(unsigned int, unsigned int); // Remove the edge between two vertices.
