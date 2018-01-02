@@ -19,6 +19,7 @@ private:
 
     unsigned int order; // Current number of vertices in the graph.
     unsigned int size; // Current number of edges in the graph.
+
 public:
     explicit Graph(unsigned int); // Graph constructor
     graph_vector get_graph_vector(); // Return the graph_vector data structure.
@@ -35,11 +36,13 @@ public:
     neighbors_vector get_neighborhood(unsigned int); // Return the vector of neighbors of a vertex.
     unsigned int get_degree(unsigned int); // Return the degree of a vertex.
 
+    void update_state(unsigned int, float);
+    float get_state(unsigned int);
+    void finalize_states();
+
     unsigned int get_order(); // Return the number of vertices.
     unsigned int get_size(); // Return the number of edges.
 
-    void increment_order(); // Increase the value for number of vertices by 1.
-    void decrement_order(); // Decrease the value for number of vertices by 1.
     void increment_size(); // Increase the value for number of edges by 1.
     void decrement_size(); // Increase the value for number of edges by 1.
 };
