@@ -137,14 +137,6 @@ unsigned int Digraph::get_size() {
     return size;
 }
 
-void Digraph::increment_order() {
-    order++;
-}
-
-void Digraph::decrement_order() {
-    order--;
-}
-
 void Digraph::increment_size() {
     size++;
 }
