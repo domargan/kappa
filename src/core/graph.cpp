@@ -13,7 +13,6 @@ Graph::Graph(unsigned int v_num) {
     for (int i = 0; i < max_vertex_number; i++) {
         uvertex uv{};
         uv.neighbors = new neighbors_vector;
-        uv.degree = 0;
         uv.state = 0;
         uv.state_temp = 0;
 
@@ -83,16 +82,15 @@ void Graph::remove_edge(unsigned int src_v, unsigned int dst_v) {
 
         decrement_size();
 
-        if(topology[src_v].degree == 0) {
+        if(get_degree(src_v) == 0) {
             vertex_index[src_v] = 0;
         }
 
-        if(topology[dst_v].degree == 0) {
+        if(get_degree(dst_v) == 0) {
             vertex_index[dst_v] = 0;
         }
     }
 }
-
 
 neighbors_vector Graph::get_neighborhood(unsigned int v) {
     return *topology[v].neighbors;

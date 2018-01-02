@@ -14,8 +14,6 @@ Digraph::Digraph(unsigned int v_num) {
         dvertex dv{};
         dv.in_neighbors = new neighbors_vector;
         dv.out_neighbors = new neighbors_vector;
-        dv.in_degree = 0;
-        dv.out_degree = 0;
         dv.state = 0;
         dv.state_temp = 0;
 
@@ -88,11 +86,11 @@ void Digraph::remove_edge(unsigned int src_v, unsigned int dst_v) {
 
         decrement_size();
 
-        if(topology[src_v].out_degree == 0 && topology[src_v].in_degree == 0) {
+        if(get_out_degree(src_v) == 0 && get_in_degree(src_v) == 0) {
             vertex_index[src_v] = 0;
         }
 
-        if(topology[dst_v].out_degree == 0 && topology[dst_v].in_degree == 0) {
+        if(get_out_degree(dst_v) == 0 && get_in_degree(dst_v) == 0) {
             vertex_index[dst_v] = 0;
         }
     }
