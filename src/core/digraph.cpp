@@ -1,6 +1,7 @@
 #include <iostream>
 #include <algorithm>
 
+
 #include "digraph.h"
 
 Digraph::Digraph(unsigned int v_num) {
@@ -110,6 +111,23 @@ unsigned int Digraph::get_out_degree(unsigned int v) {
 unsigned int Digraph::get_degree(unsigned int v) {
     return get_in_degree(v) + get_out_degree(v);
 }
+
+void Digraph::update_state(unsigned int v, float state) {
+    topology[v].state_temp = state;
+}
+
+float Digraph::get_state(unsigned int v) {
+    return topology[v].state;
+}
+
+void Digraph::finalize_states() {
+    // For each v in the graph exchange state
+    for(int i=0; i<vertex_index.size(); i++) {
+        if(has_vertex(i)) {
+            std::swap(topology[i].state_temp, topology[i].state);
+        }
+    }
+};
 
 unsigned int Digraph::get_order() {
     return order;
