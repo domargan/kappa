@@ -50,11 +50,8 @@ public:
     // Switch state and temp_state vals
 
     unsigned int get_order(); // Return the number of vertices.
-    // TODO: implement get_order() so it returns the number of vertices by bit count
     unsigned int get_size(); // Return the number of edges.
 
-    void increment_order(); // Increase the value for number of vertices by 1.
-    void decrement_order(); // Decrease the value for number of vertices by 1.
     void increment_size(); // Increase the value for number of edges by 1.
     void decrement_size(); // Increase the value for number of edges by 1.
 };

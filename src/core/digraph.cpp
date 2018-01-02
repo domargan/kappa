@@ -122,7 +122,7 @@ float Digraph::get_state(unsigned int v) {
 
 void Digraph::finalize_states() {
     // For each v in the graph exchange state
-    for(int i=0; i<vertex_index.size(); i++) {
+    for(unsigned int i=0; i<vertex_index.size(); i++) {
         if(has_vertex(i)) {
             std::swap(topology[i].state_temp, topology[i].state);
         }
@@ -130,7 +130,7 @@ void Digraph::finalize_states() {
 };
 
 unsigned int Digraph::get_order() {
-    return order;
+    return static_cast<unsigned int>(vertex_index.count());
 }
 
 unsigned int Digraph::get_size() {
