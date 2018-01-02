@@ -136,7 +136,8 @@ void Digraph::finalize_states() {
 }
 
 unsigned int Digraph::get_order() {
-    return static_cast<unsigned int>(vertex_index.count());
+    order = static_cast<unsigned int>(vertex_index.count());
+    return order;
 }
 
 unsigned int Digraph::get_size() {
