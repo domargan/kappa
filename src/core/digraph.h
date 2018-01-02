@@ -43,11 +43,8 @@ public:
     unsigned int get_degree(unsigned int); // Return the degree of a vertex.
 
     void update_state(unsigned int, float);
-    // Write only to temp_state
     float get_state(unsigned int);
-    // Read only from state
     void finalize_states();
-    // Switch state and temp_state vals
 
     unsigned int get_order(); // Return the number of vertices.
     unsigned int get_size(); // Return the number of edges.

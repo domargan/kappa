@@ -1,7 +1,6 @@
 #include <iostream>
 #include <algorithm>
 
-
 #include "digraph.h"
 
 Digraph::Digraph(unsigned int v_num) {
@@ -88,9 +87,16 @@ void Digraph::remove_edge(unsigned int src_v, unsigned int dst_v) {
                  topology[dst_v].in_neighbors->end());
 
         decrement_size();
+
+        if(topology[src_v].out_degree == 0 && topology[src_v].in_degree == 0) {
+            vertex_index[src_v] = 0;
+        }
+
+        if(topology[dst_v].out_degree == 0 && topology[dst_v].in_degree == 0) {
+            vertex_index[dst_v] = 0;
+        }
     }
 }
-
 
 neighbors_vector Digraph::get_in_neighborhood(unsigned int v) {
     return *topology[v].in_neighbors;
@@ -127,7 +133,7 @@ void Digraph::finalize_states() {
             std::swap(topology[i].state_temp, topology[i].state);
         }
     }
-};
+}
 
 unsigned int Digraph::get_order() {
     return static_cast<unsigned int>(vertex_index.count());

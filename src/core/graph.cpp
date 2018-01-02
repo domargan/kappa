@@ -82,10 +82,17 @@ void Graph::remove_edge(unsigned int src_v, unsigned int dst_v) {
                  topology[dst_v].neighbors->end());
 
         decrement_size();
-    }
 
-    // TODO: decrement order in case of dangling vertex
+        if(topology[src_v].degree == 0) {
+            vertex_index[src_v] = 0;
+        }
+
+        if(topology[dst_v].degree == 0) {
+            vertex_index[dst_v] = 0;
+        }
+    }
 }
+
 
 neighbors_vector Graph::get_neighborhood(unsigned int v) {
     return *topology[v].neighbors;
@@ -109,7 +116,7 @@ void Graph::finalize_states() {
             std::swap(topology[i].state_temp, topology[i].state);
         }
     }
-};
+}
 
 unsigned int Graph::get_order() {
     return static_cast<unsigned int>(vertex_index.count());
