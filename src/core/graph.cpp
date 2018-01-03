@@ -100,11 +100,11 @@ unsigned int Graph::get_degree(unsigned int v) {
     return static_cast<unsigned int>(get_neighborhood(v).size());
 }
 
-void Graph::update_state(unsigned int v, float state) {
+void Graph::update_state(unsigned int v, double state) {
     topology[v].state_temp = state;
 }
 
-float Graph::get_state(unsigned int v) {
+double Graph::get_state(unsigned int v) {
     return topology[v].state;
 }
 

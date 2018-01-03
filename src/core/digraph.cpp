@@ -116,11 +116,11 @@ unsigned int Digraph::get_degree(unsigned int v) {
     return get_in_degree(v) + get_out_degree(v);
 }
 
-void Digraph::update_state(unsigned int v, float state) {
+void Digraph::update_state(unsigned int v, double state) {
     topology[v].state_temp = state;
 }
 
-float Digraph::get_state(unsigned int v) {
+double Digraph::get_state(unsigned int v) {
     return topology[v].state;
 }
 

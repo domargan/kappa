@@ -42,8 +42,8 @@ public:
     unsigned int get_out_degree(unsigned int); // Return the out-degree of a vertex.
     unsigned int get_degree(unsigned int); // Return the degree of a vertex.
 
-    void update_state(unsigned int, float);
-    float get_state(unsigned int);
+    void update_state(unsigned int, double);
+    double get_state(unsigned int);
     void finalize_states();
 
     unsigned int get_order(); // Return the number of vertices.
