@@ -1,6 +1,10 @@
 #ifndef KAPPA_PAGERANK_H
 #define KAPPA_PAGERANK_H
 
-void pagerank();
+const double DEFAULT_DAMPING_FACTOR = 0.85;
+const int DEFAULT_MAX_ITERATIONS = 100;
+
+void init_pr_values(Digraph*);
+void pr_compute(Digraph*);
 
 #endif //KAPPA_PAGERANK_H
