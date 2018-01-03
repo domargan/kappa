@@ -128,7 +128,7 @@ void Digraph::finalize_states() {
     // For each v in the graph exchange state
     for(unsigned int i=0; i<vertex_index.size(); i++) {
         if(has_vertex(i)) {
-            std::swap(topology[i].state_temp, topology[i].state);
+            topology[i].state = topology[i].state_temp;
         }
     }
 }
