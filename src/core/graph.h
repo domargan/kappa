@@ -38,6 +38,7 @@ public:
 
     void update_state(unsigned int, double);
     double get_state(unsigned int);
+    void finalize_state(unsigned int);
     void finalize_states();
 
     unsigned int get_order(); // Return the number of vertices.

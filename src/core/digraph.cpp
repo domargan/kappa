@@ -124,12 +124,16 @@ double Digraph::get_state(unsigned int v) {
     return topology[v].state;
 }
 
+void Digraph::finalize_state(unsigned int v) {
+    if(has_vertex(v)){
+        topology[v].state = topology[v].state_temp;
+    }
+}
+
 void Digraph::finalize_states() {
     // For each v in the graph exchange state
     for(unsigned int i=0; i<vertex_index.size(); i++) {
-        if(has_vertex(i)) {
-            topology[i].state = topology[i].state_temp;
-        }
+        finalize_state(i);
     }
 }
 

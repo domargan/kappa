@@ -108,11 +108,16 @@ double Graph::get_state(unsigned int v) {
     return topology[v].state;
 }
 
+void Graph::finalize_state(unsigned int v) {
+    if(has_vertex(v)){
+        topology[v].state = topology[v].state_temp;
+    }
+}
+
 void Graph::finalize_states() {
+    // For each v in the graph exchange state
     for(unsigned int i=0; i<vertex_index.size(); i++) {
-        if(has_vertex(i)) {
-            std::swap(topology[i].state_temp, topology[i].state);
-        }
+        finalize_state(i);
     }
 }
 
