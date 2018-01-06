@@ -3,6 +3,8 @@
 
 #include "graph.h"
 
+// TODO: Implement vertex iterator (instead of iterating until vertex_index.size())
+
 Graph::Graph(unsigned int v_num) {
     std::cout << "Graph constructor called.\n" << std::endl;
 

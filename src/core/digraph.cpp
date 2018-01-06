@@ -3,6 +3,8 @@
 
 #include "digraph.h"
 
+// TODO: Implement vertex iterator (instead of iterating until vertex_index.size())
+
 Digraph::Digraph(unsigned int v_num) {
     std::cout << "Digraph constructor called.\n" << std::endl;
 
