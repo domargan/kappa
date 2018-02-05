@@ -4,15 +4,18 @@
 #include "graph.h"
 
 // TODO: Implement vertex iterator (instead of iterating until vertex_index.size())
+// TODO: Do something smarter about getting size; do not call vertex_index.size() all the time
+// TODO: For every iteration of vertices from 0 to vertex_index.size() check if the vertex exists before any operations
+// TODO: Remove all calls to vertex_index.size() and replace them with a varible
 
 Graph::Graph(unsigned int v_num) {
     std::cout << "Graph constructor called.\n" << std::endl;
 
-    max_vertex_number = v_num + 1;
+    max_vertex_allocations = v_num + 1;
 
-    vertex_index = boost::dynamic_bitset<>(max_vertex_number);
+    vertex_index = boost::dynamic_bitset<>(max_vertex_allocations);
 
-    for (int i = 0; i < max_vertex_number; i++) {
+    for (int i = 0; i < max_vertex_allocations; i++) {
         uvertex uv{};
         uv.neighbors = new neighbors_vector;
         uv.state = 0;
@@ -127,6 +130,10 @@ unsigned int Graph::get_order() {
     order = static_cast<unsigned int>(vertex_index.count());
     return order;
 }
+
+unsigned int Graph::get_max_order() {
+    return max_vertex_allocations;
+};
 
 unsigned int Graph::get_size() {
     return size;

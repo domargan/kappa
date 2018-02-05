@@ -12,7 +12,7 @@ typedef boost::dynamic_bitset<unsigned long, std::allocator<unsigned long>> vert
 
 class Graph {
 private:
-    unsigned int max_vertex_number; // Set a limit for the maximum possible number of vertices to fit in the graph.
+    unsigned int max_vertex_allocations; // Set a limit for the maximum possible number of vertices to fit in the graph.
 
     graph_vector topology; // Graph topology data + some metadata.
     vertex_bitset vertex_index; // 1 if the vertex is present, 0 if the vertex is not in the graph.
@@ -42,6 +42,7 @@ public:
     void finalize_states();
 
     unsigned int get_order(); // Return the number of vertices.
+    unsigned int get_max_order(); // Return the number of pre-allocated vertex spaces.
     unsigned int get_size(); // Return the number of edges.
 
     void increment_size(); // Increase the value for number of edges by 1.
