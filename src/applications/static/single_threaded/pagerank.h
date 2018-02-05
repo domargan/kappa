@@ -2,7 +2,7 @@
 #define KAPPA_PAGERANK_H
 
 const double DEFAULT_DAMPING_FACTOR = 0.85;
-const int DEFAULT_MAX_ITERATIONS = 100;
+const int DEFAULT_MAX_ITERATIONS = 20;
 
 void init_pr_values(Digraph*);
 void pr_compute(Digraph*);

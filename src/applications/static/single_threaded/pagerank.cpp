@@ -20,23 +20,15 @@ void init_pr_values(Digraph* g){
 }
 
 void pr_compute_single_vertex(unsigned int v, Digraph* g) {
-    if (g->has_vertex(v)) {
-        std::map<unsigned int, double> neighbors_out_degree_map;
-
-        for (auto neighbour : g->get_out_neighborhood(v)) {
-            neighbors_out_degree_map[neighbour] = g->get_out_degree(neighbour);
+    double pr_neighbourhood_sum = 0.0;
+    for (auto neighbour : g->get_in_neighborhood(v)){
+        if(g->get_out_degree(neighbour) > 0) {
+            pr_neighbourhood_sum += g->get_state(neighbour) / g->get_out_degree(neighbour);
         }
-
-        double pr_neighbourhood_sum = 0.0;
-        for (auto neighbour : g->get_out_neighborhood(v)){
-            if(neighbors_out_degree_map[neighbour] > 0) {
-                pr_neighbourhood_sum += g->get_state(neighbour) / neighbors_out_degree_map[neighbour];
-            }
-        }
-
-        double pr = ((1.0 - damping_factor) / g->get_order()) + (damping_factor * pr_neighbourhood_sum);
-        g->update_state(v, pr);
     }
+
+    double pr = ((1.0 - damping_factor) / g->get_order()) + (damping_factor * pr_neighbourhood_sum);
+    g->update_state(v, pr);
 }
 
 void pr_compute(Digraph* g){
