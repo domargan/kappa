@@ -151,7 +151,7 @@ unsigned int Digraph::get_order() {
 
 unsigned int Digraph::get_max_order() {
     return max_vertex_allocations;
-};
+}
 
 unsigned int Digraph::get_size() {
     return size;

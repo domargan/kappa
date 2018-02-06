@@ -135,7 +135,7 @@ unsigned int Graph::get_order() {
 
 unsigned int Graph::get_max_order() {
     return max_vertex_allocations;
-};
+}
 
 unsigned int Graph::get_size() {
     return size;
