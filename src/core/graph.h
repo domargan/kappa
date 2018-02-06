@@ -41,6 +41,7 @@ public:
     void finalize_state(unsigned int);
     void finalize_states();
 
+    void count_order(); // Count and set the number of vertices.
     unsigned int get_order(); // Return the number of vertices.
     unsigned int get_max_order(); // Return the number of pre-allocated vertex spaces.
     unsigned int get_size(); // Return the number of edges.

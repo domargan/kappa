@@ -128,8 +128,11 @@ void Graph::finalize_states() {
     }
 }
 
-unsigned int Graph::get_order() {
+void Graph::count_order() {
     order = static_cast<unsigned int>(vertex_index.count());
+}
+
+unsigned int Graph::get_order() {
     return order;
 }
 

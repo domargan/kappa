@@ -144,8 +144,11 @@ void Digraph::finalize_states() {
     }
 }
 
-unsigned int Digraph::get_order() {
+void Digraph::count_order() {
     order = static_cast<unsigned int>(vertex_index.count());
+}
+
+unsigned int Digraph::get_order() {
     return order;
 }
 
