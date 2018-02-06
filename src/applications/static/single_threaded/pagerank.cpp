@@ -34,13 +34,13 @@ void pr_compute_single_vertex(unsigned int v, Digraph* g) {
 }
 
 void pr_compute(Digraph* g){
+    g->count_order();
+
     std::cout << "Initialising PageRank values... " << std::endl;
     init_pr_values(g);
 
     std::cout << "Starting PageRank computation (" << max_iterations << " iterations)..." << std::endl;
     int iterations = 0;
-
-    g->count_order();
 
     unsigned int max_order = g->get_max_order();
 
