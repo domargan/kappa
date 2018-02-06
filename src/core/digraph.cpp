@@ -136,8 +136,10 @@ void Digraph::finalize_state(unsigned int v) {
 }
 
 void Digraph::finalize_states() {
+    unsigned int max_order = get_max_order();
+
     // For each v in the graph exchange state
-    for(unsigned int i=0; i<vertex_index.size(); i++) {
+    for(unsigned int i=0; i<max_order; i++) {
         finalize_state(i);
     }
 }
