@@ -40,6 +40,8 @@ void pr_compute(Digraph* g){
     std::cout << "Starting PageRank computation (" << max_iterations << " iterations)..." << std::endl;
     int iterations = 0;
 
+    g->count_order();
+
     unsigned int max_order = g->get_max_order();
 
     while(iterations++ < max_iterations) {
