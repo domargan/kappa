@@ -36,8 +36,8 @@ public:
 
     void print_edges(); // (use just for testing)
 
-    neighbors_vector get_in_neighborhood(unsigned int); // Return the vector of incoming neighbors of a vertex.
-    neighbors_vector get_out_neighborhood(unsigned int); // Return the vector of outcoming neighbors of a vertex.
+    neighbors_vector *get_in_neighborhood(unsigned int); // Return the vector of incoming neighbors of a vertex.
+    neighbors_vector *get_out_neighborhood(unsigned int); // Return the vector of outcoming neighbors of a vertex.
     unsigned int get_in_degree(unsigned int); // Return the in-degree of a vertex.
     unsigned int get_out_degree(unsigned int); // Return the out-degree of a vertex.
     unsigned int get_degree(unsigned int); // Return the degree of a vertex.

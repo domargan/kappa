@@ -101,20 +101,20 @@ void Digraph::remove_edge(unsigned int src_v, unsigned int dst_v) {
     }
 }
 
-neighbors_vector Digraph::get_in_neighborhood(unsigned int v) {
-    return *topology[v].in_neighbors;
+neighbors_vector *Digraph::get_in_neighborhood(unsigned int v) {
+    return topology[v].in_neighbors;
 }
 
-neighbors_vector Digraph::get_out_neighborhood(unsigned int v) {
-    return *topology[v].out_neighbors;
+neighbors_vector *Digraph::get_out_neighborhood(unsigned int v) {
+    return topology[v].out_neighbors;
 }
 
 unsigned int Digraph::get_in_degree(unsigned int v) {
-    return static_cast<unsigned int>(get_in_neighborhood(v).size());
+    return static_cast<unsigned int>(get_in_neighborhood(v)->size());
 }
 
 unsigned int Digraph::get_out_degree(unsigned int v) {
-    return static_cast<unsigned int>(get_out_neighborhood(v).size());
+    return static_cast<unsigned int>(get_out_neighborhood(v)->size());
 }
 
 unsigned int Digraph::get_degree(unsigned int v) {
