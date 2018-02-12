@@ -23,7 +23,7 @@ void init_pr_values(Digraph* g){
 
 void pr_compute_single_vertex(unsigned int v, Digraph* g) {
     double pr_neighbourhood_sum = 0.0;
-    for (auto neighbour : g->get_in_neighborhood(v)){
+    for (auto neighbour : *(g->get_in_neighborhood(v))){
         if(g->get_out_degree(neighbour) > 0) {
             pr_neighbourhood_sum += g->get_state(neighbour) / g->get_out_degree(neighbour);
         }
