@@ -15,10 +15,11 @@ int main() {
     std::cout << "Launching Kappa...\n" << std::endl;
 
     raw_edge_array edges;
-    edges = tsv_to_edges("/home/domargan/Workspace/Code/C++/kappa/data/twitter/higgs-social_network.edgelist", ' ');
-    Graph g = edge_array_to_graph(edges);
+    //edges = tsv_to_edges("/home/domargan/Workspace/Code/C++/kappa/data/twitter/higgs-social_network.edgelist", ' ');
+    edges = tsv_to_edges("higgs-social_network.edgelist", ' ');
+    Digraph g = edge_array_to_digraph(edges);
 
-    dfs_compute(&g,2);
+    pr_compute(&g);
 
     /*
 
