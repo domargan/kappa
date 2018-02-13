@@ -26,7 +26,7 @@ std::vector<int> bfs_previously_visited(Graph* g, int source_v){
         //std::cout << v << " ";
         bfs_queue.pop_front();
 
-        for(auto neighbor : g->get_neighborhood(v)) {
+        for(auto neighbor : *(g->get_neighborhood(v))) {
             if(g->get_state(neighbor) != 1) {
                 g->update_state(neighbor, 1);
                 g->finalize_state(neighbor);

@@ -11,7 +11,7 @@ void dfs(Digraph* g, unsigned int v) {
     g->update_state(v, 1);
     g->finalize_state(v);
 
-    for(auto neighbor : g->get_out_neighborhood(v)) {
+    for(auto neighbor : *(g->get_out_neighborhood(v))) {
         if(g->get_state(neighbor) != 1) {
             dfs(g, neighbor);
         }
@@ -23,7 +23,7 @@ void dfs(Graph* g, unsigned int v) {
     g->update_state(v, 1);
     g->finalize_state(v);
 
-    for(auto neighbor : g->get_neighborhood(v)) {
+    for(auto neighbor : *(g->get_neighborhood(v))) {
         if(g->get_state(neighbor) != 1) {
             dfs(g, neighbor);
         }

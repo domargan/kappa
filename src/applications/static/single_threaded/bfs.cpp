@@ -20,7 +20,7 @@ void bfs(Graph* g, unsigned int v){
         //std::cout << v << " ";
         bfs_queue.pop_front();
 
-        for(auto neighbor : g->get_neighborhood(v)) {
+        for(auto neighbor : *(g->get_neighborhood(v))) {
             if(g->get_state(neighbor) != 1) {
                 g->update_state(neighbor, 1);
                 g->finalize_state(neighbor);
@@ -45,7 +45,7 @@ void bfs(Digraph* g, unsigned int v){
         //std::cout << v << " ";
         bfs_queue.pop_front();
 
-        for(auto neighbor : g->get_out_neighborhood(v)) {
+        for(auto neighbor : *(g->get_out_neighborhood(v))) {
             if(g->get_state(neighbor) != 1) {
                 g->update_state(neighbor, 1);
                 g->finalize_state(neighbor);
