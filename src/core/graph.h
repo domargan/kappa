@@ -33,7 +33,7 @@ public:
 
     void print_edges(); // (use just for testing)
 
-    neighbors_vector get_neighborhood(unsigned int); // Return the vector of neighbors of a vertex.
+    neighbors_vector *get_neighborhood(unsigned int); // Return the vector of neighbors of a vertex.
     unsigned int get_degree(unsigned int); // Return the degree of a vertex.
 
     void update_state(unsigned int, double);

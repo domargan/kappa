@@ -7,6 +7,8 @@
 // TODO: Do something smarter about getting size; do not call vertex_index.size() all the time
 // TODO: For every iteration of vertices from 0 to vertex_index.size() check if the vertex exists before any operations
 // TODO: Remove all calls to vertex_index.size() and replace them with a varible
+// TODO: FIx neighbors_vector *Graph::get_neighborhood(unsigned int v) so it returns a value, not a pointer
+
 
 Graph::Graph(unsigned int v_num) {
     std::cout << "Graph constructor called.\n" << std::endl;
@@ -97,12 +99,12 @@ void Graph::remove_edge(unsigned int src_v, unsigned int dst_v) {
     }
 }
 
-neighbors_vector Graph::get_neighborhood(unsigned int v) {
-    return *topology[v].neighbors;
+neighbors_vector *Graph::get_neighborhood(unsigned int v) {
+    return topology[v].neighbors;
 }
 
 unsigned int Graph::get_degree(unsigned int v) {
-    return static_cast<unsigned int>(get_neighborhood(v).size());
+    return static_cast<unsigned int>(get_neighborhood(v)->size());
 }
 
 void Graph::update_state(unsigned int v, double state) {
