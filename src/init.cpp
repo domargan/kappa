@@ -24,8 +24,10 @@ int main() {
     raw_edge_array edges;
     edges = tsv_to_edges(dataset, ' ');
 
-    unsigned int vertex_num = unique_vertex_count(extract_vertices(edges));
-    Digraph g = Digraph(vertex_num);
+    unsigned int max_vertex_num = unique_vertex_count(edges);
+
+    double init_state = 1.0 / max_vertex_num; // for PageRank
+    Digraph g = Digraph(max_vertex_num, init_state);
 
     naive_incremental_compute_tsv(pr_compute,
                                   &g,
