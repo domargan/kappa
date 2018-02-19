@@ -21,7 +21,7 @@ private:
     unsigned int size; // Current number of edges in the graph.
 
 public:
-    explicit Graph(unsigned int); // Graph constructor
+    explicit Graph(unsigned int, double); // Graph constructor
     graph_vector get_graph_vector(); // Return the graph_vector data structure.
 
     vertex_bitset get_vertex_index();

@@ -10,7 +10,7 @@
 // TODO: FIx neighbors_vector *Graph::get_neighborhood(unsigned int v) so it returns a value, not a pointer
 
 
-Graph::Graph(unsigned int v_num) {
+Graph::Graph(unsigned int v_num, double init_state) {
     std::cout << "Graph constructor called.\n" << std::endl;
 
     max_vertex_allocations = v_num + 1;
@@ -20,8 +20,8 @@ Graph::Graph(unsigned int v_num) {
     for (int i = 0; i < max_vertex_allocations; i++) {
         uvertex uv{};
         uv.neighbors = new neighbors_vector;
-        uv.state = 0;
-        uv.state_temp = 0;
+        uv.state = init_state;
+        uv.state_temp = init_state;
 
         topology.push_back(uv);
     }

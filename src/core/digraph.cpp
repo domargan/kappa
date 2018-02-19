@@ -8,7 +8,7 @@
 // TODO: For every iteration of vertices from 0 to vertex_index.size() check if the vertex exists before any operations
 // TODO: Remove all calls to vertex_index.size() and replace them with a variable
 
-Digraph::Digraph(unsigned int v_num) {
+Digraph::Digraph(unsigned int v_num, double init_state) {
     std::cout << "Digraph constructor called.\n" << std::endl;
 
     max_vertex_allocations = v_num + 1;
@@ -19,8 +19,8 @@ Digraph::Digraph(unsigned int v_num) {
         dvertex dv{};
         dv.in_neighbors = new neighbors_vector;
         dv.out_neighbors = new neighbors_vector;
-        dv.state = 0;
-        dv.state_temp = 0;
+        dv.state = init_state;
+        dv.state_temp = init_state;
 
         topology.push_back(dv);
     }

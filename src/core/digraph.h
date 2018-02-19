@@ -23,7 +23,7 @@ private:
     unsigned int size; // Current number of edges in the graph.
 
 public:
-    explicit Digraph(unsigned int); // Digraph constructor.
+    explicit Digraph(unsigned int, double); // Digraph constructor.
 
     digraph_vector get_digraph_vector(); // Return the graph_vector data structure.
     vertex_bitset get_vertex_index(); // Return index of vertices present in the graph.
