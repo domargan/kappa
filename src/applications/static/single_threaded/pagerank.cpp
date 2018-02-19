@@ -8,6 +8,8 @@ double damping_factor = DEFAULT_DAMPING_FACTOR;
 int max_iterations = DEFAULT_MAX_ITERATIONS;
 
 void init_pr_values(Digraph* g){
+    g->count_order();
+
     double pr_init_val = (1.0 / g->get_order());
 
     std::cout << "Initial PageRank value is " << pr_init_val << std::endl;
@@ -36,8 +38,7 @@ void pr_compute_single_vertex(unsigned int v, Digraph* g) {
 void pr_compute(Digraph* g){
     g->count_order();
 
-    std::cout << "Initialising PageRank values... " << std::endl;
-    init_pr_values(g);
+    // Note: Don't forget to set initial PageRank vertex states outside (before) this function!
 
     std::cout << "Starting PageRank computation (" << max_iterations << " iterations)..." << std::endl;
     int iterations = 0;
