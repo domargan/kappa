@@ -1,62 +1,39 @@
 #include <iostream>
 #include <list>
-#include <digraph.h>
-#include <graph.h>
+#include <functional>
 #include <stack>
+
+#include "digraph.h"
+#include "naive_incremental_compute_tsv.h"
 #include "read_tsv_disk.h"
-#include "pagerank.h"
-#include "dfs.h"
-#include "bfs.h"
-#include "sssp.h"
-#include "connected_components.h"
 #include "build_graph_static.h"
+#include "dataset_split.h"
+#include "pagerank.h"
 
 int main() {
     std::cout << "Launching Kappa...\n" << std::endl;
 
+    std::string dataset = "/home/domargan/test.edgelist";
+    unsigned long core_size = 20;
+    unsigned long chunks_size = 5;
+
+    unsigned long lines = number_of_lines(dataset);
+
+    std::vector<unsigned long> split = dataset_split_by_size(lines, core_size, chunks_size);
+
     raw_edge_array edges;
-    //edges = tsv_to_edges("/home/domargan/Workspace/Code/C++/kappa/data/twitter/higgs-social_network.edgelist", ' ');
-    edges = tsv_to_edges("higgs-social_network.edgelist", ' ');
-    Digraph g = edge_array_to_digraph(edges);
+    edges = tsv_to_edges(dataset, ' ');
 
-    pr_compute(&g);
+    unsigned int vertex_num = unique_vertex_count(extract_vertices(edges));
+    Digraph g = Digraph(vertex_num);
 
-    /*
-
-    Graph g = Graph(11);
-
-    // Graf s prezentacije sa Yorka
-    g.add_edge(0,8);
-    g.add_edge(1,3);
-    g.add_edge(1,7);
-    g.add_edge(1,9);
-    g.add_edge(1,2);
-    g.add_edge(2,8);
-    g.add_edge(2,1);
-    g.add_edge(2,4);
-    g.add_edge(3,4);
-    g.add_edge(3,5);
-    g.add_edge(3,1);
-    g.add_edge(4,2);
-    g.add_edge(4,3);
-    g.add_edge(5,3);
-    g.add_edge(5,6);
-    g.add_edge(6,7);
-    g.add_edge(6,5);
-    g.add_edge(7,1);
-    g.add_edge(7,6);
-    g.add_edge(8,2);
-    g.add_edge(8,0);
-    g.add_edge(8,9);
-    g.add_edge(9,1);
-    g.add_edge(9,8);
-    g.add_edge(10,11);
-
-    */
-
-    std::cout << "Order: " << g.get_order() << std::endl;
-    std::cout << "Size: " << g.get_size() << std::endl;
+    naive_incremental_compute_tsv(pr_compute,
+                                  &g,
+                                  edges,
+                                  split,
+                                  lines);
 
     std::cout << "Kappa finished." << std::endl;
+
     return 0;
 }
