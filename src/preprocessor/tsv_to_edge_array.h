@@ -1,5 +1,5 @@
-#ifndef KAPPA_READ_TSV_DISK_H
-#define KAPPA_READ_TSV_DISK_H
+#ifndef KAPPA_TSV_TO_EDGE_ARRAY_H
+#define KAPPA_TSV_TO_EDGE_ARRAY_H
 
 #include <iostream>
 #include <fstream>

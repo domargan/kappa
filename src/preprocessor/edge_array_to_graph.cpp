@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <set>
-#include "read_tsv_disk.h"
-#include "build_graph_static.h"
+#include "tsv_to_edge_array.h"
+#include "edge_array_to_graph.h"
 
 Graph edge_array_to_graph(raw_edge_array& edge_array, double init_state) {
     unsigned int v_num = unique_vertex_count(edge_array);

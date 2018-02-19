@@ -4,7 +4,7 @@
 #include <vector>
 #include <algorithm>
 #include <set>
-#include "read_tsv_disk.h"
+#include "tsv_to_edge_array.h"
 
 // TODO: Rename this file and functions to make the names more correct (confusing: e.g. edges, edge array, etc...)
 // TODO: Add an option to simplify graph building by directly doing add_edge() without building an edge array first
