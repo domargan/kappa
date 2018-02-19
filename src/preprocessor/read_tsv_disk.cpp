@@ -67,9 +67,11 @@ raw_edge_array tsv_to_edges(std::string tsv_file, char separator) {
     std::cout << "Parsing finished." << std::endl;
     std::cout << "Number of edges: " << edges.size() << std::endl;
 
+    /*
     std::cout << "Sorting edge array by source vertices..." << std::endl;
     std::sort(edges.begin(), edges.end(), sort_edges_by_dst);
     std::cout << "Sorting finished." << std::endl;
+    */
 
     return edges;
 }
