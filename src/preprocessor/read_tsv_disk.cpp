@@ -29,7 +29,8 @@ std::set<unsigned int> extract_vertices(raw_edge_array& edges) {
     return vertex_set;
 }
 
-unsigned int unique_vertex_count(std::set<unsigned int> vertex_set){
+unsigned int unique_vertex_count(raw_edge_array& edges){
+    std::set<unsigned int> vertex_set = extract_vertices(edges);
     unsigned int v_num = static_cast<unsigned int>(vertex_set.size());
 
     std::cout << "Number of vertices: " << v_num << std::endl;
