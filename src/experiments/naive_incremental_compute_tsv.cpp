@@ -53,6 +53,7 @@ void naive_incremental_compute_tsv(void(*compute)(Digraph*),
         std::cout << "Finished updating from chunk " << i+1 << std::endl;
         std::cout << "UPDATE TIME FOR chunk " << std::fixed << i+1 << ": " << cpu_time_update << std::endl;
 
+        g->count_order();
         unsigned int order = g->get_order();
         unsigned int size = g->get_size();
         std::cout << "Order: " <<  order << std::endl;
