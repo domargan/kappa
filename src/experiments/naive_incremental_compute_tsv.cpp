@@ -2,7 +2,7 @@
 #include <fstream>
 
 #include "digraph.h"
-#include "read_tsv_disk.h"
+#include "read_from_disk/tsv_to_edge_array.h"
 
 // This should be just a hacky implementation that
 // does additions of edges read from a given tsv file.
