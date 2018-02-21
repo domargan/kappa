@@ -7,10 +7,10 @@
 // TODO: Do something smarter about getting size; do not call vertex_index.size() all the time
 // TODO: For every iteration of vertices from 0 to vertex_index.size() check if the vertex exists before any operations
 // TODO: Remove all calls to vertex_index.size() and replace them with a varible
-// TODO: FIx neighbors_vector *Graph::get_neighborhood(unsigned int v) so it returns a value, not a pointer
+// TODO: FIx neighbors_vector *Graph::get_neighborhood(uint32_t v) so it returns a value, not a pointer
 
 
-Graph::Graph(unsigned int v_num, float init_state) {
+Graph::Graph(uint32_t v_num, float init_state) {
     std::cout << "Graph constructor called.\n" << std::endl;
 
     max_vertex_allocations = v_num + 1;
@@ -43,7 +43,7 @@ vertex_bitset Graph::get_vertex_index() {
 void Graph::print_edges() {
     for (std::vector<uvertex>::size_type v = 0; v != topology.size(); v++) {
         std::cout << "v" << v << ": " << std::endl;
-        for (unsigned int neighbor : *topology[v].neighbors) {
+        for (uint32_t neighbor : *topology[v].neighbors) {
             std::cout << neighbor << " " << std::endl;
         }
         std::cout << std::endl;
@@ -51,17 +51,17 @@ void Graph::print_edges() {
     std::cout << std::endl;
 }
 
-bool Graph::has_vertex(unsigned int v) {
+bool Graph::has_vertex(uint32_t v) {
     return vertex_index[v];
 }
 
-bool Graph::has_edge(unsigned int src_v, unsigned int dst_v) {
+bool Graph::has_edge(uint32_t src_v, uint32_t dst_v) {
     // std::find() has a worst-case time of O(n) in the distance between first and last.
     return std::find(topology[src_v].neighbors->begin(), topology[src_v].neighbors->end(), dst_v)
            != topology[src_v].neighbors->end();
 }
 
-void Graph::add_edge(unsigned int src_v, unsigned int dst_v) {
+void Graph::add_edge(uint32_t src_v, uint32_t dst_v) {
     if (!has_edge(src_v, dst_v)) {
         // std::vector.push_back() has a O(1) amortized time.
         // Reallocation may happen.
@@ -76,7 +76,7 @@ void Graph::add_edge(unsigned int src_v, unsigned int dst_v) {
     }
 }
 
-void Graph::remove_edge(unsigned int src_v, unsigned int dst_v) {
+void Graph::remove_edge(uint32_t src_v, uint32_t dst_v) {
     if (has_edge(src_v, dst_v)) {
         // Erase-remove has a worst-case time of O(n).
         topology[src_v].neighbors->erase
@@ -99,50 +99,50 @@ void Graph::remove_edge(unsigned int src_v, unsigned int dst_v) {
     }
 }
 
-neighbors_vector *Graph::get_neighborhood(unsigned int v) {
+neighbors_vector *Graph::get_neighborhood(uint32_t v) {
     return topology[v].neighbors;
 }
 
-unsigned int Graph::get_degree(unsigned int v) {
-    return static_cast<unsigned int>(get_neighborhood(v)->size());
+uint32_t Graph::get_degree(uint32_t v) {
+    return static_cast<uint32_t>(get_neighborhood(v)->size());
 }
 
-void Graph::update_state(unsigned int v, float state) {
+void Graph::update_state(uint32_t v, float state) {
     topology[v].state_temp = state;
 }
 
-float Graph::get_state(unsigned int v) {
+float Graph::get_state(uint32_t v) {
     return topology[v].state;
 }
 
-void Graph::finalize_state(unsigned int v) {
+void Graph::finalize_state(uint32_t v) {
     if(has_vertex(v)){
         topology[v].state = topology[v].state_temp;
     }
 }
 
 void Graph::finalize_states() {
-    unsigned int max_order = get_max_order();
+    uint32_t max_order = get_max_order();
 
     // For each v in the graph exchange state
-    for(unsigned int i=0; i<max_order; i++) {
+    for(uint32_t i=0; i<max_order; i++) {
         finalize_state(i);
     }
 }
 
 void Graph::count_order() {
-    order = static_cast<unsigned int>(vertex_index.count());
+    order = static_cast<uint32_t>(vertex_index.count());
 }
 
-unsigned int Graph::get_order() {
+uint32_t Graph::get_order() {
     return order;
 }
 
-unsigned int Graph::get_max_order() {
+uint32_t Graph::get_max_order() {
     return max_vertex_allocations;
 }
 
-unsigned int Graph::get_size() {
+uint32_t Graph::get_size() {
     return size;
 }
 

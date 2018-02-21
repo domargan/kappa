@@ -12,8 +12,8 @@
 void naive_incremental_compute_tsv(void(*compute)(Digraph*),
                                    Digraph *g,
                                    raw_edge_array &updates,
-                                   const std::vector<unsigned int> &chunks_start_lines,
-                                   unsigned int total_lines) {
+                                   const std::vector<uint32_t> &chunks_start_lines,
+                                   uint32_t total_lines) {
 
     std::cout << "STARTING NAIVE INCREMENTAL COMPUTATION EXPERIMENT..." << std::endl;
 
@@ -22,10 +22,10 @@ void naive_incremental_compute_tsv(void(*compute)(Digraph*),
     fs.open("measurements.csv");
     fs << "Order" << " , " << "Size" << " , " << "Ingestion Rate" << " , " << "Ingestion CPU Time" << " , " << "Computation CPU time" << std::endl;
 
-    unsigned int num_of_chunks = chunks_start_lines.size();
+    uint32_t num_of_chunks = chunks_start_lines.size();
 
-    unsigned int start_line = 0;
-    unsigned int end_line = 0;
+    uint32_t start_line = 0;
+    uint32_t end_line = 0;
 
     for (int i = 0; i < num_of_chunks; i++) {
         start_line = chunks_start_lines[i];
@@ -41,7 +41,7 @@ void naive_incremental_compute_tsv(void(*compute)(Digraph*),
         // Update the graph
         clock_t cpu_begin_update = clock();
 
-        for(unsigned int j = start_line; j<end_line; j++) {
+        for(uint32_t j = start_line; j<end_line; j++) {
             g->add_edge(updates[j][0], updates[j][1]);
         }
 
@@ -54,8 +54,8 @@ void naive_incremental_compute_tsv(void(*compute)(Digraph*),
         std::cout << "UPDATE TIME FOR chunk " << std::fixed << i+1 << ": " << cpu_time_update << std::endl;
 
         g->count_order();
-        unsigned int order = g->get_order();
-        unsigned int size = g->get_size();
+        uint32_t order = g->get_order();
+        uint32_t size = g->get_size();
         std::cout << "Order: " <<  order << std::endl;
         std::cout << "Size: " << size << std::endl;
 

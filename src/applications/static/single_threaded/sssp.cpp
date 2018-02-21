@@ -8,7 +8,7 @@
 // TODO: Idea: Instead of having 1 or 0 for states (from BFS), have previous vertex ids as states
 
 // TODO: FIX: BFS path output differs with the different orderings of neighbors in the neighbor vector (Graph Class)
-// TODO: FIX: int -> unsigned int (can't have unsigned because of initialisation to -1 in "previous" vector)
+// TODO: FIX: int -> uint32_t (can't have unsigned because of initialisation to -1 in "previous" vector)
 
 std::vector<int> bfs_previously_visited(Graph* g, int source_v){
     std::cout << "Starting BFS for source vertex " << source_v << "..." << std::endl;

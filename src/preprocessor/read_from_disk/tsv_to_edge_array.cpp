@@ -10,16 +10,16 @@
 // TODO: Add an option to simplify graph building by directly doing add_edge() without building an edge array first
 // TODO: Can we avoid having the edge array structure in the first place?
 
-bool sort_edges_by_src(const std::vector<unsigned int>& vec1, const std::vector<unsigned int>& vec2) {
+bool sort_edges_by_src(const std::vector<uint32_t>& vec1, const std::vector<uint32_t>& vec2) {
     return vec1[0] < vec2[0];
 }
 
-bool sort_edges_by_dst(const std::vector<unsigned int>& vec1, const std::vector<unsigned int>& vec2) {
+bool sort_edges_by_dst(const std::vector<uint32_t>& vec1, const std::vector<uint32_t>& vec2) {
     return vec1[1] < vec2[1];
 }
 
-std::set<unsigned int> extract_vertices(raw_edge_array& edges) {
-    std::set<unsigned int> vertex_set;
+std::set<uint32_t> extract_vertices(raw_edge_array& edges) {
+    std::set<uint32_t> vertex_set;
 
     for(int i=0; i<edges.size(); i++){
         vertex_set.insert(edges[i][0]);
@@ -29,9 +29,9 @@ std::set<unsigned int> extract_vertices(raw_edge_array& edges) {
     return vertex_set;
 }
 
-unsigned int unique_vertex_count(raw_edge_array& edges){
-    std::set<unsigned int> vertex_set = extract_vertices(edges);
-    unsigned int v_num = static_cast<unsigned int>(vertex_set.size());
+uint32_t unique_vertex_count(raw_edge_array& edges){
+    std::set<uint32_t> vertex_set = extract_vertices(edges);
+    uint32_t v_num = static_cast<uint32_t>(vertex_set.size());
 
     std::cout << "Number of vertices: " << v_num << std::endl;
 
@@ -58,7 +58,7 @@ raw_edge_array tsv_to_edges(std::string tsv_file, char separator) {
 
             // TODO: edges needs only 2 values per field, simplify with an 1(vector)x2(array) structure
             while (getline(sep, vertex, separator)) {
-                edges.back().push_back(static_cast<unsigned int &&>(stoi(vertex)));
+                edges.back().push_back(static_cast<uint32_t &&>(stoi(vertex)));
             }
         }
     }

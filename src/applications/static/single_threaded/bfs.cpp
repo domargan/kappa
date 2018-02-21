@@ -5,10 +5,10 @@
 
 // TODO: Use templates instead of function overloading
 
-void bfs(Graph* g, unsigned int v){
+void bfs(Graph* g, uint32_t v){
     std::cout << "Starting BFS with source vertex " << v << "..." << std::endl;
 
-    std::list<unsigned int> bfs_queue;
+    std::list<uint32_t> bfs_queue;
 
     g->update_state(v, 1);
     g->finalize_state(v);
@@ -30,10 +30,10 @@ void bfs(Graph* g, unsigned int v){
     }
 }
 
-void bfs(Digraph* g, unsigned int v){
+void bfs(Digraph* g, uint32_t v){
     std::cout << "Starting BFS with source vertex " << v << "..." << std::endl;
 
-    std::list<unsigned int> bfs_queue;
+    std::list<uint32_t> bfs_queue;
 
     g->update_state(v, 1);
     g->finalize_state(v);

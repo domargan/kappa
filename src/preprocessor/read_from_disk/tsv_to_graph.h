@@ -3,6 +3,6 @@
 
 #include "digraph.h"
 
-Digraph tsv_to_digraph(const std::string &, char, unsigned int, float);
+Digraph tsv_to_digraph(const std::string &, char, uint32_t, float);
 
 #endif //KAPPA_TSV_TO_GRAPH_H

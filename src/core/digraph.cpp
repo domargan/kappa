@@ -8,7 +8,7 @@
 // TODO: For every iteration of vertices from 0 to vertex_index.size() check if the vertex exists before any operations
 // TODO: Remove all calls to vertex_index.size() and replace them with a variable
 
-Digraph::Digraph(unsigned int v_num, float init_state) {
+Digraph::Digraph(uint32_t v_num, float init_state) {
     std::cout << "Digraph constructor called.\n" << std::endl;
 
     max_vertex_allocations = v_num + 1;
@@ -42,10 +42,10 @@ vertex_bitset Digraph::get_vertex_index() {
 void Digraph::print_edges() {
     for (std::vector<dvertex>::size_type v = 0; v != topology.size(); v++) {
         std::cout << "v" << v << ": " << std::endl;
-        for (unsigned int in_neighbor : *topology[v].in_neighbors) {
+        for (uint32_t in_neighbor : *topology[v].in_neighbors) {
             std::cout << in_neighbor << " " << std::endl;
         }
-        for (unsigned int out_neighbor : *topology[v].out_neighbors) {
+        for (uint32_t out_neighbor : *topology[v].out_neighbors) {
             std::cout << out_neighbor << " " << std::endl;
         }
         std::cout << std::endl;
@@ -53,17 +53,17 @@ void Digraph::print_edges() {
     }
 }
 
-bool Digraph::has_vertex(unsigned int v) {
+bool Digraph::has_vertex(uint32_t v) {
     return vertex_index[v];
 }
 
-bool Digraph::has_edge(unsigned int src_v, unsigned int dst_v) {
+bool Digraph::has_edge(uint32_t src_v, uint32_t dst_v) {
     // std::find() has a worst-case time of O(n) in the distance between first and last.
     return std::find(topology[src_v].out_neighbors->begin(), topology[src_v].out_neighbors->end(), dst_v)
            != topology[src_v].out_neighbors->end();
 }
 
-void Digraph::add_edge(unsigned int src_v, unsigned int dst_v) {
+void Digraph::add_edge(uint32_t src_v, uint32_t dst_v) {
     if (!has_edge(src_v, dst_v)) {
         // std::vector.push_back() has a O(1) amortized time.
         // Reallocation may happen.
@@ -78,7 +78,7 @@ void Digraph::add_edge(unsigned int src_v, unsigned int dst_v) {
     }
 }
 
-void Digraph::remove_edge(unsigned int src_v, unsigned int dst_v) {
+void Digraph::remove_edge(uint32_t src_v, uint32_t dst_v) {
     if (has_edge(src_v, dst_v)) {
         // Erase-remove has a worst-case time of O(n).
         topology[src_v].out_neighbors->erase
@@ -101,62 +101,62 @@ void Digraph::remove_edge(unsigned int src_v, unsigned int dst_v) {
     }
 }
 
-neighbors_vector *Digraph::get_in_neighborhood(unsigned int v) {
+neighbors_vector *Digraph::get_in_neighborhood(uint32_t v) {
     return topology[v].in_neighbors;
 }
 
-neighbors_vector *Digraph::get_out_neighborhood(unsigned int v) {
+neighbors_vector *Digraph::get_out_neighborhood(uint32_t v) {
     return topology[v].out_neighbors;
 }
 
-unsigned int Digraph::get_in_degree(unsigned int v) {
-    return static_cast<unsigned int>(get_in_neighborhood(v)->size());
+uint32_t Digraph::get_in_degree(uint32_t v) {
+    return static_cast<uint32_t>(get_in_neighborhood(v)->size());
 }
 
-unsigned int Digraph::get_out_degree(unsigned int v) {
-    return static_cast<unsigned int>(get_out_neighborhood(v)->size());
+uint32_t Digraph::get_out_degree(uint32_t v) {
+    return static_cast<uint32_t>(get_out_neighborhood(v)->size());
 }
 
-unsigned int Digraph::get_degree(unsigned int v) {
+uint32_t Digraph::get_degree(uint32_t v) {
     return get_in_degree(v) + get_out_degree(v);
 }
 
-void Digraph::update_state(unsigned int v, float state) {
+void Digraph::update_state(uint32_t v, float state) {
     topology[v].state_temp = state;
 }
 
-float Digraph::get_state(unsigned int v) {
+float Digraph::get_state(uint32_t v) {
     return topology[v].state;
 }
 
-void Digraph::finalize_state(unsigned int v) {
+void Digraph::finalize_state(uint32_t v) {
     if(has_vertex(v)){
         topology[v].state = topology[v].state_temp;
     }
 }
 
 void Digraph::finalize_states() {
-    unsigned int max_order = get_max_order();
+    uint32_t max_order = get_max_order();
 
     // For each v in the graph exchange state
-    for(unsigned int i=0; i<max_order; i++) {
+    for(uint32_t i=0; i<max_order; i++) {
         finalize_state(i);
     }
 }
 
 void Digraph::count_order() {
-    order = static_cast<unsigned int>(vertex_index.count());
+    order = static_cast<uint32_t>(vertex_index.count());
 }
 
-unsigned int Digraph::get_order() {
+uint32_t Digraph::get_order() {
     return order;
 }
 
-unsigned int Digraph::get_max_order() {
+uint32_t Digraph::get_max_order() {
     return max_vertex_allocations;
 }
 
-unsigned int Digraph::get_size() {
+uint32_t Digraph::get_size() {
     return size;
 }
 

@@ -5,7 +5,7 @@
 #include "tsv_to_graph.h"
 #include "digraph.h"
 
-Digraph tsv_to_digraph(const std::string &tsv_file, char separator, unsigned int v_num, float init_state) {
+Digraph tsv_to_digraph(const std::string &tsv_file, char separator, uint32_t v_num, float init_state) {
     Digraph digraph = Digraph(v_num, init_state);
 
     std::fstream fs;
@@ -20,11 +20,11 @@ Digraph tsv_to_digraph(const std::string &tsv_file, char separator, unsigned int
             std::stringstream sep(line);
             std::string vertex;
 
-            std::vector<unsigned int> vertex_pair;
+            std::vector<uint32_t> vertex_pair;
 
             // TODO: edges needs only 2 values per field, simplify with an 1(vector)x2(array) structure
             while (getline(sep, vertex, separator)) {
-                vertex_pair.push_back(static_cast<unsigned int &&>(stoi(vertex)));
+                vertex_pair.push_back(static_cast<uint32_t &&>(stoi(vertex)));
             }
 
             digraph.add_edge(vertex_pair.at(0), vertex_pair.at(1));

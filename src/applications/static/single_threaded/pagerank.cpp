@@ -14,16 +14,16 @@ void init_pr_values(Digraph* g){
 
     std::cout << "Initial PageRank value is " << pr_init_val << std::endl;
 
-    unsigned int max_order = g->get_max_order();
+    uint32_t max_order = g->get_max_order();
 
-    for (unsigned int i = 0; i < max_order; i++) {
+    for (uint32_t i = 0; i < max_order; i++) {
         g->update_state(i, pr_init_val);
     }
 
     g->finalize_states();
 }
 
-void pr_compute_single_vertex(unsigned int v, Digraph* g) {
+void pr_compute_single_vertex(uint32_t v, Digraph* g) {
     float pr_neighbourhood_sum = 0.0;
     for (auto neighbour : *(g->get_in_neighborhood(v))){
         if(g->get_out_degree(neighbour) > 0) {
@@ -43,10 +43,10 @@ void pr_compute(Digraph* g){
     std::cout << "Starting PageRank computation (" << max_iterations << " iterations)..." << std::endl;
     int iterations = 0;
 
-    unsigned int max_order = g->get_max_order();
+    uint32_t max_order = g->get_max_order();
 
     while(iterations++ < max_iterations) {
-        for (unsigned int i = 0; i < max_order; i++) {
+        for (uint32_t i = 0; i < max_order; i++) {
             if(g->has_vertex(i)){
                 pr_compute_single_vertex(i, g);
             }
