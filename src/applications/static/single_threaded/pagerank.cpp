@@ -36,16 +36,23 @@ void pr_compute_single_vertex(uint32_t v, Digraph* g) {
 }
 
 void pr_compute(Digraph* g){
+    g->set_state_change_tolerance(0.0001);
+
     g->count_order();
 
     // Note: Don't forget to set initial PageRank vertex states outside (before) this function!
 
-    std::cout << "Starting PageRank computation (" << max_iterations << " iterations)..." << std::endl;
-    int iterations = 0;
+    std::cout << "Starting PageRank computation (maximum " << max_iterations << " iterations)..." << std::endl;
 
     uint32_t max_order = g->get_max_order();
 
-    while(iterations++ < max_iterations) {
+    int num_iterations = 0;
+    g->state_change_monitor = true;
+
+    while(g->state_change_monitor && num_iterations < max_iterations) {
+        num_iterations++;
+        g->state_change_monitor = false;
+
         for (uint32_t i = 0; i < max_order; i++) {
             if(g->has_vertex(i)){
                 pr_compute_single_vertex(i, g);
@@ -54,4 +61,6 @@ void pr_compute(Digraph* g){
 
         g->finalize_states();
     }
+
+    std::cout << "PageRank converged/stopped after " << num_iterations << " iterations" << std::endl;
 }
