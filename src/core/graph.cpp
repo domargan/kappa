@@ -10,7 +10,7 @@
 // TODO: FIx neighbors_vector *Graph::get_neighborhood(unsigned int v) so it returns a value, not a pointer
 
 
-Graph::Graph(unsigned int v_num, double init_state) {
+Graph::Graph(unsigned int v_num, float init_state) {
     std::cout << "Graph constructor called.\n" << std::endl;
 
     max_vertex_allocations = v_num + 1;
@@ -107,11 +107,11 @@ unsigned int Graph::get_degree(unsigned int v) {
     return static_cast<unsigned int>(get_neighborhood(v)->size());
 }
 
-void Graph::update_state(unsigned int v, double state) {
+void Graph::update_state(unsigned int v, float state) {
     topology[v].state_temp = state;
 }
 
-double Graph::get_state(unsigned int v) {
+float Graph::get_state(unsigned int v) {
     return topology[v].state;
 }
 

@@ -4,13 +4,13 @@
 #include "digraph.h"
 #include "pagerank.h"
 
-double damping_factor = DEFAULT_DAMPING_FACTOR;
+float damping_factor = DEFAULT_DAMPING_FACTOR;
 int max_iterations = DEFAULT_MAX_ITERATIONS;
 
 void init_pr_values(Digraph* g){
     g->count_order();
 
-    double pr_init_val = (1.0 / g->get_order());
+    float pr_init_val = (1.0 / g->get_order());
 
     std::cout << "Initial PageRank value is " << pr_init_val << std::endl;
 
@@ -24,14 +24,14 @@ void init_pr_values(Digraph* g){
 }
 
 void pr_compute_single_vertex(unsigned int v, Digraph* g) {
-    double pr_neighbourhood_sum = 0.0;
+    float pr_neighbourhood_sum = 0.0;
     for (auto neighbour : *(g->get_in_neighborhood(v))){
         if(g->get_out_degree(neighbour) > 0) {
             pr_neighbourhood_sum += g->get_state(neighbour) / g->get_out_degree(neighbour);
         }
     }
 
-    double pr = ((1.0 - damping_factor) / g->get_order()) + (damping_factor * pr_neighbourhood_sum);
+    float pr = ((1.0 - damping_factor) / g->get_order()) + (damping_factor * pr_neighbourhood_sum);
     g->update_state(v, pr);
 }
 

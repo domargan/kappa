@@ -8,6 +8,7 @@
 #include "vertex.h"
 
 typedef std::vector<uvertex> graph_vector;
+// TODO: Change long to int in dynamic_bitset allocation... It does not work for some reason :)
 typedef boost::dynamic_bitset<unsigned long, std::allocator<unsigned long>> vertex_bitset;
 
 class Graph {
@@ -21,7 +22,7 @@ private:
     unsigned int size; // Current number of edges in the graph.
 
 public:
-    explicit Graph(unsigned int, double); // Graph constructor
+    explicit Graph(unsigned int, float); // Graph constructor
     graph_vector get_graph_vector(); // Return the graph_vector data structure.
 
     vertex_bitset get_vertex_index();
@@ -36,8 +37,8 @@ public:
     neighbors_vector *get_neighborhood(unsigned int); // Return the vector of neighbors of a vertex.
     unsigned int get_degree(unsigned int); // Return the degree of a vertex.
 
-    void update_state(unsigned int, double);
-    double get_state(unsigned int);
+    void update_state(unsigned int, float);
+    float get_state(unsigned int);
     void finalize_state(unsigned int);
     void finalize_states();
 

@@ -5,8 +5,8 @@
 #include "dataset_split.h"
 
 
-unsigned long number_of_lines(std::string tsv_file) {
-    unsigned long number_of_lines = 0;
+unsigned int number_of_lines(std::string tsv_file) {
+    unsigned int number_of_lines = 0;
 
     std::ifstream fs;
     fs.open(tsv_file);
@@ -23,17 +23,17 @@ unsigned long number_of_lines(std::string tsv_file) {
     return number_of_lines;
 }
 
-std::vector<unsigned long> dataset_split_by_size(unsigned long total_lines, unsigned long core_size, unsigned long chunk_size){
+std::vector<unsigned int> dataset_split_by_size(unsigned int total_lines, unsigned int core_size, unsigned int chunk_size){
     // Size is measured in the number of lines in a dataset edgelist file.
     // One line in a dateset file contains data for a single edge.
 
     std::cout << "Splitting dataset..." << std::endl;
 
-    unsigned long rest_size = total_lines - core_size;
+    unsigned int rest_size = total_lines - core_size;
 
     std::cout << "Total dataset size: " << total_lines << std::endl;
 
-    unsigned long chunks_num = 1;
+    unsigned int chunks_num = 1;
 
     if(rest_size%chunk_size == 0) {
         chunks_num += rest_size / chunk_size;
@@ -47,18 +47,18 @@ std::vector<unsigned long> dataset_split_by_size(unsigned long total_lines, unsi
     std::cout << "Chunk size (max): " << chunk_size << std::endl;
 
 
-    std::vector<unsigned long> chunks_start_lines(chunks_num);
+    std::vector<unsigned int> chunks_start_lines(chunks_num);
 
     chunks_start_lines.at(0) = 1;
     //std::cout << "Chunk 0 start line: 1" << std::endl;
 
-    unsigned long chunk_line_mark = core_size+1;
+    unsigned int chunk_line_mark = core_size+1;
 
     chunks_start_lines.at(1) = chunk_line_mark;
     //std::cout << "Chunk 1 start line: " << chunk_line_mark << std::endl;
 
     if(chunks_num >= 2){
-        for(unsigned long i=2; i<chunks_num; i++){
+        for(unsigned int i=2; i<chunks_num; i++){
             chunk_line_mark += chunk_size;
             chunks_start_lines.at(i) = chunk_line_mark;
             //std::cout << "Chunk " << i << " start line: " << chunk_line_mark << std::endl;

@@ -8,7 +8,7 @@
 // TODO: For every iteration of vertices from 0 to vertex_index.size() check if the vertex exists before any operations
 // TODO: Remove all calls to vertex_index.size() and replace them with a variable
 
-Digraph::Digraph(unsigned int v_num, double init_state) {
+Digraph::Digraph(unsigned int v_num, float init_state) {
     std::cout << "Digraph constructor called.\n" << std::endl;
 
     max_vertex_allocations = v_num + 1;
@@ -121,11 +121,11 @@ unsigned int Digraph::get_degree(unsigned int v) {
     return get_in_degree(v) + get_out_degree(v);
 }
 
-void Digraph::update_state(unsigned int v, double state) {
+void Digraph::update_state(unsigned int v, float state) {
     topology[v].state_temp = state;
 }
 
-double Digraph::get_state(unsigned int v) {
+float Digraph::get_state(unsigned int v) {
     return topology[v].state;
 }
 

@@ -7,7 +7,7 @@
 void naive_incremental_compute_tsv(void(*)(Digraph*),
                                    Digraph*,
                                    raw_edge_array&,
-                                   const std::vector<unsigned long> &,
-                                   unsigned long);
+                                   const std::vector<unsigned int> &,
+                                   unsigned int);
 
 #endif //KAPPA_NAIVE_INCREMENTAL_COMPUTE_TSV_H

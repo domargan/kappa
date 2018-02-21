@@ -10,6 +10,7 @@
 // TODO: Make Digraph a child class of Graph
 
 typedef std::vector<dvertex> digraph_vector;
+// TODO: Change long to int in dynamic_bitset allocation... It does not work for some reason :)
 typedef boost::dynamic_bitset<unsigned long, std::allocator<unsigned long>> vertex_bitset;
 
 class Digraph {
@@ -23,7 +24,7 @@ private:
     unsigned int size; // Current number of edges in the graph.
 
 public:
-    explicit Digraph(unsigned int, double); // Digraph constructor.
+    explicit Digraph(unsigned int, float); // Digraph constructor.
 
     digraph_vector get_digraph_vector(); // Return the graph_vector data structure.
     vertex_bitset get_vertex_index(); // Return index of vertices present in the graph.
@@ -42,8 +43,8 @@ public:
     unsigned int get_out_degree(unsigned int); // Return the out-degree of a vertex.
     unsigned int get_degree(unsigned int); // Return the degree of a vertex.
 
-    void update_state(unsigned int, double);
-    double get_state(unsigned int);
+    void update_state(unsigned int, float);
+    float get_state(unsigned int);
     void finalize_state(unsigned int);
     void finalize_states();
 
