@@ -4,9 +4,6 @@
 #include "digraph.h"
 #include "pagerank.h"
 
-float damping_factor = DEFAULT_DAMPING_FACTOR;
-int max_iterations = DEFAULT_MAX_ITERATIONS;
-
 void init_pr_values(Digraph* g){
     g->count_order();
 
@@ -31,25 +28,25 @@ void pr_compute_single_vertex(uint32_t v, Digraph* g) {
         }
     }
 
-    float pr = ((1.0 - damping_factor) / g->get_order()) + (damping_factor * pr_neighbourhood_sum);
+    float pr = ((1.0 - DEFAULT_DAMPING_FACTOR) / g->get_order()) + (DEFAULT_DAMPING_FACTOR * pr_neighbourhood_sum);
     g->update_state(v, pr);
 }
 
 void pr_compute(Digraph* g){
-    g->set_state_change_tolerance(0.0001);
+    g->set_state_change_tolerance(DEFAULT_CONVERGENCE);
 
     g->count_order();
 
     // Note: Don't forget to set initial PageRank vertex states outside (before) this function!
 
-    std::cout << "Starting PageRank computation (maximum " << max_iterations << " iterations)..." << std::endl;
+    std::cout << "Starting PageRank computation (maximum " << DEFAULT_MAX_ITERATIONS << " iterations)..." << std::endl;
 
     uint32_t max_order = g->get_max_order();
 
     int num_iterations = 0;
     g->state_change_monitor = true;
 
-    while(g->state_change_monitor && num_iterations < max_iterations) {
+    while(g->state_change_monitor && num_iterations < DEFAULT_MAX_ITERATIONS) {
         num_iterations++;
         g->state_change_monitor = false;
 
