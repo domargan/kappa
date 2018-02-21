@@ -25,6 +25,9 @@ Digraph::Digraph(uint32_t v_num, float init_state) {
         topology.push_back(dv);
     }
 
+    state_change_monitor = false;
+    state_change_tolerance = 0.0;
+
     order = 0;
     size = 0;
 
@@ -121,8 +124,12 @@ uint32_t Digraph::get_degree(uint32_t v) {
     return get_in_degree(v) + get_out_degree(v);
 }
 
-void Digraph::update_state(uint32_t v, float state) {
-    topology[v].state_temp = state;
+void Digraph::update_state(uint32_t v, float state_new) {
+    topology[v].state_temp = state_new;
+
+    if(std::abs(state_new - topology[v].state) >= state_change_tolerance){
+        state_change_monitor = true;
+    }
 }
 
 float Digraph::get_state(uint32_t v) {
@@ -136,12 +143,20 @@ void Digraph::finalize_state(uint32_t v) {
 }
 
 void Digraph::finalize_states() {
+    // TODO: Each state field in the vertex struct should be a pointer to a field in an external vector that contains
+    // the states of all vertices (there are two vectors, one for current states and one for previous states)
+    // Finalize states should be just a swap() function over those two vectors.
+
     uint32_t max_order = get_max_order();
 
     // For each v in the graph exchange state
     for(uint32_t i=0; i<max_order; i++) {
         finalize_state(i);
     }
+}
+
+void Digraph::set_state_change_tolerance(float epsilon){
+    state_change_tolerance = epsilon;
 }
 
 void Digraph::count_order() {

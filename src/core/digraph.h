@@ -47,6 +47,10 @@ public:
     float get_state(uint32_t);
     void finalize_state(uint32_t);
     void finalize_states();
+    bool state_change_monitor;
+    float state_change_tolerance;
+    void set_state_change_tolerance(float);
+
 
     void count_order(); // Count and set the number of vertices.
     uint32_t get_order(); // Return the number of vertices.
