@@ -47,7 +47,6 @@ void pr_compute(Digraph* g){
     g->state_change_monitor = true;
 
     while(g->state_change_monitor && num_iterations < DEFAULT_MAX_ITERATIONS) {
-        num_iterations++;
         g->state_change_monitor = false;
 
         for (uint32_t i = 0; i < max_order; i++) {
@@ -57,7 +56,13 @@ void pr_compute(Digraph* g){
         }
 
         g->finalize_states();
+
+        num_iterations++;
     }
 
-    std::cout << "PageRank converged/stopped after " << num_iterations << " iterations" << std::endl;
+    if(num_iterations == DEFAULT_MAX_ITERATIONS) {
+        std::cout << "PageRank stopped after " << num_iterations << " iterations" << std::endl;
+    } else {
+        std::cout << "PageRank converged after " << num_iterations << " iterations" << std::endl;
+    }
 }
