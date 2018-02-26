@@ -11,7 +11,7 @@
 
 void naive_incremental_compute_tsv(void(*compute)(Digraph*),
                                    Digraph *g,
-                                   raw_edge_array &updates,
+                                   raw_edge_array_t &updates,
                                    const std::vector<uint32_t> &chunks_start_lines,
                                    uint32_t total_lines) {
 

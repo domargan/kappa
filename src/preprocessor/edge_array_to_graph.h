@@ -4,7 +4,7 @@
 #include "graph.h"
 #include "digraph.h"
 
-Graph edge_array_to_graph(raw_edge_array&, float);
-Digraph edge_array_to_digraph(raw_edge_array&, float);
+Graph edge_array_to_graph(raw_edge_array_t&, state_t);
+Digraph edge_array_to_digraph(raw_edge_array_t&, state_t);
 
 #endif //KAPPA_EDGE_ARRAY_TO_GRAPH_H

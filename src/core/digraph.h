@@ -9,25 +9,25 @@
 
 // TODO: Make Digraph a child class of Graph
 
-typedef std::vector<dvertex> digraph_vector;
+typedef std::vector<Dvertex> digraph_vector_t;
 // TODO: Change long to int in dynamic_bitset allocation... It does not work for some reason :)
-typedef boost::dynamic_bitset<unsigned long, std::allocator<unsigned long>> vertex_bitset;
+typedef boost::dynamic_bitset<unsigned long, std::allocator<unsigned long>> vertex_bitset_t;
 
 class Digraph {
 private:
     uint32_t max_vertex_allocations; // Set a limit for the maximum possible number of vertices to fit in the graph.
 
-    digraph_vector topology; // Graph topology data + some metadata.
-    vertex_bitset vertex_index; // 1 if the vertex is present, 0 if the vertex is not in the graph.
+    digraph_vector_t topology; // Graph topology data + some metadata.
+    vertex_bitset_t vertex_index; // 1 if the vertex is present, 0 if the vertex is not in the graph.
 
     uint32_t order; // Current number of vertices in the graph.
     uint32_t size; // Current number of edges in the graph.
 
 public:
-    explicit Digraph(uint32_t, float); // Digraph constructor.
+    explicit Digraph(uint32_t, state_t); // Digraph constructor.
 
-    digraph_vector get_digraph_vector(); // Return the graph_vector data structure.
-    vertex_bitset get_vertex_index(); // Return index of vertices present in the graph.
+    digraph_vector_t get_digraph_vector(); // Return the graph_vector_t data structure.
+    vertex_bitset_t get_vertex_index(); // Return index of vertices present in the graph.
 
     bool has_vertex(uint32_t); // Return true if the vertex is in the graph.
 
@@ -37,19 +37,19 @@ public:
 
     void print_edges(); // (use just for testing)
 
-    neighbors_vector *get_in_neighborhood(uint32_t); // Return the vector of incoming neighbors of a vertex.
-    neighbors_vector *get_out_neighborhood(uint32_t); // Return the vector of outcoming neighbors of a vertex.
+    neighbors_vector_t *get_in_neighborhood(uint32_t); // Return the vector of incoming neighbors of a vertex.
+    neighbors_vector_t *get_out_neighborhood(uint32_t); // Return the vector of outcoming neighbors of a vertex.
     uint32_t get_in_degree(uint32_t); // Return the in-degree of a vertex.
     uint32_t get_out_degree(uint32_t); // Return the out-degree of a vertex.
     uint32_t get_degree(uint32_t); // Return the degree of a vertex.
 
-    void update_state(uint32_t, float);
-    float get_state(uint32_t);
+    void update_state(uint32_t, state_t);
+    state_t get_state(uint32_t);
     void finalize_state(uint32_t);
     void finalize_states();
     bool state_change_monitor;
-    float state_change_tolerance;
-    void set_state_change_tolerance(float);
+    state_t state_change_tolerance;
+    void set_state_change_tolerance(state_t);
 
 
     void count_order(); // Count and set the number of vertices.

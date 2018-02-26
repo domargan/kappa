@@ -25,12 +25,12 @@ int main() {
 
     //std::vector<uint32_t> split = dataset_split_by_size(lines, core_size, chunks_size);
 
-    raw_edge_array edges;
+    raw_edge_array_t edges;
     edges = tsv_to_edges(dataset, ' ');
 
     unsigned int max_vertex_num = unique_vertex_count(edges);
 
-    float init_state = 1.0 / max_vertex_num; // init state for PageRank
+    state_t init_state = 1.0 / max_vertex_num; // init state for PageRank
     Digraph g = Digraph(max_vertex_num, init_state);
 
     naive_incremental_compute_tsv(pr_compute,

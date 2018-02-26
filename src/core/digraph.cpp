@@ -8,7 +8,7 @@
 // TODO: For every iteration of vertices from 0 to vertex_index.size() check if the vertex exists before any operations
 // TODO: Remove all calls to vertex_index.size() and replace them with a variable
 
-Digraph::Digraph(uint32_t v_num, float init_state) {
+Digraph::Digraph(uint32_t v_num, state_t init_state) {
     std::cout << "Digraph constructor called.\n" << std::endl;
 
     max_vertex_allocations = v_num + 1;
@@ -16,9 +16,9 @@ Digraph::Digraph(uint32_t v_num, float init_state) {
     vertex_index = boost::dynamic_bitset<>(max_vertex_allocations);
 
     for (int i = 0; i < max_vertex_allocations; i++) {
-        dvertex dv{};
-        dv.in_neighbors = new neighbors_vector;
-        dv.out_neighbors = new neighbors_vector;
+        Dvertex dv{};
+        dv.in_neighbors = new neighbors_vector_t;
+        dv.out_neighbors = new neighbors_vector_t;
         dv.state = init_state;
         dv.state_temp = init_state;
 
@@ -34,16 +34,16 @@ Digraph::Digraph(uint32_t v_num, float init_state) {
     std::cout << "Digraph structure initialized with " << v_num << " vertex entries.\n" << std::endl;
 }
 
-digraph_vector Digraph::get_digraph_vector() {
+digraph_vector_t Digraph::get_digraph_vector() {
     return topology;
 }
 
-vertex_bitset Digraph::get_vertex_index() {
+vertex_bitset_t Digraph::get_vertex_index() {
     return vertex_index;
 }
 
 void Digraph::print_edges() {
-    for (std::vector<dvertex>::size_type v = 0; v != topology.size(); v++) {
+    for (std::vector<Dvertex>::size_type v = 0; v != topology.size(); v++) {
         std::cout << "v" << v << ": " << std::endl;
         for (uint32_t in_neighbor : *topology[v].in_neighbors) {
             std::cout << in_neighbor << " " << std::endl;
@@ -104,11 +104,11 @@ void Digraph::remove_edge(uint32_t src_v, uint32_t dst_v) {
     }
 }
 
-neighbors_vector *Digraph::get_in_neighborhood(uint32_t v) {
+neighbors_vector_t *Digraph::get_in_neighborhood(uint32_t v) {
     return topology[v].in_neighbors;
 }
 
-neighbors_vector *Digraph::get_out_neighborhood(uint32_t v) {
+neighbors_vector_t *Digraph::get_out_neighborhood(uint32_t v) {
     return topology[v].out_neighbors;
 }
 
@@ -124,7 +124,7 @@ uint32_t Digraph::get_degree(uint32_t v) {
     return get_in_degree(v) + get_out_degree(v);
 }
 
-void Digraph::update_state(uint32_t v, float state_new) {
+void Digraph::update_state(uint32_t v, state_t state_new) {
     topology[v].state_temp = state_new;
 
     if(std::abs(state_new - topology[v].state) >= state_change_tolerance){
@@ -132,7 +132,7 @@ void Digraph::update_state(uint32_t v, float state_new) {
     }
 }
 
-float Digraph::get_state(uint32_t v) {
+state_t Digraph::get_state(uint32_t v) {
     return topology[v].state;
 }
 
@@ -155,7 +155,7 @@ void Digraph::finalize_states() {
     }
 }
 
-void Digraph::set_state_change_tolerance(float epsilon){
+void Digraph::set_state_change_tolerance(state_t epsilon){
     state_change_tolerance = epsilon;
 }
 

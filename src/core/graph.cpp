@@ -10,7 +10,7 @@
 // TODO: FIx neighbors_vector *Graph::get_neighborhood(uint32_t v) so it returns a value, not a pointer
 
 
-Graph::Graph(uint32_t v_num, float init_state) {
+Graph::Graph(uint32_t v_num, state_t init_state) {
     std::cout << "Graph constructor called.\n" << std::endl;
 
     max_vertex_allocations = v_num + 1;
@@ -18,8 +18,8 @@ Graph::Graph(uint32_t v_num, float init_state) {
     vertex_index = boost::dynamic_bitset<>(max_vertex_allocations);
 
     for (int i = 0; i < max_vertex_allocations; i++) {
-        uvertex uv{};
-        uv.neighbors = new neighbors_vector;
+        Uvertex uv{};
+        uv.neighbors = new neighbors_vector_t;
         uv.state = init_state;
         uv.state_temp = init_state;
 
@@ -32,16 +32,16 @@ Graph::Graph(uint32_t v_num, float init_state) {
     std::cout << "Graph structure initialized with " << v_num << " vertex entries.\n" << std::endl;
 }
 
-graph_vector Graph::get_graph_vector() {
+graph_vector_t Graph::get_graph_vector() {
     return topology;
 }
 
-vertex_bitset Graph::get_vertex_index() {
+vertex_bitset_t Graph::get_vertex_index() {
     return vertex_index;
 }
 
 void Graph::print_edges() {
-    for (std::vector<uvertex>::size_type v = 0; v != topology.size(); v++) {
+    for (std::vector<Uvertex>::size_type v = 0; v != topology.size(); v++) {
         std::cout << "v" << v << ": " << std::endl;
         for (uint32_t neighbor : *topology[v].neighbors) {
             std::cout << neighbor << " " << std::endl;
@@ -99,7 +99,7 @@ void Graph::remove_edge(uint32_t src_v, uint32_t dst_v) {
     }
 }
 
-neighbors_vector *Graph::get_neighborhood(uint32_t v) {
+neighbors_vector_t *Graph::get_neighborhood(uint32_t v) {
     return topology[v].neighbors;
 }
 
@@ -107,11 +107,11 @@ uint32_t Graph::get_degree(uint32_t v) {
     return static_cast<uint32_t>(get_neighborhood(v)->size());
 }
 
-void Graph::update_state(uint32_t v, float state) {
+void Graph::update_state(uint32_t v, state_t state) {
     topology[v].state_temp = state;
 }
 
-float Graph::get_state(uint32_t v) {
+state_t Graph::get_state(uint32_t v) {
     return topology[v].state;
 }
 

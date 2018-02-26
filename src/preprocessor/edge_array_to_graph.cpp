@@ -3,7 +3,7 @@
 #include "read_from_disk/tsv_to_edge_array.h"
 #include "edge_array_to_graph.h"
 
-Graph edge_array_to_graph(raw_edge_array& edge_array, float init_state) {
+Graph edge_array_to_graph(raw_edge_array_t& edge_array, state_t init_state) {
     uint32_t v_num = unique_vertex_count(edge_array);
 
     Graph graph = Graph(v_num, init_state);
@@ -15,7 +15,7 @@ Graph edge_array_to_graph(raw_edge_array& edge_array, float init_state) {
     return graph;
 }
 
-Digraph edge_array_to_digraph(raw_edge_array& edge_array, float init_state) {
+Digraph edge_array_to_digraph(raw_edge_array_t& edge_array, state_t init_state) {
     uint32_t v_num = unique_vertex_count(edge_array);
 
     Digraph digraph = Digraph(v_num, init_state);

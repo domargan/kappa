@@ -18,7 +18,7 @@ bool sort_edges_by_dst(const std::vector<uint32_t>& vec1, const std::vector<uint
     return vec1[1] < vec2[1];
 }
 
-std::set<uint32_t> extract_vertices(raw_edge_array& edges) {
+std::set<uint32_t> extract_vertices(raw_edge_array_t& edges) {
     std::set<uint32_t> vertex_set;
 
     for(int i=0; i<edges.size(); i++){
@@ -29,7 +29,7 @@ std::set<uint32_t> extract_vertices(raw_edge_array& edges) {
     return vertex_set;
 }
 
-uint32_t unique_vertex_count(raw_edge_array& edges){
+uint32_t unique_vertex_count(raw_edge_array_t& edges){
     std::set<uint32_t> vertex_set = extract_vertices(edges);
     uint32_t v_num = static_cast<uint32_t>(vertex_set.size());
 
@@ -38,8 +38,8 @@ uint32_t unique_vertex_count(raw_edge_array& edges){
     return v_num;
 }
 
-raw_edge_array tsv_to_edges(std::string tsv_file, char separator) {
-    raw_edge_array edges;
+raw_edge_array_t tsv_to_edges(std::string tsv_file, char separator) {
+    raw_edge_array_t edges;
 
     std::fstream fs;
     fs.open(tsv_file);
@@ -77,7 +77,7 @@ raw_edge_array tsv_to_edges(std::string tsv_file, char separator) {
     return edges;
 }
 
-void print_edge_array(raw_edge_array& edges) {
+void print_edge_array(raw_edge_array_t& edges) {
     for (auto &edge : edges) {
         for (auto &vertex : edge) {
             std::cout << vertex << ' ';

@@ -6,7 +6,7 @@
 
 void naive_incremental_compute_tsv(void(*)(Digraph*),
                                    Digraph*,
-                                   raw_edge_array&,
+                                   raw_edge_array_t&,
                                    const std::vector<uint32_t> &,
                                    uint32_t);
 
