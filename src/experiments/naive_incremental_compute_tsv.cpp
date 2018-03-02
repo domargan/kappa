@@ -8,12 +8,10 @@
 // does additions of edges read from a given tsv file.
 // A proper implementation should have separated tsv/stream ingestion and graph update parts.
 
-
 void naive_incremental_compute_tsv(void(*compute)(Digraph*),
                                    Digraph *g,
                                    raw_edge_array_t &updates,
-                                   const std::vector<uint32_t> &chunks_start_lines,
-                                   uint32_t total_lines) {
+                                   const std::vector<uint32_t> &chunks_start_lines) {
 
     std::cout << "STARTING NAIVE INCREMENTAL COMPUTATION EXPERIMENT..." << std::endl;
 
@@ -22,27 +20,23 @@ void naive_incremental_compute_tsv(void(*compute)(Digraph*),
     fs.open("measurements.csv");
     fs << "Order" << " , " << "Size" << " , " << "Ingestion Rate" << " , " << "Ingestion CPU Time" << " , " << "Computation CPU time" << std::endl;
 
-    uint32_t num_of_chunks = chunks_start_lines.size();
+    uint32_t num_of_chunks = chunks_start_lines.size() - 1; //-1 because the last element is just there to mark the end point
 
     uint32_t start_line = 0;
     uint32_t end_line = 0;
 
     for (int i = 0; i < num_of_chunks; i++) {
         start_line = chunks_start_lines[i];
-        if (i < num_of_chunks - 1) {
-            end_line = chunks_start_lines[i + 1];
-        } else {
-            end_line = total_lines;
-            // TODO: FIX: In the last iteration we don't process the line which is equal to value of total_lines variable
-        }
+        end_line = chunks_start_lines[i+1];
 
         std::cout << "Reading updates from chunk " << i+1 << std::endl;
 
         // Update the graph
         clock_t cpu_begin_update = clock();
 
-        for(uint32_t j = start_line; j<end_line; j++) {
+        for (uint32_t j = start_line - 1; j < end_line - 1; j++) {
             g->add_edge(updates[j][0], updates[j][1]);
+            //std::cout << "READING EDGE " << updates[j][0] << " " << updates[j][1] << std::endl;
         }
 
         clock_t cpu_end_update = clock();

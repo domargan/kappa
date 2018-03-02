@@ -4,7 +4,6 @@
 
 #include "dataset_split.h"
 
-
 uint32_t number_of_lines(std::string tsv_file) {
     uint32_t number_of_lines = 0;
 
@@ -23,15 +22,20 @@ uint32_t number_of_lines(std::string tsv_file) {
     return number_of_lines;
 }
 
-std::vector<uint32_t> dataset_split_by_size(uint32_t total_lines, uint32_t core_size, uint32_t chunk_size){
-    // Size is measured in the number of lines in a dataset edgelist file.
-    // One line in a dateset file contains data for a single edge.
+std::vector<uint32_t> dataset_to_batches(uint32_t beginning, uint32_t end, uint32_t total_lines, uint32_t core_size,
+                                         uint32_t chunk_size){
+    // size is measured in the number of lines in a dataset edgelist file.
 
-    std::cout << "Splitting dataset..." << std::endl;
+    std::cout << "Splitting dataset into batches..." << std::endl;
 
-    uint32_t rest_size = total_lines - core_size;
+    end = end + 1;
+
+    uint32_t size = end - beginning;
+
+    uint32_t rest_size = size - core_size;
 
     std::cout << "Total dataset size: " << total_lines << std::endl;
+    std::cout << "Total selected data size: " << size << std::endl;
 
     uint32_t chunks_num = 1;
 
@@ -41,29 +45,38 @@ std::vector<uint32_t> dataset_split_by_size(uint32_t total_lines, uint32_t core_
         chunks_num += (rest_size / chunk_size) + 1;
     }
 
-    std::cout << "Number of dataset chunks: " << chunks_num << std::endl;
+    std::cout << "Number of batches: " << chunks_num << std::endl;
 
-    std::cout << "Core chunk size: " << core_size << std::endl;
-    std::cout << "Chunk size (max): " << chunk_size << std::endl;
+    std::cout << "Core batch size: " << core_size << std::endl;
+    std::cout << "Remaining size: " << rest_size << std::endl;
+    std::cout << "Batch size (max): " << chunk_size << std::endl;
 
+    std::vector<uint32_t> chunks_line_marks(chunks_num+1);
 
-    std::vector<uint32_t> chunks_start_lines(chunks_num);
+    chunks_line_marks.at(0) = beginning;
+    //std::cout << "Chunk 1 start line: " << beginning << std::endl;
 
-    chunks_start_lines.at(0) = 1;
-    //std::cout << "Chunk 0 start line: 1" << std::endl;
+    uint32_t chunk_line_mark = beginning + core_size;
 
-    uint32_t chunk_line_mark = core_size+1;
+    chunks_line_marks.at(1) = chunk_line_mark;
+    //std::cout << "Chunk 2 start line: " << chunk_line_mark << std::endl;
 
-    chunks_start_lines.at(1) = chunk_line_mark;
-    //std::cout << "Chunk 1 start line: " << chunk_line_mark << std::endl;
-
-    if(chunks_num >= 2){
-        for(uint32_t i=2; i<chunks_num; i++){
+    if(chunks_num > 2){
+        for(uint32_t i=2; i<=chunks_num; i++){
             chunk_line_mark += chunk_size;
-            chunks_start_lines.at(i) = chunk_line_mark;
-            //std::cout << "Chunk " << i << " start line: " << chunk_line_mark << std::endl;
+
+            if (chunk_line_mark < end) {
+                chunks_line_marks.at(i) = chunk_line_mark;
+                //std::cout << "Chunk " << i + 1 << " start line: " << chunk_line_mark << std::endl;
+            } else {
+                chunk_line_mark = end;
+                chunks_line_marks.at(i) = chunk_line_mark;
+                //std::cout << "Last chunk (" << i << ") ends before the line: " << chunk_line_mark << std::endl;
+            }
         }
     }
 
-    return chunks_start_lines;
+    std::cout << "Splitting dataset into batches finished." << std::endl;
+
+    return chunks_line_marks;
 }
