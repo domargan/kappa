@@ -32,6 +32,8 @@ int main() {
     state_t init_state = 1.0 / max_vertex_num; // init state for PageRank
     Digraph g = Digraph(max_vertex_num, init_state);
 
+    // TODO: prepopulate the graph with tsv_to_digraph()
+
     naive_incremental_compute_tsv(pr_compute,
                                   &g,
                                   edges,
