@@ -12,13 +12,17 @@ typedef struct Uvertex {
 };
 
 typedef struct Dvertex {
+    // TODO: remove duplicated neighbor vectors
     neighbors_vector_t *in_neighbors;
     neighbors_vector_t *out_neighbors;
+    uint32_t in_degree;
+    uint32_t out_degree;
     state_t state;
     state_t state_temp;
 };
 
 /*
+ * old struct...
 typedef struct Dvertex {
     //uint32_t id;
     neighbors_vector *in_neighbors;

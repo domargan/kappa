@@ -19,6 +19,8 @@ Digraph::Digraph(uint32_t v_num, state_t init_state) {
         Dvertex dv{};
         dv.in_neighbors = new neighbors_vector_t;
         dv.out_neighbors = new neighbors_vector_t;
+        dv.in_degree = 0;
+        dv.out_degree = 0;
         dv.state = init_state;
         dv.state_temp = init_state;
 
@@ -62,6 +64,9 @@ bool Digraph::has_vertex(uint32_t v) {
 
 bool Digraph::has_edge(uint32_t src_v, uint32_t dst_v) {
     // std::find() has a worst-case time of O(n) in the distance between first and last.
+
+    // TODO: Remove duplicated neighbors vectors and implement a new way of checking for existance of the
+    // edges that are in the opposite direction of those represented by neighbor vectors
     return std::find(topology[src_v].out_neighbors->begin(), topology[src_v].out_neighbors->end(), dst_v)
            != topology[src_v].out_neighbors->end();
 }
@@ -71,8 +76,13 @@ void Digraph::add_edge(uint32_t src_v, uint32_t dst_v) {
         // std::vector.push_back() has a O(1) amortized time.
         // Reallocation may happen.
         // If a reallocation happens, the reallocation is O(n).
+
+        // TODO: Remove duplicated neighbors vectors, store just one type of neighbors
         topology[src_v].out_neighbors->push_back(dst_v);
         topology[dst_v].in_neighbors->push_back(src_v);
+
+        topology[src_v].out_degree++;
+        topology[dst_v].in_degree++;
 
         vertex_index[src_v] = 1;
         vertex_index[dst_v] = 1;
@@ -84,6 +94,8 @@ void Digraph::add_edge(uint32_t src_v, uint32_t dst_v) {
 void Digraph::remove_edge(uint32_t src_v, uint32_t dst_v) {
     if (has_edge(src_v, dst_v)) {
         // Erase-remove has a worst-case time of O(n).
+
+        // TODO: Remove duplicated neighbors vectors
         topology[src_v].out_neighbors->erase
                 (std::remove(topology[src_v].out_neighbors->begin(), topology[src_v].out_neighbors->end(), dst_v),
                  topology[src_v].out_neighbors->end());
@@ -91,6 +103,9 @@ void Digraph::remove_edge(uint32_t src_v, uint32_t dst_v) {
         topology[dst_v].in_neighbors->erase
                 (std::remove(topology[dst_v].in_neighbors->begin(), topology[dst_v].in_neighbors->end(), src_v),
                  topology[dst_v].in_neighbors->end());
+
+        topology[src_v].out_degree--;
+        topology[dst_v].in_degree--;
 
         decrement_size();
 
@@ -105,6 +120,7 @@ void Digraph::remove_edge(uint32_t src_v, uint32_t dst_v) {
 }
 
 neighbors_vector_t *Digraph::get_in_neighborhood(uint32_t v) {
+    // TODO: Remove duplicated neighbors vectors
     return topology[v].in_neighbors;
 }
 
@@ -113,11 +129,15 @@ neighbors_vector_t *Digraph::get_out_neighborhood(uint32_t v) {
 }
 
 uint32_t Digraph::get_in_degree(uint32_t v) {
-    return static_cast<uint32_t>(get_in_neighborhood(v)->size());
+    // TODO: Finish the and test the implementation of degree counting
+    return topology[v].in_degree;
+    //return static_cast<uint32_t>(get_in_neighborhood(v)->size());
 }
 
 uint32_t Digraph::get_out_degree(uint32_t v) {
-    return static_cast<uint32_t>(get_out_neighborhood(v)->size());
+    // TODO: Finish the and test the implementation of degree counting
+    return topology[v].out_degree;
+    //return static_cast<uint32_t>(get_out_neighborhood(v)->size());
 }
 
 uint32_t Digraph::get_degree(uint32_t v) {
