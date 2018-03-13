@@ -52,13 +52,17 @@ public:
     void set_state_change_tolerance(state_t);
 
 
-    void count_order(); // Count and set the number of vertices.
+    void count_order(); // Count and set the number of vertices. OBSOLETE FUNCTION
     uint32_t get_order(); // Return the number of vertices.
     uint32_t get_max_order(); // Return the number of pre-allocated vertex spaces.
-    uint32_t get_size(); // Return the number of edges.
+    // TODO: Remove increment and decrement functions.. Maybe we don't need them... (Just do order++ or order-- manually...)
+    void increment_order(); // Increase the value of number of vertices by 1.
+    void decrement_order(); // Decrease the value of number of vertices by 1.
 
-    void increment_size(); // Increase the value for number of edges by 1.
-    void decrement_size(); // Increase the value for number of edges by 1.
+    uint32_t get_size(); // Return the number of edges.
+    // TODO: Remove increment and decrement functions.. Maybe we don't need them... (Just do size++ or size-- manually...)
+    void increment_size(); // Increase the value of number of edges by 1.
+    void decrement_size(); // Decrease the value of number of edges by 1.
 };
 
 #endif //KAPPA_DIGRAPH_H

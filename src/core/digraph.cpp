@@ -77,15 +77,22 @@ void Digraph::add_edge(uint32_t src_v, uint32_t dst_v) {
         // Reallocation may happen.
         // If a reallocation happens, the reallocation is O(n).
 
+        if(!has_vertex(src_v)){
+            vertex_index[src_v] = 1;
+            increment_order();
+        }
+
+        if(!has_vertex(dst_v)){
+            vertex_index[dst_v] = 1;
+            increment_order();
+        }
+
         // TODO: Remove duplicated neighbors vectors, store just one type of neighbors
         topology[src_v].out_neighbors->push_back(dst_v);
         topology[dst_v].in_neighbors->push_back(src_v);
 
         topology[src_v].out_degree++;
         topology[dst_v].in_degree++;
-
-        vertex_index[src_v] = 1;
-        vertex_index[dst_v] = 1;
 
         increment_size();
     }
@@ -111,10 +118,12 @@ void Digraph::remove_edge(uint32_t src_v, uint32_t dst_v) {
 
         if(get_out_degree(src_v) == 0 && get_in_degree(src_v) == 0) {
             vertex_index[src_v] = 0;
+            decrement_order();
         }
 
         if(get_out_degree(dst_v) == 0 && get_in_degree(dst_v) == 0) {
             vertex_index[dst_v] = 0;
+            decrement_order();
         }
     }
 }
@@ -180,6 +189,7 @@ void Digraph::set_state_change_tolerance(state_t epsilon){
 }
 
 void Digraph::count_order() {
+    // Obsolete function.. Order is always incrementally maintained.
     order = static_cast<uint32_t>(vertex_index.count());
 }
 
@@ -189,6 +199,14 @@ uint32_t Digraph::get_order() {
 
 uint32_t Digraph::get_max_order() {
     return max_vertex_allocations;
+}
+
+void Digraph::increment_order() {
+    order++;
+}
+
+void Digraph::decrement_order() {
+    order--;
 }
 
 uint32_t Digraph::get_size() {
