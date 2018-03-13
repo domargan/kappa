@@ -29,7 +29,7 @@ void naive_incremental_compute_tsv(void(*compute)(Digraph*),
         start_line = chunks_start_lines[i];
         end_line = chunks_start_lines[i+1];
 
-        std::cout << "Reading updates from chunk " << i+1 << std::endl;
+        //std::cout << "Reading updates from chunk " << i+1 << std::endl;
 
         // Update the graph
         clock_t cpu_begin_update = clock();
@@ -44,16 +44,16 @@ void naive_incremental_compute_tsv(void(*compute)(Digraph*),
 
         float ingestion_rate = (end_line-start_line) / cpu_time_update;
 
-        std::cout << "Finished updating from chunk " << i+1 << std::endl;
-        std::cout << "UPDATE TIME FOR chunk " << std::fixed << i+1 << ": " << cpu_time_update << std::endl;
+        //std::cout << "Finished updating from chunk " << i+1 << std::endl;
+        //std::cout << "UPDATE TIME FOR chunk " << std::fixed << i+1 << ": " << cpu_time_update << std::endl;
 
         g->count_order();
         uint32_t order = g->get_order();
         uint32_t size = g->get_size();
-        std::cout << "Order: " <<  order << std::endl;
-        std::cout << "Size: " << size << std::endl;
+        //std::cout << "Order: " <<  order << std::endl;
+        //std::cout << "Size: " << size << std::endl;
 
-        std::cout << "Executing computations..." << std::endl;
+        //std::cout << "Executing computations..." << std::endl;
 
         // Execute compute function
         clock_t cpu_begin_compute = clock();
@@ -63,8 +63,8 @@ void naive_incremental_compute_tsv(void(*compute)(Digraph*),
         clock_t cpu_end_compute = clock();
         float cpu_time_compute = float(cpu_end_compute - cpu_begin_compute) / CLOCKS_PER_SEC;
 
-        std::cout << "Finished computations." << std::endl;
-        std::cout << "COMPUTE TIME AFTER chunk " << std::fixed << i+1 << ": " << cpu_time_compute << std::endl;
+        //std::cout << "Finished computations." << std::endl;
+        //std::cout << "COMPUTE TIME AFTER chunk " << std::fixed << i+1 << ": " << cpu_time_compute << std::endl;
 
         fs << order << " , " << size << " , " << std::fixed << ingestion_rate << " , " << std::fixed << cpu_time_update << " , " << std::fixed << cpu_time_compute << std::endl;
     }
