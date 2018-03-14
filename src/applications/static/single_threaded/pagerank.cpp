@@ -5,7 +5,7 @@
 #include "pagerank.h"
 
 void init_pr_values(Digraph* g){
-    g->count_order();
+    //g->count_order();
 
     float pr_init_val = (1.0 / g->get_order());
 
@@ -37,7 +37,7 @@ void pr_compute_single_vertex(uint32_t v, Digraph* g) {
 void pr_compute(Digraph* g){
     g->set_state_change_tolerance(DEFAULT_CONVERGENCE);
 
-    g->count_order();
+    //g->count_order();
 
     // Note: Don't forget to set initial PageRank vertex states outside (before) this function!
 
