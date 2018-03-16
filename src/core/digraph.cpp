@@ -8,7 +8,7 @@
 // TODO: For every iteration of vertices from 0 to vertex_index.size() check if the vertex exists before any operations
 // TODO: Remove all calls to vertex_index.size() and replace them with a variable
 
-Digraph::Digraph(uint32_t v_num, state_t init_state) {
+Digraph::Digraph(uint32_t v_num, state_t init_state, uint32_t update_batch_size) {
     std::cout << "Digraph constructor called.\n" << std::endl;
 
     max_vertex_allocations = v_num + 1;
@@ -29,6 +29,8 @@ Digraph::Digraph(uint32_t v_num, state_t init_state) {
 
     state_change_monitor = false;
     state_change_tolerance = 0.0;
+
+    touched_src_verts = boost::circular_buffer<uint32_t>(update_batch_size); // The number of touched source vertices can at maximum be equal to batch size
 
     order = 0;
     size = 0;
@@ -95,6 +97,8 @@ void Digraph::add_edge(uint32_t src_v, uint32_t dst_v) {
         topology[dst_v].in_degree++;
 
         increment_size();
+
+        touched_src_verts.push_back(src_v);
     }
 }
 
@@ -119,12 +123,18 @@ void Digraph::remove_edge(uint32_t src_v, uint32_t dst_v) {
         if(get_out_degree(src_v) == 0 && get_in_degree(src_v) == 0) {
             vertex_index[src_v] = 0;
             decrement_order();
+        } else if(get_out_degree(src_v) > 0) {
+            touched_src_verts.push_back(src_v);
         }
 
         if(get_out_degree(dst_v) == 0 && get_in_degree(dst_v) == 0) {
             vertex_index[dst_v] = 0;
             decrement_order();
+        } else if(get_out_degree(dst_v) > 0) {
+            touched_src_verts.push_back(dst_v);
         }
+
+
     }
 }
 
@@ -186,6 +196,10 @@ void Digraph::finalize_states() {
 
 void Digraph::set_state_change_tolerance(state_t epsilon){
     state_change_tolerance = epsilon;
+}
+
+vertex_queue_t *Digraph::get_touched_src_verts(){
+    return &touched_src_verts;
 }
 
 void Digraph::count_order() {

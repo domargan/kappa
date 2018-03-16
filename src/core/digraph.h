@@ -4,6 +4,7 @@
 #include <vector>
 
 #include <boost/dynamic_bitset.hpp>
+#include <boost/circular_buffer.hpp>
 
 #include "vertex.h"
 
@@ -12,6 +13,7 @@
 typedef std::vector<Dvertex> digraph_vector_t;
 // TODO: Change long to int in dynamic_bitset allocation... It does not work for some reason :)
 typedef boost::dynamic_bitset<unsigned long, std::allocator<unsigned long>> vertex_bitset_t;
+typedef boost::circular_buffer<uint32_t> vertex_queue_t;
 
 class Digraph {
 private:
@@ -20,11 +22,13 @@ private:
     digraph_vector_t topology; // Graph topology data + some metadata.
     vertex_bitset_t vertex_index; // 1 if the vertex is present, 0 if the vertex is not in the graph.
 
+    vertex_queue_t touched_src_verts; // A list of source vertices touched by the most recent batch of updates.
+
     uint32_t order; // Current number of vertices in the graph.
     uint32_t size; // Current number of edges in the graph.
 
 public:
-    explicit Digraph(uint32_t, state_t); // Digraph constructor.
+    explicit Digraph(uint32_t, state_t, uint32_t); // Digraph constructor.
 
     digraph_vector_t get_digraph_vector(); // Return the graph_vector_t data structure.
     vertex_bitset_t get_vertex_index(); // Return index of vertices present in the graph.
@@ -51,6 +55,7 @@ public:
     state_t state_change_tolerance;
     void set_state_change_tolerance(state_t);
 
+    vertex_queue_t *get_touched_src_verts();
 
     void count_order(); // Count and set the number of vertices. OBSOLETE FUNCTION
     uint32_t get_order(); // Return the number of vertices.
