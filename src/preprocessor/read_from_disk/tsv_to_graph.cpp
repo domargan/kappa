@@ -5,8 +5,8 @@
 #include "tsv_to_graph.h"
 #include "digraph.h"
 
-Digraph tsv_to_digraph(const std::string &tsv_file, char separator, uint32_t beggining_line, uint32_t end_line, uint32_t v_num, state_t init_state) {
-    Digraph digraph = Digraph(v_num, init_state);
+Digraph tsv_to_digraph(const std::string &tsv_file, char separator, uint32_t beggining_line, uint32_t end_line, uint32_t v_num, state_t init_state, uint32_t update_batch_size) {
+    Digraph digraph = Digraph(v_num, init_state, update_batch_size);
 
     std::fstream fs;
     fs.open(tsv_file);
