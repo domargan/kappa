@@ -15,6 +15,9 @@ Digraph::Digraph(uint32_t v_num, state_t init_state, uint32_t update_batch_size)
 
     vertex_index = boost::dynamic_bitset<>(max_vertex_allocations);
 
+    visited_verts = boost::dynamic_bitset<>(max_vertex_allocations);
+
+
     for (int i = 0; i < max_vertex_allocations; i++) {
         Dvertex dv{};
         dv.in_neighbors = new neighbors_vector_t;
@@ -43,6 +46,7 @@ digraph_vector_t Digraph::get_digraph_vector() {
 }
 
 vertex_bitset_t Digraph::get_vertex_index() {
+    // TODO: Check wheter to reterun a reference here instead.
     return vertex_index;
 }
 
@@ -200,6 +204,22 @@ void Digraph::set_state_change_tolerance(state_t epsilon){
 
 vertex_queue_t *Digraph::get_touched_src_verts(){
     return &touched_src_verts;
+}
+
+vertex_bitset_t *Digraph::get_visited_verts(){
+    return &visited_verts;
+}
+
+void Digraph::set_visited(uint32_t v){
+    visited_verts[v] = 1;
+}
+
+void Digraph::unset_visited(uint32_t v){
+    visited_verts[v] = 0;
+}
+
+void Digraph::reset_visited_verts(){
+    visited_verts.reset();
 }
 
 void Digraph::count_order() {

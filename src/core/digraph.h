@@ -10,6 +10,10 @@
 
 // TODO: Make Digraph a child class of Graph
 
+// TODO: Check which get() methods should return pointers and which should return values
+
+// TODO: Check which methods should be moved to private
+
 typedef std::vector<Dvertex> digraph_vector_t;
 // TODO: Change long to int in dynamic_bitset allocation... It does not work for some reason :)
 typedef boost::dynamic_bitset<unsigned long, std::allocator<unsigned long>> vertex_bitset_t;
@@ -21,6 +25,9 @@ private:
 
     digraph_vector_t topology; // Graph topology data + some metadata.
     vertex_bitset_t vertex_index; // 1 if the vertex is present, 0 if the vertex is not in the graph.
+
+    // TODO: Maybe visited_verts should be a part of vertex struct?
+    vertex_bitset_t visited_verts; // 1 if the vertex has been visited by an algorithm, 0 if not.
 
     vertex_queue_t touched_src_verts; // A list of source vertices touched by the most recent batch of updates.
 
@@ -56,6 +63,11 @@ public:
     void set_state_change_tolerance(state_t);
 
     vertex_queue_t *get_touched_src_verts();
+
+    vertex_bitset_t *get_visited_verts();
+    void set_visited(uint32_t);
+    void unset_visited(uint32_t);
+    void reset_visited_verts();
 
     void count_order(); // Count and set the number of vertices. OBSOLETE FUNCTION
     uint32_t get_order(); // Return the number of vertices.
