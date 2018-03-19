@@ -32,7 +32,7 @@ Digraph tsv_to_digraph(const std::string &tsv_file, char separator, uint32_t beg
                     vertex_pair.push_back(static_cast<uint32_t &&>(stoi(vertex)));
                 }
 
-                digraph.add_edge(vertex_pair.at(0), vertex_pair.at(1));
+                digraph.add_edge_populate(vertex_pair.at(0), vertex_pair.at(1));
 
                 vertex_pair.clear();
             }
