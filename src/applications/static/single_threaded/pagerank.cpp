@@ -31,8 +31,13 @@ void pr_compute_single_vertex(uint32_t v, Digraph* g) {
     }
 
     float pr = ((1.0 - DEFAULT_DAMPING_FACTOR) / g->get_order()) + (DEFAULT_DAMPING_FACTOR * pr_neighbourhood_sum);
+
     g->update_state(v, pr);
 }
+
+/*
+ * OBSOLETE!
+ * Now doing this as part of run() in compute.cpp
 
 void pr_compute(Digraph* g){
     g->set_state_change_tolerance(DEFAULT_CONVERGENCE);
@@ -68,3 +73,4 @@ void pr_compute(Digraph* g){
     //    std::cout << "PageRank converged after " << num_iterations << " iterations" << std::endl;
     }
 }
+ */
