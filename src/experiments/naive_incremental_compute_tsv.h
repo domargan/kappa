@@ -4,7 +4,7 @@
 #include "digraph.h"
 #include "read_from_disk/tsv_to_edge_array.h"
 
-void naive_incremental_compute_tsv(void(*)(Digraph*),
+void naive_incremental_compute_tsv(void(*)(uint32_t, Digraph*),
                                    Digraph*,
                                    raw_edge_array_t&,
                                    const std::vector<uint32_t> &);

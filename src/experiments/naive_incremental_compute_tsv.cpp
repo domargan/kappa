@@ -1,19 +1,21 @@
 #include <ctime>
 #include <fstream>
 
-#include "digraph.h"
+#include "compute.h"
 #include "read_from_disk/tsv_to_edge_array.h"
 
 // This should be just a hacky implementation that
 // does additions of edges read from a given tsv file.
 // A proper implementation should have separated tsv/stream ingestion and graph update parts.
 
-void naive_incremental_compute_tsv(void(*compute)(Digraph*),
+void naive_incremental_compute_tsv(void(*compute)(uint32_t, Digraph*),
                                    Digraph *g,
                                    raw_edge_array_t &updates,
                                    const std::vector<uint32_t> &chunks_start_lines) {
 
     std::cout << "STARTING NAIVE INCREMENTAL COMPUTATION EXPERIMENT..." << std::endl;
+
+    g->set_state_change_tolerance(DEFAULT_CHANGE_TOLERANCE);
 
     std::ofstream fs;
 
@@ -50,15 +52,22 @@ void naive_incremental_compute_tsv(void(*compute)(Digraph*),
         //g->count_order();
         uint32_t order = g->get_order();
         uint32_t size = g->get_size();
-        //std::cout << "Order: " <<  order << std::endl;
-        //std::cout << "Size: " << size << std::endl;
+        std::cout << "Order: " <<  order << std::endl;
+        std::cout << "Size: " << size << std::endl;
+
+        //boost::circular_buffer<uint32_t> *touched_verts = g->get_touched_src_verts();
+        std::vector<uint32_t> *touched_verts = g->get_touched_src_verts();
+
+        std::cout << "Touched vertices queue size: " << touched_verts->size() << std::endl;
+        std::cout << "Touched vertices queue capacity: " << touched_verts->capacity() << std::endl;
 
         //std::cout << "Executing computations..." << std::endl;
 
-        // Execute compute function
+        // Execute user-defined compute function
         clock_t cpu_begin_compute = clock();
 
-        compute(g);
+        //run(g, compute);
+        run_local(g, compute);
 
         clock_t cpu_end_compute = clock();
         float cpu_time_compute = float(cpu_end_compute - cpu_begin_compute) / CLOCKS_PER_SEC;
