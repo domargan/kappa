@@ -17,7 +17,6 @@ Digraph::Digraph(uint32_t v_num, state_t init_state, uint32_t update_batch_size)
 
     visited_verts = boost::dynamic_bitset<>(max_vertex_allocations);
 
-
     for (int i = 0; i < max_vertex_allocations; i++) {
         Dvertex dv{};
         dv.in_neighbors = new neighbors_vector_t;
@@ -33,7 +32,8 @@ Digraph::Digraph(uint32_t v_num, state_t init_state, uint32_t update_batch_size)
     state_change_monitor = false;
     state_change_tolerance = 0.0;
 
-    touched_src_verts = boost::circular_buffer<uint32_t>(update_batch_size); // The number of touched source vertices can at maximum be equal to batch size
+    //touched_src_verts = boost::circular_buffer<uint32_t>(update_batch_size); // The number of touched source vertices can at maximum be equal to batch size
+    touched_src_verts.reserve(update_batch_size); // The number of touched source vertices can at maximum be equal to batch size
 
     order = 0;
     size = 0;
@@ -103,6 +103,29 @@ void Digraph::add_edge(uint32_t src_v, uint32_t dst_v) {
         increment_size();
 
         touched_src_verts.push_back(src_v);
+    }
+}
+
+void Digraph::add_edge_populate(uint32_t src_v, uint32_t dst_v) { // JUST FOR TESTING!
+    if (!has_edge(src_v, dst_v)) {
+        if(!has_vertex(src_v)){
+            vertex_index[src_v] = 1;
+            increment_order();
+        }
+
+        if(!has_vertex(dst_v)){
+            vertex_index[dst_v] = 1;
+            increment_order();
+        }
+
+        // TODO: Remove duplicated neighbors vectors, store just one type of neighbors
+        topology[src_v].out_neighbors->push_back(dst_v);
+        topology[dst_v].in_neighbors->push_back(src_v);
+
+        topology[src_v].out_degree++;
+        topology[dst_v].in_degree++;
+
+        increment_size();
     }
 }
 
@@ -206,6 +229,10 @@ vertex_queue_t *Digraph::get_touched_src_verts(){
     return &touched_src_verts;
 }
 
+void Digraph::reset_touched_src_verts(){
+    touched_src_verts.clear();
+}
+
 vertex_bitset_t *Digraph::get_visited_verts(){
     return &visited_verts;
 }
@@ -220,6 +247,10 @@ void Digraph::unset_visited(uint32_t v){
 
 void Digraph::reset_visited_verts(){
     visited_verts.reset();
+}
+
+bool Digraph::has_been_visited(uint32_t v){
+    return visited_verts[v];
 }
 
 void Digraph::count_order() {

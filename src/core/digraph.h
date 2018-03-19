@@ -17,7 +17,8 @@
 typedef std::vector<Dvertex> digraph_vector_t;
 // TODO: Change long to int in dynamic_bitset allocation... It does not work for some reason :)
 typedef boost::dynamic_bitset<unsigned long, std::allocator<unsigned long>> vertex_bitset_t;
-typedef boost::circular_buffer<uint32_t> vertex_queue_t;
+//typedef boost::circular_buffer<uint32_t> vertex_queue_t;
+typedef std::vector<uint32_t> vertex_queue_t;
 
 class Digraph {
 private:
@@ -43,6 +44,7 @@ public:
     bool has_vertex(uint32_t); // Return true if the vertex is in the graph.
 
     void add_edge(uint32_t, uint32_t); // Add an edge between two vertices.
+    void add_edge_populate(uint32_t, uint32_t); // JUST FOR TESTING
     void remove_edge(uint32_t, uint32_t); // Remove the edge between two vertices.
     bool has_edge(uint32_t, uint32_t); // Return true of the edge is in the graph.
 
@@ -63,11 +65,13 @@ public:
     void set_state_change_tolerance(state_t);
 
     vertex_queue_t *get_touched_src_verts();
+    void reset_touched_src_verts();
 
     vertex_bitset_t *get_visited_verts();
     void set_visited(uint32_t);
     void unset_visited(uint32_t);
     void reset_visited_verts();
+    bool has_been_visited(uint32_t);
 
     void count_order(); // Count and set the number of vertices. OBSOLETE FUNCTION
     uint32_t get_order(); // Return the number of vertices.
