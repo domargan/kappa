@@ -4,21 +4,22 @@
 typedef std::vector<uint32_t> neighbors_vector_t;
 typedef float state_t;
 
+// TODO: Update or remove Uvertex...
 typedef struct Uvertex {
     //uint32_t id;
-    neighbors_vector_t *neighbors;
+    neighbors_vector_t* neighbors;
     state_t state;
     state_t state_temp;
 };
 
 typedef struct Dvertex {
     // TODO: remove duplicated neighbor vectors
-    neighbors_vector_t *in_neighbors;
-    neighbors_vector_t *out_neighbors;
+    neighbors_vector_t* in_neighbors;
+    neighbors_vector_t* out_neighbors;
     uint32_t in_degree;
     uint32_t out_degree;
-    state_t state;
-    state_t state_temp;
+    state_t* state;
+    state_t* state_temp;
 };
 
 /*

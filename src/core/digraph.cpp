@@ -15,6 +15,12 @@ Digraph::Digraph(uint32_t v_num, state_t init_state, uint32_t update_batch_size)
 
     vertex_index = boost::dynamic_bitset<>(max_vertex_allocations);
 
+    states.reserve(max_vertex_allocations);
+    states_temp.reserve(max_vertex_allocations);
+
+    std::fill(states.begin(),states.end(), init_state);
+    std::fill(states_temp.begin(),states_temp.end(), init_state);
+
     visited_verts = boost::dynamic_bitset<>(max_vertex_allocations);
 
     for (int i = 0; i < max_vertex_allocations; i++) {
@@ -23,8 +29,8 @@ Digraph::Digraph(uint32_t v_num, state_t init_state, uint32_t update_batch_size)
         dv.out_neighbors = new neighbors_vector_t;
         dv.in_degree = 0;
         dv.out_degree = 0;
-        dv.state = init_state;
-        dv.state_temp = init_state;
+        dv.state = &states[i];
+        dv.state_temp = &states_temp[i];
 
         topology.push_back(dv);
     }
@@ -191,34 +197,27 @@ uint32_t Digraph::get_degree(uint32_t v) {
 }
 
 void Digraph::update_state(uint32_t v, state_t state_new) {
-    topology[v].state_temp = state_new;
+    states_temp[v] = state_new;
 
-    if(std::abs(state_new - topology[v].state) >= state_change_tolerance){
+    if(std::abs(state_new - states[v]) >= state_change_tolerance){
         state_change_monitor = true;
     }
+
+    //std::cout << "Old state of vertex " << v << " is " << states[v] << std::endl;
+    //std::cout << "New state of vertex " << v << " is " << states_temp[v] << std::endl;
 }
 
 state_t Digraph::get_state(uint32_t v) {
-    return topology[v].state;
+    return states[v];
 }
 
+// izbrisi ovo
 void Digraph::finalize_state(uint32_t v) {
-    if(has_vertex(v)){
-        topology[v].state = topology[v].state_temp;
-    }
+        states[v] = states_temp[v];
 }
 
 void Digraph::finalize_states() {
-    // TODO: Each state field in the vertex struct should be a pointer to a field in an external vector that contains
-    // the states of all vertices (there are two vectors, one for current states and one for previous states)
-    // Finalize states should be just a swap() function over those two vectors.
-
-    uint32_t max_order = get_max_order();
-
-    // For each v in the graph exchange state
-    for(uint32_t i=0; i<max_order; i++) {
-        finalize_state(i);
-    }
+    states_temp.swap(states);
 }
 
 void Digraph::set_state_change_tolerance(state_t epsilon){

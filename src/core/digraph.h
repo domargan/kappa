@@ -19,6 +19,7 @@ typedef std::vector<Dvertex> digraph_vector_t;
 typedef boost::dynamic_bitset<unsigned long, std::allocator<unsigned long>> vertex_bitset_t;
 //typedef boost::circular_buffer<uint32_t> vertex_queue_t;
 typedef std::vector<uint32_t> vertex_queue_t;
+typedef std::vector<state_t> state_vector_t;
 
 class Digraph {
 private:
@@ -26,6 +27,9 @@ private:
 
     digraph_vector_t topology; // Graph topology data + some metadata.
     vertex_bitset_t vertex_index; // 1 if the vertex is present, 0 if the vertex is not in the graph.
+
+    state_vector_t states;
+    state_vector_t states_temp;
 
     // TODO: Maybe visited_verts should be a part of vertex struct?
     vertex_bitset_t visited_verts; // 1 if the vertex has been visited by an algorithm, 0 if not.
