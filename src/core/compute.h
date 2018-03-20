@@ -6,7 +6,7 @@
 const float DEFAULT_CHANGE_TOLERANCE = 0.0001;
 const int DEFAULT_MAX_ITERATIONS = 20;
 
-void run(Digraph*, void(*)(uint32_t, Digraph*));
+void run_global(Digraph*, void(*)(uint32_t, Digraph*));
 void run_local(Digraph*, void(*)(uint32_t, Digraph*));
 
 #endif //KAPPA_COMPUTE_H
