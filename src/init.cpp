@@ -2,11 +2,15 @@
 #include <list>
 #include <functional>
 #include <stack>
-#include <utils/dump_vertex_states.h>
 
+#include "read_from_disk/tsv_to_graph.h"
 #include "naive_incremental_compute_tsv.h"
 #include "dataset_split.h"
 #include "pagerank.h"
+#include "compute.h"
+
+#include <gtest/gtest.h>
+
 
 int main() {
     std::cout << "Launching Kappa...\n" << std::endl;
@@ -19,22 +23,45 @@ int main() {
 
     uint32_t lines = number_of_lines(dataset);
 
-    uint32_t core_size = 1000000;
-    uint32_t chunks_size = 1000000;
-
-    std::vector<uint32_t> split = dataset_to_batches(1, lines, lines, core_size, chunks_size);
-
     raw_edge_array_t edges;
     edges = tsv_to_edges(dataset, ' ');
 
     unsigned int max_vertex_num = unique_vertex_count(edges);
 
     state_t init_state = 1.0 / max_vertex_num; // init state for PageRank
-    Digraph g = Digraph(max_vertex_num, init_state);
 
-    // TODO: prepopulate the graph with tsv_to_digraph()
+    /*
+    uint32_t core_size = 1;
+    uint32_t chunks_size = core_size;
 
-    naive_incremental_compute_tsv(pr_compute,
+    uint32_t beginning = 5000001;
+    uint32_t end = 5010000;
+
+    Digraph g = tsv_to_digraph(dataset, ' ', 1, 5000000, max_vertex_num, init_state, chunks_size); //Prepopulating the graph...
+    std::cout << "Graph size after pre-populating: " << g.get_size() << std::endl;
+
+     */
+
+    uint32_t core_size = 1000000;
+    uint32_t chunks_size = core_size;
+
+    uint32_t beginning = 1000001;
+    uint32_t end = lines;
+
+    Digraph g = tsv_to_digraph(dataset, ' ', 1, 1000000, max_vertex_num, init_state, chunks_size); //Prepopulating the graph...
+    std::cout << "Graph size after pre-populating: " << g.get_size() << std::endl;
+
+    std::vector<uint32_t> *touched_verts = g.get_touched_src_verts();
+    std::cout << "Touched vertices queue size: " << touched_verts->size() << std::endl;
+    std::cout << "Touched vertices queue capacity: " << touched_verts->capacity() << std::endl;
+
+    //Computing PR values for the initial prepopulated graph (global)
+    run_global(&g, pr_compute_single_vertex);
+
+    std::vector<uint32_t> split = dataset_to_batches(beginning, end, lines, core_size, chunks_size);
+
+    //Updating and computing incremental PR (local)
+    naive_incremental_compute_tsv(pr_compute_single_vertex,
                                   &g,
                                   edges,
                                   split);
@@ -42,6 +69,5 @@ int main() {
     //dump_vertex_states(&g, "results.txt");
 
     std::cout << "Kappa finished." << std::endl;
-
     return 0;
 }
