@@ -54,12 +54,12 @@ std::vector<uint32_t> dataset_to_batches(uint32_t beginning, uint32_t end, uint3
     std::vector<uint32_t> chunks_line_marks(chunks_num+1);
 
     chunks_line_marks.at(0) = beginning;
-    //std::cout << "Chunk 1 start line: " << beginning << std::endl;
+    std::cout << "Chunk 1 start line: " << beginning << std::endl;
 
     uint32_t chunk_line_mark = beginning + core_size;
 
     chunks_line_marks.at(1) = chunk_line_mark;
-    //std::cout << "Chunk 2 start line: " << chunk_line_mark << std::endl;
+    std::cout << "Chunk 2 start line: " << chunk_line_mark << std::endl;
 
     if(chunks_num > 2){
         for(uint32_t i=2; i<=chunks_num; i++){
@@ -67,13 +67,17 @@ std::vector<uint32_t> dataset_to_batches(uint32_t beginning, uint32_t end, uint3
 
             if (chunk_line_mark < end) {
                 chunks_line_marks.at(i) = chunk_line_mark;
-                //std::cout << "Chunk " << i + 1 << " start line: " << chunk_line_mark << std::endl;
+                std::cout << "Chunk " << i + 1 << " start line: " << chunk_line_mark << std::endl;
             } else {
                 chunk_line_mark = end;
                 chunks_line_marks.at(i) = chunk_line_mark;
-                //std::cout << "Last chunk (" << i << ") ends before the line: " << chunk_line_mark << std::endl;
+                std::cout << "Last chunk (" << i << ") ends before the line: " << chunk_line_mark << std::endl;
             }
         }
+    } else {
+        chunk_line_mark = end;
+        chunks_line_marks.at(2) = chunk_line_mark;
+        std::cout << "Last chunk (2) ends before the line : " << chunk_line_mark << std::endl;
     }
 
     std::cout << "Splitting dataset into batches finished." << std::endl;
