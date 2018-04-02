@@ -4,12 +4,12 @@
 #include "connected_components.h"
 #include "dfs.h"
 
-std::vector<uint32_t> components;
+std::vector<graph_size_t> components;
 
 void cc_compute(Graph* g){
     int number_of_components = 0;
 
-    uint32_t order = g->get_order();
+    graph_size_t order = g->get_order();
 
     for(int i=0; i<order; i++){
         if(g->get_state(i) != 1) {

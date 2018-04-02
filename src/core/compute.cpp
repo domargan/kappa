@@ -9,10 +9,10 @@
 
 // TODO: Make this more general (this is too PageRank oriented)
 
-void run_global(Digraph* g, void(*vertex_compute)(uint32_t, Digraph*)) {
+void run_global(Digraph* g, void(*vertex_compute)(vertex_id_t, Digraph*)) {
     //std::cout << "Starting computations (maximum " << DEFAULT_MAX_ITERATIONS << " iterations)..." << std::endl;
 
-    uint32_t max_order = g->get_max_order();
+    graph_size_t max_order = g->get_max_order();
 
     int num_iterations = 0;
     g->state_change_monitor = true;
@@ -20,7 +20,7 @@ void run_global(Digraph* g, void(*vertex_compute)(uint32_t, Digraph*)) {
     while(g->state_change_monitor && num_iterations < DEFAULT_MAX_ITERATIONS) {
         g->state_change_monitor = false;
 
-        for (uint32_t i = 0; i < max_order; i++) {
+        for (graph_size_t i = 0; i < max_order; i++) {
             if(g->has_vertex(i)){
                 vertex_compute(i, g);
             }
@@ -40,7 +40,7 @@ void run_global(Digraph* g, void(*vertex_compute)(uint32_t, Digraph*)) {
      */
 }
 
-void dfs_local_compute(Digraph* g, uint32_t v, void(*vertex_compute)(uint32_t, Digraph*)) {
+void dfs_local_compute(Digraph* g, vertex_id_t v, void(*vertex_compute)(vertex_id_t, Digraph*)) {
     // TODO: negdje je zajeb, nadji di... PRINTA NULE.. ILI mozda vise ne :)
     //std::cout << "Visiting vertex " << v << "..." << std::endl;
     g->set_visited(v);
@@ -55,7 +55,7 @@ void dfs_local_compute(Digraph* g, uint32_t v, void(*vertex_compute)(uint32_t, D
     }
 }
 
-void run_local(Digraph* g, void(*vertex_compute)(uint32_t, Digraph*)) {
+void run_local(Digraph* g, void(*vertex_compute)(vertex_id_t, Digraph*)) {
     //std::cout << "Starting computations (maximum " << DEFAULT_MAX_ITERATIONS << " iterations)..." << std::endl;
 
     int num_iterations = 0;

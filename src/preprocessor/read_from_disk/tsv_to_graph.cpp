@@ -5,7 +5,7 @@
 #include "tsv_to_graph.h"
 #include "digraph.h"
 
-Digraph tsv_to_digraph(const std::string &tsv_file, char separator, uint32_t beggining_line, uint32_t end_line, uint32_t v_num, state_t init_state, uint32_t update_batch_size) {
+Digraph tsv_to_digraph(const std::string &tsv_file, char separator, graph_size_t beggining_line, graph_size_t end_line, graph_size_t v_num, state_t init_state, graph_size_t update_batch_size) {
     Digraph digraph = Digraph(v_num, init_state, update_batch_size);
 
     std::fstream fs;
@@ -16,7 +16,7 @@ Digraph tsv_to_digraph(const std::string &tsv_file, char separator, uint32_t beg
 
         std::string line;
 
-        uint32_t line_counter = 0;
+        graph_size_t line_counter = 0;
 
         while (getline(fs, line)) {
             line_counter++;
@@ -25,11 +25,11 @@ Digraph tsv_to_digraph(const std::string &tsv_file, char separator, uint32_t beg
                 std::stringstream sep(line);
                 std::string vertex;
 
-                std::vector<uint32_t> vertex_pair;
+                std::vector<vertex_id_t> vertex_pair;
 
                 // TODO: edges needs only 2 values per field, simplify with an 1(vector)x2(array) structure
                 while (getline(sep, vertex, separator)) {
-                    vertex_pair.push_back(static_cast<uint32_t &&>(stoi(vertex)));
+                    vertex_pair.push_back(static_cast<vertex_id_t &&>(stoi(vertex)));
                 }
 
                 digraph.add_edge_populate(vertex_pair.at(0), vertex_pair.at(1));

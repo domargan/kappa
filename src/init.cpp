@@ -21,7 +21,7 @@ int main() {
     std::string dataset = "/home/dm1515/data/higgs-social_network-shuffled.edgelist";
     //std::string dataset = "/home/dm1515/data/higgs-social_network-shuffled-head1M";
 
-    uint32_t lines = number_of_lines(dataset);
+    graph_size_t lines = number_of_lines(dataset);
 
     raw_edge_array_t edges;
     edges = tsv_to_edges(dataset, ' ');
@@ -30,35 +30,23 @@ int main() {
 
     state_t init_state = 1.0 / max_vertex_num; // init state for PageRank
 
-    /*
-    uint32_t core_size = 1;
-    uint32_t chunks_size = core_size;
+    graph_size_t core_size = 1000;
+    graph_size_t chunks_size = core_size;
 
-    uint32_t beginning = 5000001;
-    uint32_t end = 5010000;
+    graph_size_t beginning = 5000001;
+    graph_size_t end = 5010000;
 
     Digraph g = tsv_to_digraph(dataset, ' ', 1, 5000000, max_vertex_num, init_state, chunks_size); //Prepopulating the graph...
     std::cout << "Graph size after pre-populating: " << g.get_size() << std::endl;
 
-     */
-
-    uint32_t core_size = 1000000;
-    uint32_t chunks_size = core_size;
-
-    uint32_t beginning = 1000001;
-    uint32_t end = lines;
-
-    Digraph g = tsv_to_digraph(dataset, ' ', 1, 1000000, max_vertex_num, init_state, chunks_size); //Prepopulating the graph...
-    std::cout << "Graph size after pre-populating: " << g.get_size() << std::endl;
-
-    std::vector<uint32_t> *touched_verts = g.get_touched_src_verts();
+    std::vector<graph_size_t> *touched_verts = g.get_touched_src_verts();
     std::cout << "Touched vertices queue size: " << touched_verts->size() << std::endl;
     std::cout << "Touched vertices queue capacity: " << touched_verts->capacity() << std::endl;
 
     //Computing PR values for the initial prepopulated graph (global)
     run_global(&g, pr_compute_single_vertex);
 
-    std::vector<uint32_t> split = dataset_to_batches(beginning, end, lines, core_size, chunks_size);
+    std::vector<graph_size_t> split = dataset_to_batches(beginning, end, lines, core_size, chunks_size);
 
     //Updating and computing incremental PR (local)
     naive_incremental_compute_tsv(pr_compute_single_vertex,

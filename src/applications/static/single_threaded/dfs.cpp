@@ -6,7 +6,7 @@
 
 // TODO: Use templates instead of function overloading
 
-void dfs(Digraph* g, uint32_t v) {
+void dfs(Digraph* g, vertex_id_t v) {
     std::cout << "Visiting vertex " << v << "..." << std::endl;
     g->update_state(v, 1);
     g->finalize_state(v);
@@ -18,7 +18,7 @@ void dfs(Digraph* g, uint32_t v) {
     }
 }
 
-void dfs(Graph* g, uint32_t v) {
+void dfs(Graph* g, vertex_id_t v) {
     std::cout << "Visiting vertex " << v << "..." << std::endl;
     g->update_state(v, 1);
     g->finalize_state(v);
@@ -30,14 +30,14 @@ void dfs(Graph* g, uint32_t v) {
     }
 }
 
-void dfs_compute(Digraph* g, uint32_t v) {
+void dfs_compute(Digraph* g, vertex_id_t v) {
     std::cout << "Starting DFS computations..." << std::endl;
     if(g->has_vertex(v)){
         dfs(g, v);
     }
 }
 
-void dfs_compute(Graph* g, uint32_t v) {
+void dfs_compute(Graph* g, vertex_id_t v) {
     std::cout << "Starting DFS computations..." << std::endl;
     if(g->has_vertex(v)){
         dfs(g, v);

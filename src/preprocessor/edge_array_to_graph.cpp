@@ -4,7 +4,7 @@
 #include "edge_array_to_graph.h"
 
 Graph edge_array_to_graph(raw_edge_array_t& edge_array, state_t init_state) {
-    uint32_t v_num = unique_vertex_count(edge_array);
+    graph_size_t v_num = unique_vertex_count(edge_array);
 
     Graph graph = Graph(v_num, init_state);
 
@@ -15,8 +15,8 @@ Graph edge_array_to_graph(raw_edge_array_t& edge_array, state_t init_state) {
     return graph;
 }
 
-Digraph edge_array_to_digraph(raw_edge_array_t& edge_array, state_t init_state, uint32_t update_batch_size) {
-    uint32_t v_num = unique_vertex_count(edge_array);
+Digraph edge_array_to_digraph(raw_edge_array_t& edge_array, state_t init_state, graph_size_t update_batch_size) {
+    graph_size_t v_num = unique_vertex_count(edge_array);
 
     Digraph digraph = Digraph(v_num, init_state, update_batch_size);
 

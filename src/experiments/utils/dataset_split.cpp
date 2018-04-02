@@ -4,8 +4,8 @@
 
 #include "dataset_split.h"
 
-uint32_t number_of_lines(std::string tsv_file) {
-    uint32_t number_of_lines = 0;
+graph_size_t number_of_lines(std::string tsv_file) {
+    graph_size_t number_of_lines = 0;
 
     std::ifstream fs;
     fs.open(tsv_file);
@@ -22,22 +22,22 @@ uint32_t number_of_lines(std::string tsv_file) {
     return number_of_lines;
 }
 
-std::vector<uint32_t> dataset_to_batches(uint32_t beginning, uint32_t end, uint32_t total_lines, uint32_t core_size,
-                                         uint32_t chunk_size){
+std::vector<graph_size_t> dataset_to_batches(graph_size_t beginning, graph_size_t end, graph_size_t total_lines, graph_size_t core_size,
+                                         graph_size_t chunk_size){
     // size is measured in the number of lines in a dataset edgelist file.
 
     std::cout << "Splitting dataset into batches..." << std::endl;
 
     end = end + 1;
 
-    uint32_t size = end - beginning;
+    graph_size_t size = end - beginning;
 
-    uint32_t rest_size = size - core_size;
+    graph_size_t rest_size = size - core_size;
 
     std::cout << "Total dataset size: " << total_lines << std::endl;
     std::cout << "Total selected data size: " << size << std::endl;
 
-    uint32_t chunks_num = 1;
+    graph_size_t chunks_num = 1;
 
     if(rest_size%chunk_size == 0) {
         chunks_num += rest_size / chunk_size;
@@ -51,18 +51,18 @@ std::vector<uint32_t> dataset_to_batches(uint32_t beginning, uint32_t end, uint3
     std::cout << "Remaining size: " << rest_size << std::endl;
     std::cout << "Batch size (max): " << chunk_size << std::endl;
 
-    std::vector<uint32_t> chunks_line_marks(chunks_num+1);
+    std::vector<graph_size_t> chunks_line_marks(chunks_num+1);
 
     chunks_line_marks.at(0) = beginning;
     std::cout << "Chunk 1 start line: " << beginning << std::endl;
 
-    uint32_t chunk_line_mark = beginning + core_size;
+    graph_size_t chunk_line_mark = beginning + core_size;
 
     chunks_line_marks.at(1) = chunk_line_mark;
     std::cout << "Chunk 2 start line: " << chunk_line_mark << std::endl;
 
     if(chunks_num > 2){
-        for(uint32_t i=2; i<=chunks_num; i++){
+        for(graph_size_t i=2; i<=chunks_num; i++){
             chunk_line_mark += chunk_size;
 
             if (chunk_line_mark < end) {

@@ -2,7 +2,7 @@
 #define KAPPA_DATASET_SPLIT_HARDCODED_H
 
 //100k updates granularity
-const std::vector<uint32_t> SAMPLE_SPLIT_100K{0,
+const std::vector<graph_order_t> SAMPLE_SPLIT_100K{0,
                             900000,
                             1000000,1100000,
                             1900000,
@@ -21,7 +21,7 @@ const std::vector<uint32_t> SAMPLE_SPLIT_100K{0,
                             14000000, 14100000};
 
 //10k updates granularity
-const std::vector<uint32_t> SAMPLE_SPLIT_10K{0,
+const std::vector<graph_order_t> SAMPLE_SPLIT_10K{0,
                             990000,
                             1000000,1010000,
                             1990000,
@@ -40,7 +40,7 @@ const std::vector<uint32_t> SAMPLE_SPLIT_10K{0,
                             14000000, 14010000};
 
 //1k updates granularity
-const std::vector<uint32_t> SAMPLE_SPLIT_1K{0,
+const std::vector<graph_order_t> SAMPLE_SPLIT_1K{0,
                             999000,
                             1000000,1001000,
                             1999000,
@@ -59,7 +59,7 @@ const std::vector<uint32_t> SAMPLE_SPLIT_1K{0,
                             14000000, 14001000};
 
 //100 updates granularity
-const std::vector<uint32_t> SAMPLE_SPLIT_100{0,
+const std::vector<graph_order_t> SAMPLE_SPLIT_100{0,
                             999900,
                             1000000,1000100,
                             1999900,
@@ -78,7 +78,7 @@ const std::vector<uint32_t> SAMPLE_SPLIT_100{0,
                             14000000, 14000100};
 
 //Single update granularity
-const std::vector<uint32_t> SAMPLE_SPLIT_SINGLE{0,
+const std::vector<graph_order_t> SAMPLE_SPLIT_SINGLE{0,
                             999999,
                             1000000,1000001,
                             1999999,
@@ -96,7 +96,7 @@ const std::vector<uint32_t> SAMPLE_SPLIT_SINGLE{0,
                             13999999,
                             14000000, 14000001};
 
-const std::vector<uint32_t> SAMPLE_SPLIT_SINGLE_FINER{0,
+const std::vector<graph_order_t> SAMPLE_SPLIT_SINGLE_FINER{0,
                                                       999999,
                                                       1000000, 1000001,
                                                       1999999,

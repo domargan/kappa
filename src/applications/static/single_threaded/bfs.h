@@ -4,7 +4,7 @@
 #include "graph.h"
 #include "digraph.h"
 
-void bfs(Graph*, uint32_t);
-void bfs(Digraph*, uint32_t);
+void bfs(Graph*, vertex_id_t);
+void bfs(Digraph*, vertex_id_t);
 
 #endif //KAPPA_BFS_H

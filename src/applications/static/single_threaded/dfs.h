@@ -4,10 +4,10 @@
 #include "graph.h"
 #include "digraph.h"
 
-void dfs(Graph*, uint32_t);
-void dfs_compute(Graph*, uint32_t);
+void dfs(Graph*, vertex_id_t);
+void dfs_compute(Graph*, vertex_id_t);
 
-void dfs(Digraph*, uint32_t);
-void dfs_compute(Digraph*, uint32_t);
+void dfs(Digraph*, vertex_id_t);
+void dfs_compute(Digraph*, vertex_id_t);
 
 #endif //KAPPA_DFS_H
