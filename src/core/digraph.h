@@ -36,6 +36,9 @@ private:
     state_vector_t states;
     state_vector_t states_temp;
 
+    bool state_change_monitor;
+    state_t state_change_tolerance;
+
     // TODO: Maybe visited_verts should be a part of vertex struct?
     vertex_bitset_t visited_verts; // 1 if the vertex has been visited by an algorithm, 0 if not.
 
@@ -69,8 +72,6 @@ public:
     state_t get_state(vertex_id_t);
     void finalize_state(vertex_id_t);
     void finalize_states();
-    bool state_change_monitor;
-    state_t state_change_tolerance;
     void set_state_change_tolerance(state_t);
 
     vertex_queue_t *get_touched_src_verts();
