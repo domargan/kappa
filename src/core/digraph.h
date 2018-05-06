@@ -73,6 +73,9 @@ public:
     void finalize_state(vertex_id_t);
     void finalize_states();
     void set_state_change_tolerance(state_t);
+    bool state_changed();
+    void set_state_change();
+    void unset_state_change();
 
     vertex_queue_t *get_touched_src_verts();
     void reset_touched_src_verts();

@@ -224,6 +224,18 @@ void Digraph::set_state_change_tolerance(state_t epsilon){
     state_change_tolerance = epsilon;
 }
 
+bool Digraph::state_changed() {
+    return state_change_monitor;
+}
+
+void Digraph::set_state_change() {
+    state_change_monitor = true;
+}
+
+void Digraph::unset_state_change() {
+    state_change_monitor = false;
+}
+
 vertex_queue_t *Digraph::get_touched_src_verts(){
     return &touched_src_verts;
 }
@@ -284,3 +296,5 @@ void Digraph::increment_size() {
 void Digraph::decrement_size() {
     size--;
 }
+
+
