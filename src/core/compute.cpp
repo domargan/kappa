@@ -15,10 +15,13 @@ void run_global(Digraph* g, void(*vertex_compute)(vertex_id_t, Digraph*)) {
     graph_size_t max_order = g->get_max_order();
 
     int num_iterations = 0;
-    g->state_change_monitor = true;
+    //g->state_change_monitor = true;
+    g->set_state_change();
 
-    while(g->state_change_monitor && num_iterations < DEFAULT_MAX_ITERATIONS) {
-        g->state_change_monitor = false;
+    //while(g->state_change_monitor && num_iterations < DEFAULT_MAX_ITERATIONS) {
+    while(g->state_changed() && num_iterations < DEFAULT_MAX_ITERATIONS) {
+        //g->state_change_monitor = false;
+        g->unset_state_change();
 
         for (graph_size_t i = 0; i < max_order; i++) {
             if(g->has_vertex(i)){
@@ -59,12 +62,15 @@ void run_local(Digraph* g, void(*vertex_compute)(vertex_id_t, Digraph*)) {
     //std::cout << "Starting computations (maximum " << DEFAULT_MAX_ITERATIONS << " iterations)..." << std::endl;
 
     int num_iterations = 0;
-    g->state_change_monitor = true;
+    //g->state_change_monitor = true;
+    g->set_state_change();
 
     vertex_queue_t* touched_src_vets = g->get_touched_src_verts();
 
-    while(g->state_change_monitor && num_iterations < DEFAULT_MAX_ITERATIONS) {
-        g->state_change_monitor = false;
+    //while(g->state_change_monitor && num_iterations < DEFAULT_MAX_ITERATIONS) {
+    while(g->state_changed() && num_iterations < DEFAULT_MAX_ITERATIONS) {
+        //g->state_change_monitor = false;
+        g->unset_state_change();
 
         for(auto v : *touched_src_vets){
             if(!g->has_been_visited(v)) {
