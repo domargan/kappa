@@ -10,6 +10,7 @@
 #include "compute.h"
 
 #include <gtest/gtest.h>
+#include <edge_array_to_graph.h>
 
 
 int main() {
@@ -21,38 +22,60 @@ int main() {
     std::string dataset = "/home/dm1515/data/higgs-social_network-shuffled.edgelist";
     //std::string dataset = "/home/dm1515/data/higgs-social_network-shuffled-head1M";
 
-    graph_size_t lines = number_of_lines(dataset);
+    // ------------------------------------------------------------------------------------------ //
 
-    raw_edge_array_t edges;
-    edges = edgelist_to_edges(dataset, ' ');
+    // Preload the data in memory, in form of an edge array
+    raw_edge_array_t edge_array;
+    edge_array = edgelist_to_edge_array(dataset, ' ');
 
-    unsigned int max_vertex_num = unique_vertex_count(edges);
+    // Some basic dataset statistics
+    graph_size_t max_vertex_num = unique_vertex_count(edge_array);
+    graph_size_t num_dataset_entries = edgelist_count_lines(dataset);
+    std::cout << "Number of edges in the dataset: " << num_dataset_entries << std::endl;
+    std::cout << "Number of vertices in the dataset: " << max_vertex_num << std::endl;
 
+    // ------------------------------------------------------------------------------------------ //
+
+    // Set batch sizes
+    graph_size_t core_size = 1000;
+    graph_size_t batch_size = core_size;
+
+    // Set init state of vertices
     state_t init_state = 1.0 / max_vertex_num; // init state for PageRank
 
-    graph_size_t core_size = 1000;
-    graph_size_t chunks_size = core_size;
+    // Create a graph object
+    Digraph g = Digraph(max_vertex_num, init_state, batch_size);
 
-    graph_size_t beginning = 5000001;
-    graph_size_t end = 5010000;
+    // Prepopulate the graph with some edges from the edge array
+    edge_array_to_digraph(&g, edge_array, 1, 5000000);
+    g.reset_touched_src_verts(); // DON'T FORGET TO RESET TOUCHED VERTICES AFTER PRE-POPULATING
 
-    Digraph g = edgelist_to_digraph(dataset, ' ', 1, 5000000, max_vertex_num, init_state, chunks_size); //Prepopulating the graph...
     std::cout << "Graph size after pre-populating: " << g.get_size() << std::endl;
 
     std::vector<graph_size_t> *touched_verts = g.get_touched_src_verts();
     std::cout << "Touched vertices queue size: " << touched_verts->size() << std::endl;
     std::cout << "Touched vertices queue capacity: " << touched_verts->capacity() << std::endl;
 
-    //Computing PR values for the initial prepopulated graph (global)
+    // ------------------------------------------------------------------------------------------ //
+
+    // Run computations for the initial prepopulated graph (global computation)
     run_global(&g, pr_compute_single_vertex);
 
-    std::vector<graph_size_t> split = dataset_to_batches(beginning, end, lines, core_size, chunks_size);
+    // Set a range of entries (lines) from the dataset, for updates to be applied to the graph
+    graph_size_t beginning = 5000001;
+    graph_size_t end = 5010000;
 
-    //Updating and computing incremental PR (local)
+    // Logically split the entires in the dataset by lines, splitting into batches
+    std::vector<graph_size_t> split = dataset_to_batches(beginning, end, num_dataset_entries, core_size, batch_size);
+
+    // Main experiment part
+    // Interchanging processes:
+    // - updating the graph
+    // - running incremental localised computation
     naive_incremental_compute_edgelist(pr_compute_single_vertex,
-                                  &g,
-                                  edges,
-                                  split);
+                                       &g,
+                                       edge_array,
+                                       split);
 
     //dump_vertex_states(&g, "results.txt");
 
