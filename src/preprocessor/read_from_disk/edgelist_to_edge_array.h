@@ -10,7 +10,8 @@
 
 typedef std::vector<std::vector<vertex_id_t>> raw_edge_array_t;
 
-raw_edge_array_t edgelist_to_edges(std::string, char);
+graph_size_t edgelist_count_lines(std::string);
+raw_edge_array_t edgelist_to_edge_array(std::string, char);
 bool sort_edges_by_src(const std::vector<vertex_id_t>&, const std::vector<vertex_id_t>&);
 bool sort_edges_by_dst(const std::vector<vertex_id_t>&, const std::vector<vertex_id_t>&);
 graph_size_t unique_vertex_count(raw_edge_array_t&);

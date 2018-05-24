@@ -1,27 +1,20 @@
-#include <algorithm>
-#include "read_from_disk/edgelist_to_edge_array.h"
+#include <boost/progress.hpp>
 #include "edge_array_to_graph.h"
 
-Graph edge_array_to_graph(raw_edge_array_t& edge_array, state_t init_state) {
-    graph_size_t v_num = unique_vertex_count(edge_array);
+void edge_array_to_digraph(Digraph* g, raw_edge_array_t& edge_array, graph_size_t beggining_line, graph_size_t end_line) {
+    std::cout << "Populating Digraph with entries from edge array..." << std::endl;
 
-    Graph graph = Graph(v_num, init_state);
+    boost::progress_display show_progress(end_line - beggining_line);
 
-    for(auto edge : edge_array) {
-        graph.add_edge(edge[0], edge[1]);
+    graph_size_t current_line = beggining_line-1;
+
+    while (current_line < end_line) {
+
+        g->add_edge(edge_array[current_line][0], edge_array[current_line][1]);
+        ++current_line;
+
+        ++show_progress;
     }
 
-    return graph;
-}
-
-Digraph edge_array_to_digraph(raw_edge_array_t& edge_array, state_t init_state, graph_size_t update_batch_size) {
-    graph_size_t v_num = unique_vertex_count(edge_array);
-
-    Digraph digraph = Digraph(v_num, init_state, update_batch_size);
-
-    for(auto edge : edge_array) {
-        digraph.add_edge(edge[0], edge[1]);
-    }
-
-    return digraph;
+    std::cout << "\nFinished populating.\n" << std::endl;
 }
