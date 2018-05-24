@@ -2,13 +2,13 @@
 #include <fstream>
 
 #include "compute.h"
-#include "read_from_disk/tsv_to_edge_array.h"
+#include "read_from_disk/edgelist_to_edge_array.h"
 
 // This should be just a hacky implementation that
-// does additions of edges read from a given tsv file.
-// A proper implementation should have separated tsv/stream ingestion and graph update parts.
+// does additions of edges read from a given edgelist file.
+// A proper implementation should have separated edgelist/stream ingestion and graph update parts.
 
-void naive_incremental_compute_tsv(void(*compute)(vertex_id_t, Digraph*),
+void naive_incremental_compute_edgelist(void(*compute)(vertex_id_t, Digraph*),
                                    Digraph *g,
                                    raw_edge_array_t &updates,
                                    const std::vector<graph_size_t> &chunks_start_lines) {

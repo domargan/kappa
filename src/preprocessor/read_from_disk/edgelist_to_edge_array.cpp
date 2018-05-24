@@ -4,7 +4,9 @@
 #include <vector>
 #include <algorithm>
 #include <set>
-#include "tsv_to_edge_array.h"
+#include <boost/progress.hpp>
+
+#include "edgelist_to_edge_array.h"
 
 // TODO: Rename this file and functions to make the names more correct (confusing: e.g. edges, edge array, etc...)
 // TODO: Add an option to simplify graph building by directly doing add_edge() without building an edge array first
@@ -38,17 +40,19 @@ graph_size_t unique_vertex_count(raw_edge_array_t& edges){
     return v_num;
 }
 
-raw_edge_array_t tsv_to_edges(std::string tsv_file, char separator) {
+raw_edge_array_t edgelist_to_edges(std::string edgelist_file, char separator) {
     raw_edge_array_t edges;
 
     std::fstream fs;
-    fs.open(tsv_file);
+    fs.open(edgelist_file);
 
     if (fs) {
 
-        std::cout << "Opened " << tsv_file << "\nParsing file into edge array..." << std::endl;
+        std::cout << "Opened " << edgelist_file << "\nParsing file into edge array..." << std::endl;
 
         std::string line;
+
+        boost::progress_display show_progress(14855842);
 
         while (getline(fs, line)) {
             std::stringstream sep(line);
@@ -60,12 +64,14 @@ raw_edge_array_t tsv_to_edges(std::string tsv_file, char separator) {
             while (getline(sep, vertex, separator)) {
                 edges.back().push_back(static_cast<vertex_id_t &&>(stoi(vertex)));
             }
+
+            ++show_progress;
         }
     }
 
     fs.close();
 
-    std::cout << "Parsing finished." << std::endl;
+    std::cout << "\nParsing finished." << std::endl;
     std::cout << "Number of edges: " << edges.size() << std::endl;
 
     /*
