@@ -1,5 +1,5 @@
-#ifndef KAPPA_edgelist_TO_EDGE_ARRAY_H
-#define KAPPA_edgelist_TO_EDGE_ARRAY_H
+#ifndef KAPPA_EDGELIST_TO_EDGE_ARRAY_H
+#define KAPPA_EDGELIST_TO_EDGE_ARRAY_H
 
 #include <iostream>
 #include <fstream>
@@ -17,4 +17,4 @@ graph_size_t unique_vertex_count(raw_edge_array_t&);
 std::set<vertex_id_t> extract_vertices(raw_edge_array_t&);
 void print_edge_array(raw_edge_array_t&);
 
-#endif //KAPPA_READ_edgelist_DISK_H
+#endif //KAPPA_EDGELIST_TO_EDGE_ARRAY_H

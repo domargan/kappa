@@ -1,6 +1,5 @@
 #include <algorithm>
-#include <set>
-#include "read_from_disk/tsv_to_edge_array.h"
+#include "read_from_disk/edgelist_to_edge_array.h"
 #include "edge_array_to_graph.h"
 
 Graph edge_array_to_graph(raw_edge_array_t& edge_array, state_t init_state) {

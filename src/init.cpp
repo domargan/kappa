@@ -3,8 +3,8 @@
 #include <functional>
 #include <stack>
 
-#include "read_from_disk/tsv_to_graph.h"
-#include "naive_incremental_compute_tsv.h"
+#include "read_from_disk/edgelist_to_graph.h"
+#include "naive_incremental_compute_edgelist.h"
 #include "dataset_split.h"
 #include "pagerank.h"
 #include "compute.h"
@@ -24,7 +24,7 @@ int main() {
     graph_size_t lines = number_of_lines(dataset);
 
     raw_edge_array_t edges;
-    edges = tsv_to_edges(dataset, ' ');
+    edges = edgelist_to_edges(dataset, ' ');
 
     unsigned int max_vertex_num = unique_vertex_count(edges);
 
@@ -36,7 +36,7 @@ int main() {
     graph_size_t beginning = 5000001;
     graph_size_t end = 5010000;
 
-    Digraph g = tsv_to_digraph(dataset, ' ', 1, 5000000, max_vertex_num, init_state, chunks_size); //Prepopulating the graph...
+    Digraph g = edgelist_to_digraph(dataset, ' ', 1, 5000000, max_vertex_num, init_state, chunks_size); //Prepopulating the graph...
     std::cout << "Graph size after pre-populating: " << g.get_size() << std::endl;
 
     std::vector<graph_size_t> *touched_verts = g.get_touched_src_verts();
@@ -49,7 +49,7 @@ int main() {
     std::vector<graph_size_t> split = dataset_to_batches(beginning, end, lines, core_size, chunks_size);
 
     //Updating and computing incremental PR (local)
-    naive_incremental_compute_tsv(pr_compute_single_vertex,
+    naive_incremental_compute_edgelist(pr_compute_single_vertex,
                                   &g,
                                   edges,
                                   split);

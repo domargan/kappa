@@ -4,18 +4,18 @@
 
 #include "dataset_split.h"
 
-graph_size_t number_of_lines(std::string tsv_file) {
+graph_size_t number_of_lines(std::string edgelist_file) {
     graph_size_t number_of_lines = 0;
 
     std::ifstream fs;
-    fs.open(tsv_file);
+    fs.open(edgelist_file);
 
     std::string line;
 
     while (std::getline(fs, line))
         ++number_of_lines;
 
-    std::cout << "Number of lines in tsv file: " << number_of_lines << std::endl;
+    std::cout << "Number of lines in edgelist file: " << number_of_lines << std::endl;
 
     fs.close();
 
