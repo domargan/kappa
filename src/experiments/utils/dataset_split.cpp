@@ -22,8 +22,64 @@ graph_size_t number_of_lines(std::string edgelist_file) {
     return number_of_lines;
 }
 
-std::vector<graph_size_t> dataset_to_batches(graph_size_t beginning, graph_size_t end, graph_size_t total_lines, graph_size_t core_size,
-                                         graph_size_t chunk_size){
+std::vector<graph_size_t> dataset_to_batches(graph_size_t beginning, graph_size_t end, graph_size_t total_lines,
+                                             graph_size_t chunk_size){
+    // size is measured in the number of lines in a dataset edgelist file.
+
+    std::cout << "Splitting dataset into batches..." << std::endl;
+
+    end = end + 1;
+
+    graph_size_t size = end - beginning;
+
+    std::cout << "Total dataset size: " << total_lines << std::endl;
+    std::cout << "Total selected data size: " << size << std::endl;
+
+    graph_size_t chunks_num = 0;
+
+    if(size%chunk_size == 0) {
+        chunks_num += size / chunk_size;
+    } else {
+        chunks_num += (size / chunk_size) + 1;
+    }
+
+    std::cout << "Number of batches: " << chunks_num << std::endl;
+    std::cout << "Batch size (max): " << chunk_size << std::endl;
+
+    std::vector<graph_size_t> chunks_line_marks(chunks_num+1);
+
+    chunks_line_marks.at(0) = beginning;
+    std::cout << "Chunk 1 start line: " << beginning << std::endl;
+
+    //graph_size_t chunk_line_mark = beginning + chunk_size;
+    graph_size_t chunk_line_mark = beginning;
+
+    if(chunks_num > 1){
+        for(graph_size_t i=1; i<=chunks_num; i++){
+            chunk_line_mark += chunk_size;
+
+            if (chunk_line_mark < end) {
+                chunks_line_marks.at(i) = chunk_line_mark;
+                std::cout << "Chunk " << i + 1 << " start line: " << chunk_line_mark << std::endl;
+            } else {
+                chunk_line_mark = end;
+                chunks_line_marks.at(i) = chunk_line_mark;
+                std::cout << "Last chunk (" << i << ") ends before the line: " << chunk_line_mark << std::endl;
+            }
+        }
+    } else {
+        chunk_line_mark = end;
+        chunks_line_marks.at(1) = chunk_line_mark;
+        std::cout << "Chunk ends before the line : " << chunk_line_mark << std::endl;
+    }
+
+    std::cout << "Splitting dataset into batches finished." << std::endl;
+
+    return chunks_line_marks;
+}
+
+std::vector<graph_size_t> dataset_to_batches_with_core(graph_size_t beginning, graph_size_t end, graph_size_t total_lines, graph_size_t core_size,
+                                                       graph_size_t chunk_size){
     // size is measured in the number of lines in a dataset edgelist file.
 
     std::cout << "Splitting dataset into batches..." << std::endl;
