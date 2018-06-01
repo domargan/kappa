@@ -37,8 +37,7 @@ int main() {
     // ------------------------------------------------------------------------------------------ //
 
     // Set batch sizes
-    graph_size_t core_size = 1000;
-    graph_size_t batch_size = core_size;
+    graph_size_t batch_size = 1000;
 
     // Set init state of vertices
     state_t init_state = 1.0 / max_vertex_num; // init state for PageRank
@@ -66,13 +65,14 @@ int main() {
     graph_size_t end = 5010000;
 
     // Logically split the entires in the dataset by lines, splitting into batches
-    std::vector<graph_size_t> split = dataset_to_batches(beginning, end, num_dataset_entries, core_size, batch_size);
+    std::vector<graph_size_t> split = dataset_to_batches(beginning, end, num_dataset_entries, batch_size);
+
 
     // Main experiment part
     // Interchanging processes:
     // - updating the graph
     // - running incremental localised computation
-    naive_incremental_compute_edgelist(pr_compute_single_vertex,
+    naive_incremental_compute_edge_array(pr_compute_single_vertex,
                                        &g,
                                        edge_array,
                                        split);
