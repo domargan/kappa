@@ -113,28 +113,6 @@ void Digraph::add_edge(vertex_id_t src_v, vertex_id_t dst_v) {
     }
 }
 
-void Digraph::add_edge_populate(vertex_id_t src_v, vertex_id_t dst_v) { // JUST FOR TESTING!
-    if (!has_edge(src_v, dst_v)) {
-        if(!has_vertex(src_v)){
-            vertex_index[src_v] = 1;
-            increment_order();
-        }
-
-        if(!has_vertex(dst_v)){
-            vertex_index[dst_v] = 1;
-            increment_order();
-        }
-
-        // TODO: Remove duplicated neighbors vectors, store just one type of neighbors
-        topology[src_v].out_neighbors->push_back(dst_v);
-        topology[dst_v].in_neighbors->push_back(src_v);
-
-        topology[src_v].out_degree++;
-        topology[dst_v].in_degree++;
-
-        increment_size();
-    }
-}
 
 void Digraph::remove_edge(vertex_id_t src_v, vertex_id_t dst_v) {
     if (has_edge(src_v, dst_v)) {
