@@ -1,5 +1,6 @@
 #include <iostream>
 #include <algorithm>
+#include <iomanip>
 
 #include "digraph.h"
 
@@ -199,12 +200,14 @@ graph_size_t Digraph::get_degree(vertex_id_t v) {
 void Digraph::update_state(vertex_id_t v, state_t state_new) {
     states_temp[v] = state_new;
 
+    //std::cout << "Old state of vertex " << v << " is " << std::fixed << std::setprecision(20) << states[v] << std::endl;
+    //std::cout << "New state of vertex " << v << " is " << std::fixed << std::setprecision(20) << states_temp[v] << std::endl;
+
+    //std::cout << "Difference " << v << " is " << std::fixed << std::setprecision(20) << std::abs(state_new - states[v]) << std::endl;
+
     if(std::abs(state_new - states[v]) >= state_change_tolerance){
         state_change_monitor = true;
     }
-
-    //std::cout << "Old state of vertex " << v << " is " << states[v] << std::endl;
-    //std::cout << "New state of vertex " << v << " is " << states_temp[v] << std::endl;
 }
 
 state_t Digraph::get_state(vertex_id_t v) {
