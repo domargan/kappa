@@ -175,6 +175,19 @@ graph_size_t Digraph::get_degree(vertex_id_t v) {
     return get_in_degree(v) + get_out_degree(v);
 }
 
+/*
+ * TODO: Finish this up: assigning a custom state value (user-function defined) to a newly added vertex
+void Digraph::set_state(vertex_id_t v, state_t state) {
+    states[v] = state;
+    //states_temp[v] = state;
+}
+
+state_t Digraph::set_state_f_defined(*set_state_function(state_t))(vertex_id_t, Digraph*) {
+        //state_t(*user_set_state_f)(vertex_id_t, Digraph*)) {
+    // Takes a pointer to a user-defined function
+}
+*/
+
 void Digraph::update_state(vertex_id_t v, state_t state_new) {
     states_temp[v] = state_new;
 

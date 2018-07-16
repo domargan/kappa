@@ -68,6 +68,10 @@ public:
     graph_size_t get_out_degree(vertex_id_t); // Return the out-degree of a vertex.
     graph_size_t get_degree(vertex_id_t); // Return the degree of a vertex.
 
+    /*
+    * TODO: Finish this up: assigning a custom state value (user-function defined) to a newly added vertex
+    void set_state(vertex_id_t, state_t);
+     */
     void update_state(vertex_id_t, state_t);
     state_t get_state(vertex_id_t);
     void finalize_state(vertex_id_t);
