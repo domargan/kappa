@@ -1,4 +1,0 @@
-#ifndef KAPPA_TASK_POOL_H
-#define KAPPA_TASK_POOL_H
-
-#endif //KAPPA_TASK_POOL_H
