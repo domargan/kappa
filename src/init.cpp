@@ -11,15 +11,34 @@
 
 #include <gtest/gtest.h>
 #include <edge_array_to_graph.h>
-
+#include <thread_pool.hpp>
 
 int main() {
+    ThreadPool threadPool;
+
+    std::vector<TaskFuture<int>> vec;
+    for (int i = 0; i < 10; ++i) {
+        std::cout << "Submit " << i << std::endl;
+
+        vec.push_back(threadPool.submit([i]() {
+            return i;
+        }));
+    }
+
+    std::cout << std::endl << "Results:" << std::endl;
+
+    for (auto &taskFuture : vec)
+    {
+        std::cout << taskFuture.get() << std::endl;
+    }
+
+    /*
     std::cout << "Launching Kappa...\n" << std::endl;
 
     //std::string dataset = "/home/dm1515/data/test_data.edgelist";
     //std::string dataset = "/home/dm1515/data/twitter-2010-shuffled.txt";
-    //std::string dataset = "/home/dm1515/data/higgs-social_network.edgelist";
-    std::string dataset = "/home/dm1515/data/higgs-social_network-shuffled.edgelist";
+    std::string dataset = "/home/dm1515/data/higgs-social_network.edgelist";
+    //std::string dataset = "/home/dm1515/data/higgs-social_network-shuffled.edgelist";
     //std::string dataset = "/home/dm1515/data/higgs-social_network-shuffled-head1M";
 
     // ------------------------------------------------------------------------------------------ //
@@ -80,5 +99,7 @@ int main() {
     //dump_vertex_states(&g, "results.txt");
 
     std::cout << "Kappa finished." << std::endl;
+    */
+
     return 0;
 }

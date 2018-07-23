@@ -7,87 +7,84 @@
 #include <queue>
 #include <utility>
 
-
-template <typename T>
-class ThreadSafeQueue
-{
+template<typename T>
+class ThreadSafeQueue {
 public:
-    ~ThreadSafeQueue(void)
-    {
+    ~ThreadSafeQueue(void) {
         invalidate();
     }
 
-    bool tryPop(T& out)
-    {
-        std::lock_guard<std::mutex> lock{m_mutex};
-        if(m_queue.empty() || !m_valid)
-        {
+    bool tryPop(T &out) {
+        std::lock_guard<std::mutex> lock{mutex};
+
+        if (queue.empty() || !valid) {
             return false;
         }
-        out = std::move(m_queue.front());
-        m_queue.pop();
+
+        out = std::move(queue.front());
+        queue.pop();
+
         return true;
     }
 
-    bool waitPop(T& out)
-    {
-        std::unique_lock<std::mutex> lock{m_mutex};
-        m_condition.wait(lock, [this]()
-        {
-            return !m_queue.empty() || !m_valid;
+    bool waitPop(T &out) {
+        std::unique_lock<std::mutex> lock{mutex};
+
+        condition.wait(lock, [this]() {
+            return !queue.empty() || !valid;
         });
 
-        if(!m_valid)
-        {
+        if (!valid) {
             return false;
         }
-        out = std::move(m_queue.front());
-        m_queue.pop();
+
+        out = std::move(queue.front());
+        queue.pop();
+
         return true;
     }
 
-    void push(T value)
-    {
-        std::lock_guard<std::mutex> lock{m_mutex};
-        m_queue.push(std::move(value));
-        m_condition.notify_one();
+    void push(T value) {
+        std::lock_guard<std::mutex> lock{mutex};
+
+        queue.push(std::move(value));
+        condition.notify_one();
     }
 
-    bool empty(void) const
-    {
-        std::lock_guard<std::mutex> lock{m_mutex};
-        return m_queue.empty();
+    bool empty(void) const {
+        std::lock_guard<std::mutex> lock{mutex};
+
+        return queue.empty();
     }
 
-    void clear(void)
-    {
-        std::lock_guard<std::mutex> lock{m_mutex};
-        while(!m_queue.empty())
-        {
-            m_queue.pop();
+    void clear(void) {
+        std::lock_guard<std::mutex> lock{mutex};
+
+        while (!queue.empty()) {
+            queue.pop();
         }
-        m_condition.notify_all();
+
+        condition.notify_all();
     }
 
-    void invalidate(void)
-    {
-        std::lock_guard<std::mutex> lock{m_mutex};
-        m_valid = false;
-        m_condition.notify_all();
+    void invalidate(void) {
+        std::lock_guard<std::mutex> lock{mutex};
+
+        valid = false;
+        condition.notify_all();
     }
 
-    bool isValid(void) const
-    {
-        std::lock_guard<std::mutex> lock{m_mutex};
-        return m_valid;
+    bool isValid(void) const {
+        std::lock_guard<std::mutex> lock{mutex};
+
+        return valid;
     }
 
 private:
-    std::atomic_bool m_valid{true};
-    mutable std::mutex m_mutex;
-    std::queue<T> m_queue;
-    std::condition_variable m_condition;
+    std::queue<T> queue;
+    mutable std::mutex mutex;
+    std::atomic_bool valid{true};
+    std::condition_variable condition;
 };
-
 
 #endif //KAPPA_TASK_QUEUE_H
