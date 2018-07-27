@@ -87,4 +87,12 @@ private:
     ThreadSafeQueue<std::unique_ptr<TaskInterface>> workQueue;
 };
 
+namespace DefaultThreadPool {
+    inline ThreadPool &getThreadPool(void) {
+        static ThreadPool defaultPool;
+
+        return defaultPool;
+    }
+}
+
 #endif //KAPPA_THREAD_POOL
