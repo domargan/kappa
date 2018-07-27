@@ -22,7 +22,7 @@ int main() {
     //std::string dataset = "/home/dm1515/data/higgs-social_network-shuffled.edgelist";
     //std::string dataset = "/home/dm1515/data/higgs-social_network-shuffled-head1M";
 
-    // std::string dataset = "/home/leopold/Developer/CLionProjects/kappa/data/twitter/higgs-social_network.edgelist";
+    // std::string dataset = "/home/leopold/Developer/graphs/higgs-social_network.edgelist";
 
     // ------------------------------------------------------------------------------------------ //
 

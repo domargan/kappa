@@ -1,6 +1,6 @@
 #include <iostream>
 #include "compute.h"
-#include "thread_pool.hpp"
+#include "global_worker_pool.h"
 
 // TODO: Implement compute() as a function of vertex struct.
 // User then overrides the compute() function and it can be used here as
@@ -47,13 +47,12 @@ void run_global(Digraph *g, void (*vertex_compute)(vertex_id_t, Digraph *)) {
 }
 
 void dfs_local_compute(Digraph *g, vertex_id_t v, void (*vertex_compute)(vertex_id_t, Digraph *)) {
-    static ThreadPool &threadPool = DefaultThreadPool::getThreadPool();
-
     // TODO: negdje je zajeb, nadji di... PRINTA NULE.. ILI mozda vise ne :)
     //std::cout << "Visiting vertex " << v << "..." << std::endl;
     g->set_visited(v);
 
-    threadPool.submit(vertex_compute, v, g);
+    // vertex_compute(v, g);
+    GlobalWorkerPool::getThreadPool().submit(vertex_compute, v, g);
 
     // TODO: if difference in the states for v is less than epsion, don't go deeper with dfs
     for (auto neighbor : *(g->get_out_neighborhood(v))) {
