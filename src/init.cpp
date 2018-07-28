@@ -1,20 +1,22 @@
-#include <iostream>
-#include <list>
-#include <functional>
-#include <stack>
-
-#include "read_from_disk/edgelist_to_graph.h"
-#include "naive_incremental_compute_edgelist.h"
-#include "dataset_split.h"
-#include "pagerank.h"
-#include "compute.h"
-
 #include <gtest/gtest.h>
-#include <edge_array_to_graph.h>
-#include <thread_pool.hpp>
+#include <iostream>
+#include <pagerank.h>
+#include <utils/dataset_split.h>
+#include <compute.h>
+
+#include "core/utils/threading.h"
+#include "edge_array_to_graph.h"
+#include "naive_incremental_compute_edgelist.h"
+#include "read_from_disk/edgelist_to_graph.h"
+#include "thread_pool.hpp"
 
 int main() {
     std::cout << "Launching Kappa...\n" << std::endl;
+
+    // TODO: Pin main thread to CPU 0
+    // TODO: Spawn thread for scheduler and pin it to CPU 1
+
+    ThreadPool workerPool(get_no_of_cpus() - NON_WORKER_THREADS, NON_WORKER_THREADS);
 
     //std::string dataset = "/home/dm1515/data/test_data.edgelist";
     //std::string dataset = "/home/dm1515/data/twitter-2010-shuffled.txt";
@@ -77,7 +79,8 @@ int main() {
     naive_incremental_compute_edge_array(pr_compute_single_vertex,
                                        &g,
                                        edge_array,
-                                       split);
+                                       split,
+                                       workerPool);
 
     //dump_vertex_states(&g, "results.txt");
 

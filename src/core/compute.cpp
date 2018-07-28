@@ -1,6 +1,6 @@
 #include <iostream>
 #include "compute.h"
-#include "global_worker_pool.h"
+#include "thread_pool.hpp"
 
 // TODO: Implement compute() as a function of vertex struct.
 // User then overrides the compute() function and it can be used here as
@@ -46,23 +46,23 @@ void run_global(Digraph *g, void (*vertex_compute)(vertex_id_t, Digraph *)) {
      */
 }
 
-void dfs_local_compute(Digraph *g, vertex_id_t v, void (*vertex_compute)(vertex_id_t, Digraph *)) {
+void dfs_local_compute(Digraph *g, vertex_id_t v, void (*vertex_compute)(vertex_id_t, Digraph *), ThreadPool &workerPool) {
     // TODO: negdje je zajeb, nadji di... PRINTA NULE.. ILI mozda vise ne :)
     //std::cout << "Visiting vertex " << v << "..." << std::endl;
     g->set_visited(v);
 
     // vertex_compute(v, g);
-    GlobalWorkerPool::getThreadPool().submit(vertex_compute, v, g);
+    workerPool.submit(vertex_compute, v, g);
 
     // TODO: if difference in the states for v is less than epsion, don't go deeper with dfs
     for (auto neighbor : *(g->get_out_neighborhood(v))) {
         if (!g->has_been_visited(v)) {
-            dfs_local_compute(g, neighbor, vertex_compute);
+            dfs_local_compute(g, neighbor, vertex_compute, workerPool);
         }
     }
 }
 
-void run_local(Digraph *g, void (*vertex_compute)(vertex_id_t, Digraph *)) {
+void run_local(Digraph *g, void (*vertex_compute)(vertex_id_t, Digraph *), ThreadPool &workerPool) {
     //std::cout << "Starting computations (maximum " << DEFAULT_MAX_ITERATIONS << " iterations)..." << std::endl;
 
     int num_iterations = 0;
@@ -78,7 +78,7 @@ void run_local(Digraph *g, void (*vertex_compute)(vertex_id_t, Digraph *)) {
 
         for (auto v : *touched_src_vets) {
             if (!g->has_been_visited(v)) {
-                dfs_local_compute(g, v, vertex_compute);
+                dfs_local_compute(g, v, vertex_compute, workerPool);
             }
         }
 

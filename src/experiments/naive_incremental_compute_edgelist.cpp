@@ -1,5 +1,6 @@
 #include <ctime>
 #include <fstream>
+#include <thread_pool.hpp>
 
 #include "compute.h"
 #include "read_from_disk/edgelist_to_edge_array.h"
@@ -11,7 +12,8 @@
 void naive_incremental_compute_edge_array(void(*compute)(vertex_id_t, Digraph*),
                                    Digraph *g,
                                    raw_edge_array_t &updates,
-                                   const std::vector<graph_size_t> &chunks_start_lines) {
+                                   const std::vector<graph_size_t> &chunks_start_lines,
+                                   ThreadPool &workerPool) {
 
     std::cout << "STARTING NAIVE INCREMENTAL COMPUTATION EXPERIMENT..." << std::endl;
 
@@ -67,7 +69,7 @@ void naive_incremental_compute_edge_array(void(*compute)(vertex_id_t, Digraph*),
         clock_t cpu_begin_compute = clock();
 
         //run(g, compute);
-        run_local(g, compute);
+        run_local(g, compute, workerPool);
 
         clock_t cpu_end_compute = clock();
         float cpu_time_compute = float(cpu_end_compute - cpu_begin_compute) / CLOCKS_PER_SEC;

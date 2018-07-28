@@ -11,21 +11,27 @@
 #include <type_traits>
 #include <utility>
 #include <vector>
-#include "task_queue.hpp"
+
 #include "task.h"
+#include "task_queue.hpp"
+#include "utils/threading.h"
 
 class ThreadPool {
 public:
     ThreadPool(void)
             : ThreadPool{std::max(std::thread::hardware_concurrency(), 2u) - 1u} {}
 
-    explicit ThreadPool(const std::uint32_t numThreads)
+    explicit ThreadPool(const std::uint32_t numThreads, const unsigned int offset = 0)
             : done{false},
               workQueue{},
               threads{} {
         try {
             for (std::uint32_t i = 0u; i < numThreads; ++i) {
+                // Create thread
                 threads.emplace_back(&ThreadPool::worker, this);
+
+                // Pin thread to CPU i + offset
+                pin_thread(i + offset, threads[i]);
             }
         }
         catch (...) {
