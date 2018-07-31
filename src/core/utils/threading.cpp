@@ -18,3 +18,11 @@ void pin_thread(int cpu_no, std::thread &thread) {
         std::cerr << "pthread_setaffinity_np returned error number " << err_no << std::endl;
     }
 }
+
+void burn_cpu(void) {
+    int x = 0;
+
+    while (true) {
+        x++;
+    }
+}
