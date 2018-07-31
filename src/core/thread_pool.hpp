@@ -50,7 +50,7 @@ public:
     }
 
     template<typename F, typename... Args>
-    auto submit(F &&f, Args &&... args) {
+    auto submit(task_type_t task_type, F &&f, Args &&... args) {
         auto boundTask = std::bind(std::forward<F>(f), std::forward<Args>(args)...);
 
         using ResultType = std::result_of_t<decltype(boundTask)()>;
@@ -59,7 +59,7 @@ public:
 
         PackagedTask task{std::move(boundTask)};
         TaskFuture<ResultType> result{task.get_future()};
-        workQueue.push(std::make_unique<TaskType>(std::move(task)));
+        workQueue.push(std::make_unique<TaskType>(task_type, std::move(task)));
 
         return result;
     }

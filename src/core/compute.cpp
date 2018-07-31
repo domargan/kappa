@@ -52,7 +52,7 @@ void dfs_local_compute(Digraph *g, vertex_id_t v, void (*vertex_compute)(vertex_
     g->set_visited(v);
 
     // vertex_compute(v, g);
-    workerPool.submit(vertex_compute, v, g);
+    workerPool.submit(COMPUTE, vertex_compute, v, g);
 
     // TODO: if difference in the states for v is less than epsion, don't go deeper with dfs
     for (auto neighbor : *(g->get_out_neighborhood(v))) {

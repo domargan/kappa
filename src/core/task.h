@@ -1,7 +1,12 @@
 #ifndef KAPPA_TASK_H
 #define KAPPA_TASK_H
 
+#include <atomic>
+#include <chrono>
 #include <future>
+#include <iostream>
+#include <string>
+
 #include "datatypes.h"
 #include "digraph.h"
 
@@ -12,24 +17,17 @@ public:
 
 template<typename F>
 class Task : public TaskInterface {
-    /*
-    timestamp_ms_t timestamp_ms;
-    timestap_logical_t timestap_logical;
-
-    Task(void(*)(vertex_id_t, Digraph*)) { }
-
-    void set_task_type();
-
-    void set_timestamp_ms();
-    void set_timestamp_logical();
-
-    void set_task_function();
-    void set_task_data();
-    */
-
 public:
-    Task(F &&f)
-            : f{std::move(f)} {}
+    Task(task_type_t task_type, F &&f)
+        : task_type{task_type}
+        , f{std::move(f)} {
+        this->timestamp_real = std::chrono::duration_cast<timestamp_real_t>(
+            std::chrono::system_clock::now().time_since_epoch()
+        );
+        this->timestamp_logical = get_counter()++;
+
+        std::cout << *this << std::endl;
+    }
 
     ~Task(void) = default;
 
@@ -45,8 +43,60 @@ public:
         f();
     }
 
+    task_type_t get_task_type() {
+        return task_type;
+    }
+
+    timestamp_real_t get_timestamp_real() {
+        return timestamp_real;
+    }
+
+    timestamp_logical_t get_timestamp_logical() {
+        return timestamp_logical;
+    }
+
+    void set_task_type(task_type_t task_type) {
+        this->task_type = task_type;
+    }
+
+    void set_timestamp_real(timestamp_real_t timestamp_real) {
+        this->timestamp_real = timestamp_real;
+    }
+
+    void set_timestamp_logical(timestamp_logical_t timestamp_logical) {
+        this->timestamp_logical = timestamp_logical;
+    }
+
+    friend std::ostream &operator<<(std::ostream &out, const Task &task) {
+        std::string task_enum;
+
+        switch (task.task_type) {
+            case COMPUTE:
+                task_enum = "COMPUTE";
+                break;
+            case UPDATE:
+                task_enum = "UPDATE";
+        }
+
+        return out << task_enum << " task @" <<
+            " logical=" << task.timestamp_logical <<
+            " real=" << task.timestamp_real.count();
+    }
+
 private:
+    // TODO: Turn me into static class variable
+    std::atomic<timestamp_logical_t> &get_counter() {
+        static std::atomic<timestamp_logical_t> counter{0};
+
+        return counter;
+    }
+
     F f;
+
+    task_type_t task_type;
+
+    timestamp_real_t timestamp_real;
+    timestamp_logical_t timestamp_logical;
 };
 
 template<typename T>
