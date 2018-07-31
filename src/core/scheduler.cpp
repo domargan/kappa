@@ -1,14 +1,14 @@
 #include "scheduler.h"
 
-void Scheduler::submit_task_to_waiting(TaskInterface) {
+void Scheduler::submit_task_to_waiting(TaskInterface *) {
 
 }
 
-void Scheduler::submit_task_to_runnable(TaskInterface) {
+void Scheduler::submit_task_to_runnable(TaskInterface *) {
 
 }
 
-void Scheduler::move_task_to_runnable(TaskInterface) {
+void Scheduler::move_task_to_runnable(TaskInterface *) {
 
 }
 

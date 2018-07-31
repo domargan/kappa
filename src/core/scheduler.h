@@ -12,9 +12,9 @@ class Scheduler {
 private:
     task_queue tasks_waiting;
 
-    void submit_task_to_waiting(TaskInterface);
-    void submit_task_to_runnable(TaskInterface);
-    void move_task_to_runnable(TaskInterface);
+    void submit_task_to_waiting(TaskInterface*);
+    void submit_task_to_runnable(TaskInterface*);
+    void move_task_to_runnable(TaskInterface*);
 
     void update_dependencies_global();
     void update_dependencies(task_id);
