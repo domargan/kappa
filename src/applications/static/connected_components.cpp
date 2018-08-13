@@ -4,9 +4,10 @@
 #include "connected_components.h"
 #include "dfs.h"
 
+/*
 std::vector<graph_size_t> components;
 
-void cc_compute(Graph* g){
+void cc_compute(Digraph* g){
     int number_of_components = 0;
 
     graph_size_t order = g->get_order();
@@ -21,3 +22,4 @@ void cc_compute(Graph* g){
 
     std::cout << "Number of components: " << number_of_components << std::endl;
 }
+*/

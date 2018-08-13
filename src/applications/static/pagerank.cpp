@@ -7,6 +7,7 @@
 // TODO: Implement incremental PR init value assignment for new vertices
 // TODO: E.g. Is the considerd graph order for init values as large as the max vertex num or as the current temporary order?
 
+/*
 void init_pr_values(Digraph* g){
     //g->count_order();
 
@@ -37,6 +38,7 @@ void pr_compute_single_vertex(vertex_id_t v, Digraph* g) {
 
     g->update_state(v, pr);
 }
+*/
 
 /*
  * OBSOLETE!

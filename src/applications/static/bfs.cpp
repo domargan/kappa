@@ -5,31 +5,7 @@
 
 // TODO: Use templates instead of function overloading
 
-void bfs(Graph* g, vertex_id_t v){
-    std::cout << "Starting BFS with source vertex " << v << "..." << std::endl;
-
-    std::list<vertex_id_t> bfs_queue;
-
-    g->update_state(v, 1);
-    g->finalize_state(v);
-
-    bfs_queue.push_back(v);
-
-    while(!bfs_queue.empty()){
-        v = bfs_queue.front();
-        //std::cout << v << " ";
-        bfs_queue.pop_front();
-
-        for(auto neighbor : *(g->get_neighborhood(v))) {
-            if(g->get_state(neighbor) != 1) {
-                g->update_state(neighbor, 1);
-                g->finalize_state(neighbor);
-                bfs_queue.push_back(neighbor);
-            }
-        }
-    }
-}
-
+/*
 void bfs(Digraph* g, vertex_id_t v){
     std::cout << "Starting BFS with source vertex " << v << "..." << std::endl;
 
@@ -54,3 +30,4 @@ void bfs(Digraph* g, vertex_id_t v){
         }
     }
 }
+*/
