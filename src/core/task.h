@@ -25,8 +25,6 @@ public:
             std::chrono::system_clock::now().time_since_epoch()
         );
         this->timestamp_logical = get_counter()++;
-
-        std::cout << *this << std::endl;
     }
 
     ~Task(void) = default;

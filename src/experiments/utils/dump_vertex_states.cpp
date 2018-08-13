@@ -1,6 +1,7 @@
-#include <digraph.h>
 #include <fstream>
 #include <iomanip>
+
+#include "digraph.h"
 #include "dump_vertex_states.h"
 
 void dump_vertex_states(Digraph *g, const std::string &file_name){
@@ -11,7 +12,7 @@ void dump_vertex_states(Digraph *g, const std::string &file_name){
 
     for(graph_size_t i=0; i<max_order; i++) {
         if(g->has_vertex(i)){
-            output_file << std::fixed << std::setprecision(5) << g->get_state(i) << "\n";
+            output_file << i << " " << std::fixed << std::setprecision(5) << g->get_state(i) << "\n";
         }
     }
 

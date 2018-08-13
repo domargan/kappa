@@ -1,14 +1,15 @@
 #include <gtest/gtest.h>
 #include <iostream>
-#include <pagerank.h>
-#include <utils/dataset_split.h>
-#include <compute.h>
 
+#include "applications/dynamic/pagerank.h"
+#include "compute.h"
 #include "core/utils/threading.h"
 #include "edge_array_to_graph.h"
-#include "naive_incremental_compute_edgelist.h"
+#include "experiments/naive_incremental_compute_edgelist.h"
+#include "experiments/utils/dataset_split.h"
 #include "read_from_disk/edgelist_to_graph.h"
 #include "thread_pool.hpp"
+#include "utils/dump_vertex_states.h"
 
 int main() {
     std::cout << "Launching Kappa...\n" << std::endl;
@@ -16,15 +17,15 @@ int main() {
     // TODO: Pin main thread to CPU 0
     // TODO: Spawn thread for scheduler and pin it to CPU 1
 
-    ThreadPool workerPool(get_no_of_cpus() - NON_WORKER_THREADS, NON_WORKER_THREADS);
+    // ------------------------------------------------------------------------------------------ //
 
-    //std::string dataset = "/home/dm1515/data/test_data.edgelist";
-    //std::string dataset = "/home/dm1515/data/twitter-2010-shuffled.txt";
-    std::string dataset = "/home/dm1515/data/higgs-social_network.edgelist";
-    //std::string dataset = "/home/dm1515/data/higgs-social_network-shuffled.edgelist";
-    //std::string dataset = "/home/dm1515/data/higgs-social_network-shuffled-head1M";
-
-    // std::string dataset = "/home/leopold/Developer/graphs/higgs-social_network.edgelist";
+    // Choose dataset
+    // std::string dataset = "/home/dm1515/data/test_data.edgelist";
+    // std::string dataset = "/home/dm1515/data/twitter-2010-shuffled.txt";
+    // std::string dataset = "/home/dm1515/data/higgs-social_network.edgelist";
+    // std::string dataset = "/home/dm1515/data/higgs-social_network-shuffled.edgelist";
+    // std::string dataset = "/home/dm1515/data/higgs-social_network-shuffled-head1M";
+    std::string dataset = "/home/leopold/Developer/graphs/zachary.edgelist";
 
     // ------------------------------------------------------------------------------------------ //
 
@@ -41,15 +42,18 @@ int main() {
     // ------------------------------------------------------------------------------------------ //
 
     // Set batch sizes
-    graph_size_t batch_size = 1000;
+    graph_size_t batch_size = 10;
 
-    // Set init state of vertices
-    state_t init_state = 1.0 / max_vertex_num; // init state for PageRank
+    // TODO: Use user-defined functions
+    Computation computation;
+    computation.init = PageRank::init;
+    computation.incr_compute = PageRank::incr_compute;
 
     // Create a graph object
-    Digraph g = Digraph(max_vertex_num, init_state, batch_size);
+    Digraph g = Digraph(max_vertex_num, batch_size, computation);
 
     // Prepopulate the graph with some edges from the edge array
+    /*
     edge_array_to_digraph(&g, edge_array, 1, 5000000);
     g.reset_touched_src_verts(); // DON'T FORGET TO RESET TOUCHED VERTICES AFTER PRE-POPULATING
 
@@ -58,31 +62,29 @@ int main() {
     std::vector<graph_size_t> *touched_verts = g.get_touched_src_verts();
     std::cout << "Touched vertices queue size: " << touched_verts->size() << std::endl;
     std::cout << "Touched vertices queue capacity: " << touched_verts->capacity() << std::endl;
+    */
 
     // ------------------------------------------------------------------------------------------ //
 
-    // Run computations for the initial prepopulated graph (global computation)
-    run_global(&g, pr_compute_single_vertex);
-
     // Set a range of entries (lines) from the dataset, for updates to be applied to the graph
-    graph_size_t beginning = 5000001;
-    graph_size_t end = 5010000;
+    graph_size_t beginning = 0;
+    graph_size_t end = 78;
 
     // Logically split the entires in the dataset by lines, splitting into batches
     std::vector<graph_size_t> split = dataset_to_batches(beginning, end, num_dataset_entries, batch_size);
-
 
     // Main experiment part
     // Interchanging processes:
     // - updating the graph
     // - running incremental localised computation
-    naive_incremental_compute_edge_array(pr_compute_single_vertex,
+    naive_incremental_compute_edge_array(computation,
                                        &g,
                                        edge_array,
-                                       split,
-                                       workerPool);
+                                       split);
 
-    //dump_vertex_states(&g, "results.txt");
+    dump_vertex_states(&g, "results.txt");
+
+    // ------------------------------------------------------------------------------------------ //
 
     std::cout << "Kappa finished." << std::endl;
 
