@@ -1,18 +1,14 @@
 #ifndef KAPPA_DIGRAPH_H
 #define KAPPA_DIGRAPH_H
 
+#include <boost/dynamic_bitset.hpp>
 #include <vector>
 
-#include <boost/dynamic_bitset.hpp>
-
+#include "compute.h"
 #include "datatypes.h"
 #include "vertex.h"
 
-
-// TODO: Make Digraph a child class of Graph
-
 // TODO: Check which get() methods should return pointers and which should return values
-
 // TODO: Check which methods should be moved to private
 
 // TODO: Move to dataypes.h?
@@ -25,7 +21,6 @@ typedef std::vector<state_t> state_vector_t;
 
 typedef std::vector<vertex_id_t> vertex_queue_t;
 
-
 class Digraph {
 private:
     graph_size_t max_vertex_allocations; // Set a limit for the maximum possible number of vertices to fit in the graph.
@@ -34,10 +29,6 @@ private:
     vertex_bitset_t vertex_index; // 1 if the vertex is present, 0 if the vertex is not in the graph.
 
     state_vector_t states;
-    state_vector_t states_temp;
-
-    bool state_change_monitor;
-    state_t state_change_tolerance;
 
     // TODO: Maybe visited_verts should be a part of vertex struct?
     vertex_bitset_t visited_verts; // 1 if the vertex has been visited by an algorithm, 0 if not.
@@ -47,8 +38,10 @@ private:
     graph_size_t order; // Current number of vertices in the graph.
     graph_size_t size; // Current number of edges in the graph.
 
+    Computation computation;
+
 public:
-    explicit Digraph(graph_size_t, state_t, graph_size_t); // Digraph constructor.
+    explicit Digraph(graph_size_t, graph_size_t, Computation); // Digraph constructor.
 
     digraph_vector_t get_digraph_vector(); // Return the graph_vector_t data structure.
     vertex_bitset_t get_vertex_index(); // Return index of vertices present in the graph.
@@ -68,18 +61,8 @@ public:
     graph_size_t get_out_degree(vertex_id_t); // Return the out-degree of a vertex.
     graph_size_t get_degree(vertex_id_t); // Return the degree of a vertex.
 
-    /*
-    * TODO: Finish this up: assigning a custom state value (user-function defined) to a newly added vertex
     void set_state(vertex_id_t, state_t);
-     */
-    void update_state(vertex_id_t, state_t);
     state_t get_state(vertex_id_t);
-    void finalize_state(vertex_id_t);
-    void finalize_states();
-    void set_state_change_tolerance(state_t);
-    bool state_changed();
-    void set_state_change();
-    void unset_state_change();
 
     vertex_queue_t *get_touched_src_verts();
     void reset_touched_src_verts();
@@ -93,14 +76,8 @@ public:
     void count_order(); // Count and set the number of vertices. OBSOLETE FUNCTION
     graph_size_t get_order(); // Return the number of vertices.
     graph_size_t get_max_order(); // Return the number of pre-allocated vertex spaces.
-    // TODO: Remove increment and decrement functions.. Maybe we don't need them... (Just do order++ or order-- manually...)
-    void increment_order(); // Increase the value of number of vertices by 1.
-    void decrement_order(); // Decrease the value of number of vertices by 1.
 
     graph_size_t get_size(); // Return the number of edges.
-    // TODO: Remove increment and decrement functions.. Maybe we don't need them... (Just do size++ or size-- manually...)
-    void increment_size(); // Increase the value of number of edges by 1.
-    void decrement_size(); // Decrease the value of number of edges by 1.
 };
 
 #endif //KAPPA_DIGRAPH_H

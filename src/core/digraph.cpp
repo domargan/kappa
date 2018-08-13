@@ -9,19 +9,12 @@
 // TODO: For every iteration of vertices from 0 to vertex_index.size() check if the vertex exists before any operations
 // TODO: Remove all calls to vertex_index.size() and replace them with a variable
 
-Digraph::Digraph(graph_size_t v_num, state_t init_state, graph_size_t update_batch_size) {
+Digraph::Digraph(graph_size_t v_num, graph_size_t update_batch_size, Computation computation) {
     std::cout << "Digraph constructor called.\n" << std::endl;
 
     max_vertex_allocations = v_num + 1;
-
     vertex_index = boost::dynamic_bitset<>(max_vertex_allocations);
-
     states.reserve(max_vertex_allocations);
-    states_temp.reserve(max_vertex_allocations);
-
-    std::fill(states.begin(),states.end(), init_state);
-    std::fill(states_temp.begin(),states_temp.end(), init_state);
-
     visited_verts = boost::dynamic_bitset<>(max_vertex_allocations);
 
     for (int i = 0; i < max_vertex_allocations; i++) {
@@ -31,19 +24,17 @@ Digraph::Digraph(graph_size_t v_num, state_t init_state, graph_size_t update_bat
         dv.in_degree = 0;
         dv.out_degree = 0;
         dv.state = &states[i];
-        dv.state_temp = &states_temp[i];
 
         topology.push_back(dv);
     }
 
-    state_change_monitor = false;
-    state_change_tolerance = 0.0;
-
-    //touched_src_verts = boost::circular_buffer<vertex_id_t>(update_batch_size); // The number of touched source vertices can at maximum be equal to batch size
+    // touched_src_verts = boost::circular_buffer<vertex_id_t>(update_batch_size); // The number of touched source vertices can at maximum be equal to batch size
     touched_src_verts.reserve(update_batch_size); // The number of touched source vertices can at maximum be equal to batch size
 
     order = 0;
     size = 0;
+
+    this->computation = computation;
 
     std::cout << "Digraph structure initialized with " << v_num << " vertex entries.\n" << std::endl;
 }
@@ -92,12 +83,16 @@ void Digraph::add_edge(vertex_id_t src_v, vertex_id_t dst_v) {
 
         if(!has_vertex(src_v)){
             vertex_index[src_v] = 1;
-            increment_order();
+            ++order;
+
+            computation.init(this, src_v);
         }
 
         if(!has_vertex(dst_v)){
             vertex_index[dst_v] = 1;
-            increment_order();
+            ++order;
+
+            computation.init(this, dst_v);
         }
 
         // TODO: Remove duplicated neighbors vectors, store just one type of neighbors
@@ -107,12 +102,11 @@ void Digraph::add_edge(vertex_id_t src_v, vertex_id_t dst_v) {
         topology[src_v].out_degree++;
         topology[dst_v].in_degree++;
 
-        increment_size();
+        ++size;
 
         touched_src_verts.push_back(src_v);
     }
 }
-
 
 void Digraph::remove_edge(vertex_id_t src_v, vertex_id_t dst_v) {
     if (has_edge(src_v, dst_v)) {
@@ -130,23 +124,22 @@ void Digraph::remove_edge(vertex_id_t src_v, vertex_id_t dst_v) {
         topology[src_v].out_degree--;
         topology[dst_v].in_degree--;
 
-        decrement_size();
+        --size;
 
+        // TODO: You sure about this?
         if(get_out_degree(src_v) == 0 && get_in_degree(src_v) == 0) {
             vertex_index[src_v] = 0;
-            decrement_order();
+            --order;
         } else if(get_out_degree(src_v) > 0) {
             touched_src_verts.push_back(src_v);
         }
 
         if(get_out_degree(dst_v) == 0 && get_in_degree(dst_v) == 0) {
             vertex_index[dst_v] = 0;
-            decrement_order();
+            --order;
         } else if(get_out_degree(dst_v) > 0) {
             touched_src_verts.push_back(dst_v);
         }
-
-
     }
 }
 
@@ -168,66 +161,19 @@ graph_size_t Digraph::get_in_degree(vertex_id_t v) {
 graph_size_t Digraph::get_out_degree(vertex_id_t v) {
     // TODO: Finish the and test the implementation of degree counting
     return topology[v].out_degree;
-    //return static_cast<graph_size_t>(get_out_neighborhood(v)->size());
+    // return static_cast<graph_size_t>(get_out_neighborhood(v)->size());
 }
 
 graph_size_t Digraph::get_degree(vertex_id_t v) {
     return get_in_degree(v) + get_out_degree(v);
 }
 
-/*
- * TODO: Finish this up: assigning a custom state value (user-function defined) to a newly added vertex
 void Digraph::set_state(vertex_id_t v, state_t state) {
     states[v] = state;
-    //states_temp[v] = state;
-}
-
-state_t Digraph::set_state_f_defined(*set_state_function(state_t))(vertex_id_t, Digraph*) {
-        //state_t(*user_set_state_f)(vertex_id_t, Digraph*)) {
-    // Takes a pointer to a user-defined function
-}
-*/
-
-void Digraph::update_state(vertex_id_t v, state_t state_new) {
-    states_temp[v] = state_new;
-
-    //std::cout << "Old state of vertex " << v << " is " << std::fixed << std::setprecision(20) << states[v] << std::endl;
-    //std::cout << "New state of vertex " << v << " is " << std::fixed << std::setprecision(20) << states_temp[v] << std::endl;
-
-    //std::cout << "Difference " << v << " is " << std::fixed << std::setprecision(20) << std::abs(state_new - states[v]) << std::endl;
-
-    if(std::abs(state_new - states[v]) >= state_change_tolerance){
-        state_change_monitor = true;
-    }
 }
 
 state_t Digraph::get_state(vertex_id_t v) {
     return states[v];
-}
-
-// izbrisi ovo
-void Digraph::finalize_state(vertex_id_t v) {
-        states[v] = states_temp[v];
-}
-
-void Digraph::finalize_states() {
-    states_temp.swap(states);
-}
-
-void Digraph::set_state_change_tolerance(state_t epsilon){
-    state_change_tolerance = epsilon;
-}
-
-bool Digraph::state_changed() {
-    return state_change_monitor;
-}
-
-void Digraph::set_state_change() {
-    state_change_monitor = true;
-}
-
-void Digraph::unset_state_change() {
-    state_change_monitor = false;
 }
 
 vertex_queue_t *Digraph::get_touched_src_verts(){
@@ -271,24 +217,6 @@ graph_size_t Digraph::get_max_order() {
     return max_vertex_allocations;
 }
 
-void Digraph::increment_order() {
-    order++;
-}
-
-void Digraph::decrement_order() {
-    order--;
-}
-
 graph_size_t Digraph::get_size() {
     return size;
 }
-
-void Digraph::increment_size() {
-    size++;
-}
-
-void Digraph::decrement_size() {
-    size--;
-}
-
-

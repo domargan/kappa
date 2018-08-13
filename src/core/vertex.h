@@ -1,16 +1,11 @@
 #ifndef KAPPA_VERTEX_H
 #define KAPPA_VERTEX_H
 
+#include <vector>
+
 #include "datatypes.h"
 
 typedef std::vector<vertex_id_t> neighbors_vector_t;
-
-// TODO: Update or remove Uvertex...
-typedef struct Uvertex {
-    neighbors_vector_t* neighbors;
-    state_t state;
-    state_t state_temp;
-} Uvertex;
 
 typedef struct Dvertex {
     // TODO: remove duplicated neighbor vectors
