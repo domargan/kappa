@@ -2,7 +2,7 @@
 
 namespace PageRank {
     void init(Digraph *g, vertex_id_t v) {
-        float init_state = 1.0 / g->get_order();
+        float init_state = 1.0 / g->get_max_order();
 
         g->set_state(v, init_state);
     }
@@ -30,9 +30,17 @@ namespace PageRank {
         }
     }
 
-    void incr_compute(Digraph *g, Update *u) {
-        for (auto neighbour : *(g->get_out_neighborhood(u->src))) {
+    void on_add_edge(Digraph *g, vertex_id_t src, vertex_id_t dst) {
+        for (auto neighbour : *(g->get_out_neighborhood(src))) {
             propagate(g, neighbour);
         }
+    }
+
+    void on_remove_edge(Digraph *g, vertex_id_t src, vertex_id_t dst) {
+        for (auto neighbour : *(g->get_out_neighborhood(src))) {
+            propagate(g, neighbour);
+        }
+
+        propagate(g, dst);
     }
 }

@@ -8,7 +8,8 @@ namespace PageRank {
     const float EPSILON = 0.0001;
 
     void init(Digraph*, vertex_id_t);
-    void incr_compute(Digraph*, Update*);
+    void on_add_edge(Digraph*, vertex_id_t, vertex_id_t);
+    void on_remove_edge(Digraph*, vertex_id_t, vertex_id_t);
 }
 
 #endif //KAPPA_DYNAMIC_PAGERANK_H

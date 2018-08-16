@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include "applications/dynamic/pagerank.h"
+#include "applications/dynamic/sssp.h"
 #include "compute.h"
 #include "core/utils/threading.h"
 #include "edge_array_to_graph.h"
@@ -47,7 +48,8 @@ int main() {
     // TODO: Use user-defined functions
     Computation computation;
     computation.init = PageRank::init;
-    computation.incr_compute = PageRank::incr_compute;
+    computation.on_add_edge = PageRank::on_add_edge;
+    computation.on_remove_edge = PageRank::on_remove_edge;
 
     // Create a graph object
     Digraph g = Digraph(max_vertex_num, batch_size, computation);
@@ -67,7 +69,7 @@ int main() {
     // ------------------------------------------------------------------------------------------ //
 
     // Set a range of entries (lines) from the dataset, for updates to be applied to the graph
-    graph_size_t beginning = 0;
+    graph_size_t beginning = 1;
     graph_size_t end = 78;
 
     // Logically split the entires in the dataset by lines, splitting into batches

@@ -4,6 +4,7 @@
 #include "compute.h"
 #include "digraph.h"
 #include "read_from_disk/edgelist_to_edge_array.h"
+#include "update.h"
 
 // This should be just a hacky implementation that
 // does additions of edges read from a given edge_array.
@@ -74,9 +75,14 @@ void naive_incremental_compute_edge_array(Computation computation,
 
         for (auto &u : updates_in_chunk) {
             // TODO: Batch updates for same vertex
-            computation.incr_compute(g, &u);
+            if (u.type == ADD) {
+                computation.on_add_edge(g, u.src, u.dst);
+            } else {
+                computation.on_remove_edge(g, u.src, u.dst);
+            }
         }
 
+        // TODO: No need to do this
         g->reset_touched_src_verts();
 
         clock_t cpu_end_compute = clock();
