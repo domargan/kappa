@@ -1,3 +1,4 @@
+#include "global_thread_pool.h"
 #include "pagerank.h"
 
 namespace PageRank {
@@ -25,22 +26,22 @@ namespace PageRank {
 
         if (std::abs(new_pr - old_pr) >= EPSILON) {
             for (auto neighbour : *(g->get_out_neighborhood(v))) {
-                propagate(g, neighbour);
+                GlobalThreadPool::get_thread_pool().submit(COMPUTE, propagate, g, neighbour);
             }
         }
     }
 
     void on_add_edge(Digraph *g, vertex_id_t src, vertex_id_t dst) {
         for (auto neighbour : *(g->get_out_neighborhood(src))) {
-            propagate(g, neighbour);
+            GlobalThreadPool::get_thread_pool().submit(COMPUTE, propagate, g, neighbour);
         }
     }
 
     void on_remove_edge(Digraph *g, vertex_id_t src, vertex_id_t dst) {
         for (auto neighbour : *(g->get_out_neighborhood(src))) {
-            propagate(g, neighbour);
+            GlobalThreadPool::get_thread_pool().submit(COMPUTE, propagate, g, neighbour);
         }
 
-        propagate(g, dst);
+        GlobalThreadPool::get_thread_pool().submit(COMPUTE, propagate, g, dst);
     }
 }

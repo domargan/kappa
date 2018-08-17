@@ -49,8 +49,8 @@ public:
         destroy();
     }
 
-    template<typename F, typename... Args>
-    auto submit(task_type_t task_type, F &&f, Args &&... args) {
+    template<typename F, typename ...Args>
+    void submit(task_type_t task_type, F &&f, Args &&...args) {
         auto boundTask = std::bind(std::forward<F>(f), std::forward<Args>(args)...);
 
         using ResultType = std::result_of_t<decltype(boundTask)()>;
@@ -58,10 +58,19 @@ public:
         using TaskType = Task<PackagedTask>;
 
         PackagedTask task{std::move(boundTask)};
-        TaskFuture<ResultType> result{task.get_future()};
-        workQueue.push(std::make_unique<TaskType>(task_type, std::move(task)));
 
-        return result;
+        futureQueue.push(std::future<void>{task.get_future()});
+        workQueue.push(std::make_unique<TaskType>(task_type, std::move(task)));
+    }
+
+    void barrier() {
+        while (!futureQueue.empty()) {
+            std::future<void> future;
+
+            if (futureQueue.waitPop(future)) {
+                future.wait();
+            }
+        }
     }
 
 private:
@@ -91,6 +100,7 @@ private:
     std::vector<std::thread> threads;
     std::atomic_bool done;
     ThreadSafeQueue<std::unique_ptr<TaskInterface>> workQueue;
+    ThreadSafeQueue<std::future<void>> futureQueue;
 };
 
 #endif //KAPPA_THREAD_POOL

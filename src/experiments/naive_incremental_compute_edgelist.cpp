@@ -3,6 +3,7 @@
 
 #include "compute.h"
 #include "digraph.h"
+#include "global_thread_pool.h"
 #include "read_from_disk/edgelist_to_edge_array.h"
 #include "update.h"
 
@@ -76,11 +77,13 @@ void naive_incremental_compute_edge_array(Computation computation,
         for (auto &u : updates_in_chunk) {
             // TODO: Batch updates for same vertex
             if (u.type == ADD) {
-                computation.on_add_edge(g, u.src, u.dst);
+                GlobalThreadPool::get_thread_pool().submit(COMPUTE, computation.on_add_edge, g, u.src, u.dst);
             } else {
-                computation.on_remove_edge(g, u.src, u.dst);
+                GlobalThreadPool::get_thread_pool().submit(COMPUTE, computation.on_remove_edge, g, u.src, u.dst);
             }
         }
+
+        GlobalThreadPool::get_thread_pool().barrier();
 
         // TODO: No need to do this
         g->reset_touched_src_verts();

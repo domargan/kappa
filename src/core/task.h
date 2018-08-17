@@ -97,32 +97,4 @@ private:
     timestamp_logical_t timestamp_logical;
 };
 
-template<typename T>
-class TaskFuture {
-public:
-    TaskFuture(std::future<T> &&future)
-            : future{std::move(future)} {}
-
-    TaskFuture(const TaskFuture &rhs) = delete;
-
-    TaskFuture &operator=(const TaskFuture &rhs) = delete;
-
-    TaskFuture(TaskFuture &&other) = default;
-
-    TaskFuture &operator=(TaskFuture &&other) = default;
-
-    ~TaskFuture(void) {
-        if (future.valid()) {
-            future.get();
-        }
-    }
-
-    auto get(void) {
-        return future.get();
-    }
-
-private:
-    std::future<T> future;
-};
-
 #endif //KAPPA_TASK_H

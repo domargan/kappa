@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <limits>
 
+#include "global_thread_pool.h"
 #include "sssp.h"
 
 namespace SSSP {
@@ -32,7 +33,7 @@ namespace SSSP {
 
         if (old_distance != min + 1) {
             for (auto neighbour : *(g->get_out_neighborhood(v))) {
-                propagate(g, neighbour);
+                GlobalThreadPool::get_thread_pool().submit(COMPUTE, propagate, g, neighbour);
             }
         }
     }
@@ -45,14 +46,14 @@ namespace SSSP {
             g->set_state(dst, src_state + 1);
 
             for (auto neighbour : *(g->get_out_neighborhood(dst))) {
-                propagate(g, neighbour);
+                GlobalThreadPool::get_thread_pool().submit(COMPUTE, propagate, g, neighbour);
             }
         }
     }
 
     void on_remove_edge(Digraph *g, vertex_id_t src, vertex_id_t dst) {
         if (g->get_state(src) + 1 == g->get_state(dst)) {
-            propagate(g, dst);
+            GlobalThreadPool::get_thread_pool().submit(COMPUTE, propagate, g, dst);
         }
     }
 }
