@@ -30,11 +30,6 @@ private:
 
     state_vector_t states;
 
-    // TODO: Maybe visited_verts should be a part of vertex struct?
-    vertex_bitset_t visited_verts; // 1 if the vertex has been visited by an algorithm, 0 if not.
-
-    vertex_queue_t touched_src_verts; // A list of source vertices touched by the most recent batch of updates.
-
     graph_size_t order; // Current number of vertices in the graph.
     graph_size_t size; // Current number of edges in the graph.
 
@@ -47,9 +42,9 @@ public:
     vertex_bitset_t get_vertex_index(); // Return index of vertices present in the graph.
 
     bool has_vertex(vertex_id_t); // Return true if the vertex is in the graph.
+    void activate_vertex(vertex_id_t);
 
     void add_edge(vertex_id_t, vertex_id_t); // Add an edge between two vertices.
-    void add_edge_populate(vertex_id_t, vertex_id_t); // JUST FOR TESTING
     void remove_edge(vertex_id_t, vertex_id_t); // Remove the edge between two vertices.
     bool has_edge(vertex_id_t, vertex_id_t); // Return true of the edge is in the graph.
 
@@ -63,15 +58,6 @@ public:
 
     void set_state(vertex_id_t, state_t);
     state_t get_state(vertex_id_t);
-
-    vertex_queue_t *get_touched_src_verts();
-    void reset_touched_src_verts();
-
-    vertex_bitset_t *get_visited_verts();
-    void set_visited(vertex_id_t);
-    void unset_visited(vertex_id_t);
-    void reset_visited_verts();
-    bool has_been_visited(vertex_id_t);
 
     void count_order(); // Count and set the number of vertices. OBSOLETE FUNCTION
     graph_size_t get_order(); // Return the number of vertices.

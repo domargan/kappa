@@ -3,6 +3,7 @@
 #include <iomanip>
 
 #include "digraph.h"
+#include "global_thread_pool.h"
 
 // TODO: Implement vertex iterator (instead of iterating until vertex_index.size())
 // TODO: Do something smarter about getting size; do not call vertex_index.size() all the time
@@ -15,7 +16,6 @@ Digraph::Digraph(graph_size_t v_num, graph_size_t update_batch_size, Computation
     max_vertex_allocations = v_num + 1;
     vertex_index = boost::dynamic_bitset<>(max_vertex_allocations);
     states.reserve(max_vertex_allocations);
-    visited_verts = boost::dynamic_bitset<>(max_vertex_allocations);
 
     for (int i = 0; i < max_vertex_allocations; i++) {
         Dvertex dv{};
@@ -27,9 +27,6 @@ Digraph::Digraph(graph_size_t v_num, graph_size_t update_batch_size, Computation
 
         topology.push_back(dv);
     }
-
-    // touched_src_verts = boost::circular_buffer<vertex_id_t>(update_batch_size); // The number of touched source vertices can at maximum be equal to batch size
-    touched_src_verts.reserve(update_batch_size); // The number of touched source vertices can at maximum be equal to batch size
 
     order = 0;
     size = 0;
@@ -66,6 +63,10 @@ bool Digraph::has_vertex(vertex_id_t v) {
     return vertex_index[v];
 }
 
+void Digraph::activate_vertex(vertex_id_t v) {
+    GlobalThreadPool::get_thread_pool().submit(COMPUTE, computation.on_activate, this, v);
+}
+
 bool Digraph::has_edge(vertex_id_t src_v, vertex_id_t dst_v) {
     // std::find() has a worst-case time of O(n) in the distance between first and last.
 
@@ -85,14 +86,14 @@ void Digraph::add_edge(vertex_id_t src_v, vertex_id_t dst_v) {
             vertex_index[src_v] = 1;
             ++order;
 
-            computation.init(this, src_v);
+            computation.init_state(this, src_v);
         }
 
         if(!has_vertex(dst_v)){
             vertex_index[dst_v] = 1;
             ++order;
 
-            computation.init(this, dst_v);
+            computation.init_state(this, dst_v);
         }
 
         // TODO: Remove duplicated neighbors vectors, store just one type of neighbors
@@ -103,8 +104,6 @@ void Digraph::add_edge(vertex_id_t src_v, vertex_id_t dst_v) {
         topology[dst_v].in_degree++;
 
         ++size;
-
-        touched_src_verts.push_back(src_v);
     }
 }
 
@@ -130,15 +129,11 @@ void Digraph::remove_edge(vertex_id_t src_v, vertex_id_t dst_v) {
         if(get_out_degree(src_v) == 0 && get_in_degree(src_v) == 0) {
             vertex_index[src_v] = 0;
             --order;
-        } else if(get_out_degree(src_v) > 0) {
-            touched_src_verts.push_back(src_v);
         }
 
         if(get_out_degree(dst_v) == 0 && get_in_degree(dst_v) == 0) {
             vertex_index[dst_v] = 0;
             --order;
-        } else if(get_out_degree(dst_v) > 0) {
-            touched_src_verts.push_back(dst_v);
         }
     }
 }
@@ -174,34 +169,6 @@ void Digraph::set_state(vertex_id_t v, state_t state) {
 
 state_t Digraph::get_state(vertex_id_t v) {
     return states[v];
-}
-
-vertex_queue_t *Digraph::get_touched_src_verts(){
-    return &touched_src_verts;
-}
-
-void Digraph::reset_touched_src_verts(){
-    touched_src_verts.clear();
-}
-
-vertex_bitset_t *Digraph::get_visited_verts(){
-    return &visited_verts;
-}
-
-void Digraph::set_visited(vertex_id_t v){
-    visited_verts[v] = 1;
-}
-
-void Digraph::unset_visited(vertex_id_t v){
-    visited_verts[v] = 0;
-}
-
-void Digraph::reset_visited_verts(){
-    visited_verts.reset();
-}
-
-bool Digraph::has_been_visited(vertex_id_t v){
-    return visited_verts[v];
 }
 
 void Digraph::count_order() {

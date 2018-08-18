@@ -63,12 +63,6 @@ void naive_incremental_compute_edge_array(Computation computation,
         std::cout << "Order: " <<  order << std::endl;
         std::cout << "Size: " << size << std::endl;
 
-        // boost::circular_buffer<graph_size_t> *touched_verts = g->get_touched_src_verts();
-        std::vector<graph_size_t> *touched_verts = g->get_touched_src_verts();
-
-        std::cout << "Touched vertices queue size: " << touched_verts->size() << std::endl;
-        std::cout << "Touched vertices queue capacity: " << touched_verts->capacity() << std::endl;
-
         std::cout << "Executing computations for " << updates_in_chunk.size() << " updates" << std::endl;
 
         // Execute user-defined compute function
@@ -84,9 +78,6 @@ void naive_incremental_compute_edge_array(Computation computation,
         }
 
         GlobalThreadPool::get_thread_pool().barrier();
-
-        // TODO: No need to do this
-        g->reset_touched_src_verts();
 
         clock_t cpu_end_compute = clock();
         float cpu_time_compute = float(cpu_end_compute - cpu_begin_compute) / CLOCKS_PER_SEC;
