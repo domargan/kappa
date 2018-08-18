@@ -6,7 +6,8 @@
 class Digraph;
 
 typedef struct Computation {
-    void (*init)(Digraph*, vertex_id_t);
+    void (*init_state)(Digraph*, vertex_id_t);
+    void (*on_activate)(Digraph*, vertex_id_t);
     void (*on_add_edge)(Digraph*, vertex_id_t, vertex_id_t);
     void (*on_remove_edge)(Digraph*, vertex_id_t, vertex_id_t);
 } Computation;

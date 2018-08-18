@@ -47,7 +47,8 @@ int main() {
 
     // TODO: Use user-defined functions
     Computation computation;
-    computation.init = PageRank::init;
+    computation.init_state = PageRank::init_state;
+    computation.on_activate = PageRank::on_activate;
     computation.on_add_edge = PageRank::on_add_edge;
     computation.on_remove_edge = PageRank::on_remove_edge;
 

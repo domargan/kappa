@@ -1,7 +1,6 @@
 #include <algorithm>
 #include <limits>
 
-#include "global_thread_pool.h"
 #include "sssp.h"
 
 namespace SSSP {
@@ -19,13 +18,13 @@ namespace SSSP {
         return min;
     }
 
-    void init(Digraph *g, vertex_id_t v) {
+    void init_state(Digraph *g, vertex_id_t v) {
         state_t min = get_min_distance(g, v);
 
         g->set_state(v, min + 1);
     }
 
-    void propagate(Digraph *g, vertex_id_t v) {
+    void on_activate(Digraph *g, vertex_id_t v) {
         state_t old_distance = g->get_state(v);
 
         state_t min = get_min_distance(g, v);
@@ -33,7 +32,7 @@ namespace SSSP {
 
         if (old_distance != min + 1) {
             for (auto neighbour : *(g->get_out_neighborhood(v))) {
-                GlobalThreadPool::get_thread_pool().submit(COMPUTE, propagate, g, neighbour);
+                g->activate_vertex(neighbour);
             }
         }
     }
@@ -46,14 +45,14 @@ namespace SSSP {
             g->set_state(dst, src_state + 1);
 
             for (auto neighbour : *(g->get_out_neighborhood(dst))) {
-                GlobalThreadPool::get_thread_pool().submit(COMPUTE, propagate, g, neighbour);
+                g->activate_vertex(neighbour);
             }
         }
     }
 
     void on_remove_edge(Digraph *g, vertex_id_t src, vertex_id_t dst) {
         if (g->get_state(src) + 1 == g->get_state(dst)) {
-            GlobalThreadPool::get_thread_pool().submit(COMPUTE, propagate, g, dst);
+            g->activate_vertex(dst);
         }
     }
 }

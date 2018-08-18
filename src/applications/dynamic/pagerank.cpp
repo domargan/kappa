@@ -1,14 +1,13 @@
-#include "global_thread_pool.h"
 #include "pagerank.h"
 
 namespace PageRank {
-    void init(Digraph *g, vertex_id_t v) {
+    void init_state(Digraph *g, vertex_id_t v) {
         float init_state = 1.0 / g->get_max_order();
 
         g->set_state(v, init_state);
     }
 
-    void propagate(Digraph *g, vertex_id_t v) {
+    void on_activate(Digraph *g, vertex_id_t v) {
         float shares = 0.0;
 
         for (auto neighbour : *(g->get_in_neighborhood(v))) {
@@ -26,22 +25,22 @@ namespace PageRank {
 
         if (std::abs(new_pr - old_pr) >= EPSILON) {
             for (auto neighbour : *(g->get_out_neighborhood(v))) {
-                GlobalThreadPool::get_thread_pool().submit(COMPUTE, propagate, g, neighbour);
+                g->activate_vertex(neighbour);
             }
         }
     }
 
     void on_add_edge(Digraph *g, vertex_id_t src, vertex_id_t dst) {
         for (auto neighbour : *(g->get_out_neighborhood(src))) {
-            GlobalThreadPool::get_thread_pool().submit(COMPUTE, propagate, g, neighbour);
+            g->activate_vertex(neighbour);
         }
     }
 
     void on_remove_edge(Digraph *g, vertex_id_t src, vertex_id_t dst) {
         for (auto neighbour : *(g->get_out_neighborhood(src))) {
-            GlobalThreadPool::get_thread_pool().submit(COMPUTE, propagate, g, neighbour);
+            g->activate_vertex(neighbour);
         }
 
-        GlobalThreadPool::get_thread_pool().submit(COMPUTE, propagate, g, dst);
+        g->activate_vertex(dst);
     }
 }
