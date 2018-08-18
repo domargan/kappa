@@ -19,9 +19,9 @@ namespace SSSP {
     }
 
     void init_state(Digraph *g, vertex_id_t v) {
-        state_t min = get_min_distance(g, v);
+        state_t state = (v == SOURCE) ? 0 : get_min_distance(g, v) + 1;
 
-        g->set_state(v, min + 1);
+        g->set_state(v, state);
     }
 
     void on_activate(Digraph *g, vertex_id_t v) {
