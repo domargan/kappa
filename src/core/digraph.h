@@ -52,6 +52,7 @@ public:
 
     neighbors_vector_t *get_in_neighborhood(vertex_id_t); // Return the vector of incoming neighbors of a vertex.
     neighbors_vector_t *get_out_neighborhood(vertex_id_t); // Return the vector of outcoming neighbors of a vertex.
+    neighbors_vector_t get_in_out_neighborhood(vertex_id_t);
     graph_size_t get_in_degree(vertex_id_t); // Return the in-degree of a vertex.
     graph_size_t get_out_degree(vertex_id_t); // Return the out-degree of a vertex.
     graph_size_t get_degree(vertex_id_t); // Return the degree of a vertex.

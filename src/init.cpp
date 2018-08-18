@@ -3,6 +3,7 @@
 
 #include "applications/dynamic/pagerank.h"
 #include "applications/dynamic/sssp.h"
+#include "applications/dynamic/wcc.h"
 #include "compute.h"
 #include "core/utils/threading.h"
 #include "edge_array_to_graph.h"
@@ -47,10 +48,10 @@ int main() {
 
     // TODO: Use user-defined functions
     Computation computation;
-    computation.init_state = PageRank::init_state;
-    computation.on_activate = PageRank::on_activate;
-    computation.on_add_edge = PageRank::on_add_edge;
-    computation.on_remove_edge = PageRank::on_remove_edge;
+    computation.init_state = WCC::init_state;
+    computation.on_activate = WCC::on_activate;
+    computation.on_add_edge = WCC::on_add_edge;
+    computation.on_remove_edge = WCC::on_remove_edge;
 
     // Create a graph object
     Digraph g = Digraph(max_vertex_num, batch_size, computation);

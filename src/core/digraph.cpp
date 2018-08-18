@@ -82,7 +82,7 @@ void Digraph::add_edge(vertex_id_t src_v, vertex_id_t dst_v) {
         // Reallocation may happen.
         // If a reallocation happens, the reallocation is O(n).
 
-        if(!has_vertex(src_v)){
+        if(!has_vertex(src_v)) {
             vertex_index[src_v] = 1;
             ++order;
 
@@ -96,7 +96,6 @@ void Digraph::add_edge(vertex_id_t src_v, vertex_id_t dst_v) {
             computation.init_state(this, dst_v);
         }
 
-        // TODO: Remove duplicated neighbors vectors, store just one type of neighbors
         topology[src_v].out_neighbors->push_back(dst_v);
         topology[dst_v].in_neighbors->push_back(src_v);
 
@@ -145,6 +144,19 @@ neighbors_vector_t *Digraph::get_in_neighborhood(vertex_id_t v) {
 
 neighbors_vector_t *Digraph::get_out_neighborhood(vertex_id_t v) {
     return topology[v].out_neighbors;
+}
+
+neighbors_vector_t Digraph::get_in_out_neighborhood(vertex_id_t v) {
+    neighbors_vector_t *in = topology[v].in_neighbors;
+    neighbors_vector_t *out = topology[v].out_neighbors;
+
+    neighbors_vector_t in_out;
+    in_out.reserve(in->size() + out->size());
+
+    in_out.insert(in_out.end(), in->begin(), in->end());
+    in_out.insert(in_out.end(), out->begin(), out->end());
+
+    return in_out;
 }
 
 graph_size_t Digraph::get_in_degree(vertex_id_t v) {
