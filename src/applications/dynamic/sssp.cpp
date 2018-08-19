@@ -1,11 +1,12 @@
 #include <algorithm>
 #include <limits>
+#include <iostream>
 
 #include "sssp.h"
 
 namespace SSSP {
     state_t get_min_distance(Digraph *g, vertex_id_t v) {
-        state_t min = std::numeric_limits<float>::infinity();
+        state_t min = std::numeric_limits<double>::infinity();
 
         for (auto neighbour : *(g->get_in_neighborhood(v))) {
             state_t neighbour_state = g->get_state(neighbour);
@@ -26,11 +27,11 @@ namespace SSSP {
 
     void on_activate(Digraph *g, vertex_id_t v) {
         state_t old_distance = g->get_state(v);
-
         state_t min = get_min_distance(g, v);
-        g->set_state(v, min + 1);
 
-        if (old_distance != min + 1) {
+        if (old_distance > min + 1) {
+            g->set_state(v, min + 1);
+
             for (auto neighbour : *(g->get_out_neighborhood(v))) {
                 g->activate_vertex(neighbour);
             }
