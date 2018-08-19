@@ -31,7 +31,7 @@ void preload_states(Digraph* digraph, const std::string &states_file, char separ
                 getline(sep, vertex_id, separator);
                 getline(sep, state, separator);
 
-                digraph->set_state(static_cast<vertex_id_t &&>(stoi(vertex_id)), static_cast<state_t &&>(stof(state)));
+                digraph->set_state(static_cast<vertex_id_t &&>(stoi(vertex_id)), static_cast<state_t &&>(stod(state)));
 
                 ++show_progress;
             }
