@@ -12,6 +12,7 @@
 #include "read_from_disk/edgelist_to_graph.h"
 #include "thread_pool.hpp"
 #include "utils/dump_vertex_states.h"
+#include "preload_states.h"
 
 int main() {
     std::cout << "Launching Kappa...\n" << std::endl;
@@ -22,12 +23,20 @@ int main() {
     // ------------------------------------------------------------------------------------------ //
 
     // Choose dataset
-    // std::string dataset = "/home/dm1515/data/test_data.edgelist";
-    // std::string dataset = "/home/dm1515/data/twitter-2010-shuffled.txt";
-    // std::string dataset = "/home/dm1515/data/higgs-social_network.edgelist";
+    //std::string dataset = "/home/dm1515/data/twitter-2010.txt";
+    //std::string dataset = "/home/dm1515/data/higgs-social_network.edgelist";
     // std::string dataset = "/home/dm1515/data/higgs-social_network-shuffled.edgelist";
     // std::string dataset = "/home/dm1515/data/higgs-social_network-shuffled-head1M";
-    std::string dataset = "/home/leopold/Developer/graphs/zachary.edgelist";
+    //std::string dataset = "/home/dm1515/data/zachary.edgelist";
+    //std::string dataset = "/home/leopold/Developer/graphs/zachary.edgelist";
+    std::string dataset = "/home/dm1515/data/higgs-social_network-shuffled.edgelist";
+
+    // Precomputed states for vertices in the core graph
+    //std::string core_states = "/home/leopold/Developer/graphs/zachary-states.txt";
+    //std::string core_states = "/home/dm1515/kappa/utils/nx-validate/results/nx-sssp-zachary.txt";
+    //std::string core_states = "/home/dm1515/data/core-graphs/precomputed-states/nx-higgs-shuff-core-10k-pr.txt";
+    std::string core_states = "/home/dm1515/data/core-graphs/precomputed-states/nx-higgs-shuff-core-10k-sssp.txt";
+
 
     // ------------------------------------------------------------------------------------------ //
 
@@ -43,36 +52,50 @@ int main() {
 
     // ------------------------------------------------------------------------------------------ //
 
+    // Set core graph size (#edges)
+    graph_size_t core_size = 10000;
+
     // Set batch sizes
-    graph_size_t batch_size = 10;
+    graph_size_t batch_size = 10000;
 
     // TODO: Use user-defined functions
+
     Computation computation;
-    computation.init_state = WCC::init_state;
-    computation.on_activate = WCC::on_activate;
-    computation.on_add_edge = WCC::on_add_edge;
-    computation.on_remove_edge = WCC::on_remove_edge;
+    computation.init_state = SSSP::init_state;
+    computation.on_activate = SSSP::on_activate;
+    computation.on_add_edge = SSSP::on_add_edge;
+    computation.on_remove_edge = SSSP::on_remove_edge;
+    
+/*
+    computation.init_state = PageRank::init_state;
+    computation.on_activate = PageRank::on_activate;
+    computation.on_add_edge = PageRank::on_add_edge;
+    computation.on_remove_edge = PageRank::on_remove_edge;
+*/
 
     // Create a graph object
     Digraph g = Digraph(max_vertex_num, batch_size, computation);
 
-    // Prepopulate the graph with some edges from the edge array
+    // Populate the graph with core set of edges
+    edge_array_to_digraph(&g, edge_array, 1, core_size);
+    std::cout << "Number of vertices after pre-populating: " << g.get_order() << std::endl;
+    std::cout << "Number of edges after pre-populating: " << g.get_size() << std::endl;
+
     /*
-    edge_array_to_digraph(&g, edge_array, 1, 5000000);
-    g.reset_touched_src_verts(); // DON'T FORGET TO RESET TOUCHED VERTICES AFTER PRE-POPULATING
-
-    std::cout << "Graph size after pre-populating: " << g.get_size() << std::endl;
-
     std::vector<graph_size_t> *touched_verts = g.get_touched_src_verts();
     std::cout << "Touched vertices queue size: " << touched_verts->size() << std::endl;
     std::cout << "Touched vertices queue capacity: " << touched_verts->capacity() << std::endl;
     */
 
+    // Load the precomputed states for vertices in the core graph
+    preload_states(&g, core_states, ' ', 1, core_size);
+    dump_vertex_states(&g, "preloaded-states-check.txt");
+
     // ------------------------------------------------------------------------------------------ //
 
     // Set a range of entries (lines) from the dataset, for updates to be applied to the graph
-    graph_size_t beginning = 1;
-    graph_size_t end = 78;
+    graph_size_t beginning = core_size+1;
+    graph_size_t end = num_dataset_entries;
 
     // Logically split the entires in the dataset by lines, splitting into batches
     std::vector<graph_size_t> split = dataset_to_batches(beginning, end, num_dataset_entries, batch_size);
