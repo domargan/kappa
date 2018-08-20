@@ -9,16 +9,44 @@
 #include "edge_array_to_graph.h"
 #include "experiments/naive_incremental_compute_edgelist.h"
 #include "experiments/utils/dataset_split.h"
+#include "global_thread_pool.h"
+#include "preload_states.h"
 #include "read_from_disk/edgelist_to_graph.h"
 #include "thread_pool.hpp"
 #include "utils/dump_vertex_states.h"
-#include "preload_states.h"
 
-int main() {
-    std::cout << "Launching Kappa...\n" << std::endl;
+int main(int argc, char *argv[]) {
+    // Parse command-line arguments
+    if (argc != 2) {
+        std::cerr << "Usage: kappa <no_of_cores>" << std::endl;
 
-    // TODO: Pin main thread to CPU 0
-    // TODO: Spawn thread for scheduler and pin it to CPU 1
+        exit(-1);
+    }
+
+    int no_of_cores = std::stoi(argv[1]);
+
+    // Initialise thread pool
+    ThreadPool &threadPool = GlobalThreadPool::get_thread_pool();
+
+    if (no_of_cores <= 16) {
+        threadPool.init_numa_node(1, no_of_cores);
+    } else if (no_of_cores <= 32) {
+        threadPool.init_numa_node(1);
+        threadPool.init_numa_node(2, no_of_cores - 16);
+    } else if (no_of_cores <= 48) {
+        threadPool.init_numa_node(1);
+        threadPool.init_numa_node(2);
+        threadPool.init_numa_node(3, no_of_cores - 32);
+    } else if (no_of_cores <= 64) {
+        threadPool.init_numa_node(1);
+        threadPool.init_numa_node(2);
+        threadPool.init_numa_node(3);
+        threadPool.init_numa_node(4, no_of_cores - 48);
+    } else {
+        std::cerr << "no_of_cores not valid" << std::endl;
+
+        exit(-1);
+    }
 
     // ------------------------------------------------------------------------------------------ //
 

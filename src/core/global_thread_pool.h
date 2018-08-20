@@ -4,9 +4,9 @@
 #include "thread_pool.hpp"
 
 namespace GlobalThreadPool {
-    inline ThreadPool &get_thread_pool() {
-        static ThreadPool threadPool(get_no_of_cpus() - NON_WORKER_THREADS, NON_WORKER_THREADS);
+    static ThreadPool threadPool;
 
+    inline ThreadPool &get_thread_pool() {
         return threadPool;
     }
 }

@@ -3,7 +3,7 @@
 
 #include <thread>
 
-static const unsigned int NON_WORKER_THREADS = 2;
+static const unsigned int NON_WORKER_THREADS = 1;
 
 unsigned int get_no_of_cpus(void);
 

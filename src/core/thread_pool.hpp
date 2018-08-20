@@ -18,26 +18,52 @@
 
 class ThreadPool {
 public:
-    ThreadPool(void)
-            : ThreadPool{std::max(std::thread::hardware_concurrency(), 2u) - 1u} {}
+    ThreadPool()
+        : done{false},
+          workQueue{},
+          threads{} {}
 
-    explicit ThreadPool(const std::uint32_t numThreads, const unsigned int offset = 0)
-            : done{false},
-              workQueue{},
-              threads{} {
+    void init_threads(const std::uint32_t num_threads, const unsigned int offset = 0) {
         try {
-            for (std::uint32_t i = 0u; i < numThreads; ++i) {
+            for (std::uint32_t i = 0u; i < num_threads; ++i) {
                 // Create thread
                 threads.emplace_back(&ThreadPool::worker, this);
 
-                // Pin thread to CPU i + offset
+                // Pin thread
                 pin_thread(i + offset, threads[i]);
+
+                std::cout << "Thread pinned to CPU " << i + offset << std::endl;
             }
         }
         catch (...) {
             destroy();
 
             throw;
+        }
+    }
+
+    void init_numa_node(const uint node_no, const uint no_of_threads = 16) {
+        try {
+            for (uint i = 0; i < no_of_threads; ++i) {
+                // Create thread
+                threads.emplace_back(&ThreadPool::worker, this);
+
+                // Pin thread
+                pin_thread(node_no + (i * 4), threads[i]);
+
+                std::cout << "Thread pinned to CPU " << node_no + (i * 4) << std::endl;
+            }
+        }
+        catch (...) {
+            destroy();
+
+            throw;
+        }
+    }
+
+    void init_numa_nodes(const std::vector<uint> nodes) {
+        for (auto node : nodes) {
+            init_numa_node(node);
         }
     }
 
