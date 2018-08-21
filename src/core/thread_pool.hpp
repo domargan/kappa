@@ -49,7 +49,7 @@ public:
                 threads.emplace_back(&ThreadPool::worker, this);
 
                 // Pin thread
-                pin_thread(node_no + (i * 4), threads[i]);
+                pin_thread(node_no + (i * 4), threads.back());
 
                 std::cout << "Thread pinned to CPU " << node_no + (i * 4) << std::endl;
             }
