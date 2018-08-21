@@ -33,7 +33,8 @@ void naive_incremental_compute_edge_array(Computation computation,
         std::cout << "Reading updates from chunk " << i+1 << std::endl;
 
         // Update the graph
-        clock_t cpu_begin_update = clock();
+        std::chrono::system_clock::time_point system_begin_update = std::chrono::system_clock::now();
+        std::chrono::steady_clock::time_point cpu_begin_update = std::chrono::steady_clock::now();
 
         std::vector<Update> updates_in_chunk;
 
@@ -49,13 +50,17 @@ void naive_incremental_compute_edge_array(Computation computation,
             updates_in_chunk.push_back(u);
         }
 
-        clock_t cpu_end_update = clock();
-        float cpu_time_update = float(cpu_end_update - cpu_begin_update) / CLOCKS_PER_SEC;
+        std::chrono::system_clock::time_point system_end_update = std::chrono::system_clock::now();
+        std::chrono::steady_clock::time_point cpu_end_update = std::chrono::steady_clock::now();
+
+        float system_time_update = std::chrono::duration<float>(system_end_update - system_begin_update).count();
+        float cpu_time_update = std::chrono::duration<float>(cpu_end_update - cpu_begin_update).count();
 
         float ingestion_rate = (end_line-start_line) / cpu_time_update;
 
         std::cout << "Finished updating from chunk " << i+1 << std::endl;
-        std::cout << "UPDATE TIME FOR chunk " << std::fixed << i+1 << ": " << cpu_time_update << std::endl;
+        std::cout << "(SYS) UPDATE TIME FOR chunk " << std::fixed << i+1 << ": " << system_time_update << std::endl;
+        std::cout << "(CPU) UPDATE TIME FOR chunk " << std::fixed << i+1 << ": " << cpu_time_update << std::endl;
 
         // g->count_order();
         graph_size_t order = g->get_order();
@@ -66,7 +71,8 @@ void naive_incremental_compute_edge_array(Computation computation,
         std::cout << "Executing computations for " << updates_in_chunk.size() << " updates" << std::endl;
 
         // Execute user-defined compute function
-        clock_t cpu_begin_compute = clock();
+        std::chrono::system_clock::time_point system_begin_compute = std::chrono::system_clock::now();
+        std::chrono::steady_clock::time_point cpu_begin_compute = std::chrono::steady_clock::now();
 
         for (auto &u : updates_in_chunk) {
             // TODO: Batch updates for same vertex
@@ -79,11 +85,15 @@ void naive_incremental_compute_edge_array(Computation computation,
 
         GlobalThreadPool::get_thread_pool().barrier();
 
-        clock_t cpu_end_compute = clock();
-        float cpu_time_compute = float(cpu_end_compute - cpu_begin_compute) / CLOCKS_PER_SEC;
+        std::chrono::system_clock::time_point system_end_compute = std::chrono::system_clock::now();
+        std::chrono::steady_clock::time_point cpu_end_compute = std::chrono::steady_clock::now();
+
+        float system_time_compute = std::chrono::duration<float>(system_end_compute - system_begin_compute).count();
+        float cpu_time_compute = std::chrono::duration<float>(cpu_end_compute - cpu_begin_compute).count();
 
         std::cout << "Finished computations." << std::endl;
-        std::cout << "COMPUTE TIME AFTER chunk " << std::fixed << i+1 << ": " << cpu_time_compute << std::endl;
+        std::cout << "(SYS) COMPUTE TIME AFTER chunk " << std::fixed << i+1 << ": " << system_time_compute << std::endl;
+        std::cout << "(CPU) COMPUTE TIME AFTER chunk " << std::fixed << i+1 << ": " << cpu_time_compute << std::endl;
         std::cout << "--------------------------------------------------------------------------------" << std::endl;
 
         fs << order << " , " << size << " , " << std::fixed << ingestion_rate << " , " << std::fixed << cpu_time_update << " , " << std::fixed << cpu_time_compute << std::endl;
