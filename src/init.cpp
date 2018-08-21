@@ -17,13 +17,14 @@
 
 int main(int argc, char *argv[]) {
     // Parse command-line arguments
-    if (argc != 2) {
-        std::cerr << "Usage: kappa <no_of_cores>" << std::endl;
+    if (argc != 3) {
+        std::cerr << "Usage: kappa <no_of_cores> <batch_size>" << std::endl;
 
         exit(-1);
     }
 
-    int no_of_cores = std::stoi(argv[1]);
+    uint no_of_cores = std::stoi(argv[1]);
+    graph_size_t batch_size = std::stoi(argv[2]);
 
     // Initialise thread pool
     ThreadPool &threadPool = GlobalThreadPool::get_thread_pool();
@@ -81,9 +82,6 @@ int main(int argc, char *argv[]) {
 
     // Set core graph size (#edges)
     graph_size_t core_size = 10000;
-
-    // Set batch sizes
-    graph_size_t batch_size = 10000;
 
     // TODO: Use user-defined functions
 
