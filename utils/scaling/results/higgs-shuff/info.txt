@@ -1,0 +1,5 @@
+dataset: higgs-social_network-shuffled.edgelist
+core size: 1M edges
+batch size: 10k edges
+beginning: core_size+1
+end: beginning+100000-1
