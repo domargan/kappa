@@ -30,19 +30,19 @@ int main(int argc, char *argv[]) {
     ThreadPool &threadPool = GlobalThreadPool::get_thread_pool();
 
     if (no_of_cores <= 16) {
-        threadPool.init_numa_node(1, no_of_cores);
+        threadPool.init_numa_node(0, no_of_cores);
     } else if (no_of_cores <= 32) {
-        threadPool.init_numa_node(1);
-        threadPool.init_numa_node(2, no_of_cores - 16);
+        threadPool.init_numa_node(0);
+        threadPool.init_numa_node(1, no_of_cores - 16);
     } else if (no_of_cores <= 48) {
+        threadPool.init_numa_node(0);
         threadPool.init_numa_node(1);
-        threadPool.init_numa_node(2);
-        threadPool.init_numa_node(3, no_of_cores - 32);
+        threadPool.init_numa_node(2, no_of_cores - 32);
     } else if (no_of_cores <= 64) {
+        threadPool.init_numa_node(0);
         threadPool.init_numa_node(1);
         threadPool.init_numa_node(2);
-        threadPool.init_numa_node(3);
-        threadPool.init_numa_node(4, no_of_cores - 48);
+        threadPool.init_numa_node(3, no_of_cores - 48);
     } else {
         std::cerr << "no_of_cores not valid" << std::endl;
 
