@@ -4,9 +4,9 @@
 #include "thread_pool.hpp"
 
 namespace GlobalThreadPool {
-    static ThreadPool threadPool;
-
     inline ThreadPool &get_thread_pool() {
+        static ThreadPool threadPool;
+
         return threadPool;
     }
 }

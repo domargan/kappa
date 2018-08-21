@@ -19,9 +19,10 @@
 class ThreadPool {
 public:
     ThreadPool()
-        : done{false},
+        : threads{},
+          done{false},
           workQueue{},
-          threads{} {}
+          futureQueue{} {}
 
     void init_threads(const std::uint32_t num_threads, const unsigned int offset = 0) {
         try {

@@ -65,7 +65,6 @@ int main(int argc, char *argv[]) {
     //std::string core_states = "/home/dm1515/data/core-graphs/precomputed-states/nx-higgs-shuff-core-10k-pr.txt";
     std::string core_states = "/home/dm1515/data/core-graphs/precomputed-states/nx-higgs-shuff-core-10k-sssp.txt";
 
-
     // ------------------------------------------------------------------------------------------ //
 
     // Preload the data in memory, in form of an edge array
@@ -93,13 +92,6 @@ int main(int argc, char *argv[]) {
     computation.on_activate = SSSP::on_activate;
     computation.on_add_edge = SSSP::on_add_edge;
     computation.on_remove_edge = SSSP::on_remove_edge;
-    
-/*
-    computation.init_state = PageRank::init_state;
-    computation.on_activate = PageRank::on_activate;
-    computation.on_add_edge = PageRank::on_add_edge;
-    computation.on_remove_edge = PageRank::on_remove_edge;
-*/
 
     // Create a graph object
     Digraph g = Digraph(max_vertex_num, batch_size, computation);
