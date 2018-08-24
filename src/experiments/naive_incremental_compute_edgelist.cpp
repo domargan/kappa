@@ -75,11 +75,14 @@ void naive_incremental_compute_edge_array(Computation computation,
         std::chrono::steady_clock::time_point cpu_begin_compute = std::chrono::steady_clock::now();
 
         for (auto &u : updates_in_chunk) {
-            // TODO: Batch updates for same vertex
             if (u.type == ADD) {
-                GlobalThreadPool::get_thread_pool().submit(COMPUTE, computation.on_add_edge, g, u.src, u.dst);
+                GlobalThreadPool::get_thread_pool().submit(
+                    EdgeComputeTask::pool.construct(computation.on_add_edge, g, std::make_tuple(u.src, u.dst))
+                );
             } else {
-                GlobalThreadPool::get_thread_pool().submit(COMPUTE, computation.on_remove_edge, g, u.src, u.dst);
+                GlobalThreadPool::get_thread_pool().submit(
+                    EdgeComputeTask::pool.construct(computation.on_remove_edge, g, std::make_tuple(u.src, u.dst))
+                );
             }
         }
 

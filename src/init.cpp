@@ -12,7 +12,7 @@
 #include "global_thread_pool.h"
 #include "preload_states.h"
 #include "read_from_disk/edgelist_to_graph.h"
-#include "thread_pool.hpp"
+#include "thread_pool.h"
 #include "utils/dump_vertex_states.h"
 
 int main(int argc, char *argv[]) {
@@ -52,19 +52,21 @@ int main(int argc, char *argv[]) {
     // ------------------------------------------------------------------------------------------ //
 
     // Choose dataset
-    //std::string dataset = "/home/dm1515/data/twitter-2010.txt";
-    //std::string dataset = "/home/dm1515/data/higgs-social_network.edgelist";
+    // std::string dataset = "/home/dm1515/data/twitter-2010.txt";
+    // std::string dataset = "/home/dm1515/data/higgs-social_network.edgelist";
     // std::string dataset = "/home/dm1515/data/higgs-social_network-shuffled.edgelist";
     // std::string dataset = "/home/dm1515/data/higgs-social_network-shuffled-head1M";
-    //std::string dataset = "/home/dm1515/data/zachary.edgelist";
-    //std::string dataset = "/home/leopold/Developer/graphs/zachary.edgelist";
+    // std::string dataset = "/home/dm1515/data/zachary.edgelist";
     std::string dataset = "/home/dm1515/data/higgs-social_network-shuffled.edgelist";
+    // std::string dataset = "/home/leopold/Developer/graphs/zachary.edgelist";
+    // std::string dataset = "/home/leopold/Developer/graphs/higgs-social_network-shuffled.edgelist";
 
     // Precomputed states for vertices in the core graph
-    //std::string core_states = "/home/leopold/Developer/graphs/zachary-states.txt";
-    //std::string core_states = "/home/dm1515/kappa/utils/nx-validate/results/nx-sssp-zachary.txt";
-    //std::string core_states = "/home/dm1515/data/core-graphs/precomputed-states/nx-higgs-shuff-core-10k-pr.txt";
+    // std::string core_states = "/home/leopold/Developer/graphs/zachary-states.txt";
+    // std::string core_states = "/home/dm1515/kappa/utils/nx-validate/results/nx-sssp-zachary.txt";
+    // std::string core_states = "/home/dm1515/data/core-graphs/precomputed-states/nx-higgs-shuff-core-10k-pr.txt";
     std::string core_states = "/home/dm1515/data/core-graphs/precomputed-states/nx-higgs-shuff-core-10k-sssp.txt";
+    // std::string core_states = "/home/leopold/Developer/graphs/nx-higgs-shuff-core-10k-sssp.txt";
 
     // ------------------------------------------------------------------------------------------ //
 
@@ -112,7 +114,7 @@ int main(int argc, char *argv[]) {
     // ------------------------------------------------------------------------------------------ //
 
     // Set a range of entries (lines) from the dataset, for updates to be applied to the graph
-    graph_size_t beginning = core_size+1;
+    graph_size_t beginning = core_size + 1;
     graph_size_t end = num_dataset_entries;
 
     // Logically split the entires in the dataset by lines, splitting into batches

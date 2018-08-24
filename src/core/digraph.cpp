@@ -4,6 +4,7 @@
 
 #include "digraph.h"
 #include "global_thread_pool.h"
+#include "task.h"
 
 // TODO: Implement vertex iterator (instead of iterating until vertex_index.size())
 // TODO: Do something smarter about getting size; do not call vertex_index.size() all the time
@@ -64,7 +65,9 @@ bool Digraph::has_vertex(vertex_id_t v) {
 }
 
 void Digraph::activate_vertex(vertex_id_t v) {
-    GlobalThreadPool::get_thread_pool().submit(COMPUTE, computation.on_activate, this, v);
+    GlobalThreadPool::get_thread_pool().submit(
+        VertexComputeTask::pool.construct(computation.on_activate, this, v)
+    );
 }
 
 bool Digraph::has_edge(vertex_id_t src_v, vertex_id_t dst_v) {

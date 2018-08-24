@@ -3,7 +3,7 @@
 
 #include "digraph.h"
 #include "read_from_disk/edgelist_to_edge_array.h"
-#include "thread_pool.hpp"
+#include "thread_pool.h"
 
 void naive_incremental_compute_edge_array(Computation,
                                    Digraph*,
