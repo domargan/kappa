@@ -15,6 +15,8 @@ UPDATES_OUT_FILE=updates_scaling_plot
 cores=(1 2 4 8 16 32 64)
 iters=(1 2 3 4 5)
 
+batch_size=100000
+
 >$KAPPA_PLOT_DATA
 
 for core in ${cores[@]}; do
@@ -25,7 +27,7 @@ for core in ${cores[@]}; do
 	for iter in ${iters[@]}; do
 		>$KAPPA_LOG
 
-		$KAPPA_EXEC ${core}
+		$KAPPA_EXEC ${core} ${batch_size}
 
 		tail -n +2 $KAPPA_LOG >> $KAPPA_LOG_CONCAT
 	done
