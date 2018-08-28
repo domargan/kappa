@@ -15,6 +15,7 @@ typedef struct Dvertex {
     graph_size_t out_degree;
     state_t* state;
     state_t* state_temp;
+    bool scheduled;
 } Dvertex;
 
 #endif //KAPPA_VERTEX_H

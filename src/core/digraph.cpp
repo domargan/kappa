@@ -25,6 +25,7 @@ Digraph::Digraph(graph_size_t v_num, graph_size_t update_batch_size, Computation
         dv.in_degree = 0;
         dv.out_degree = 0;
         dv.state = &states[i];
+        dv.scheduled = false;
 
         topology.push_back(dv);
     }
@@ -64,7 +65,19 @@ bool Digraph::has_vertex(vertex_id_t v) {
     return vertex_index[v];
 }
 
+void Digraph::set_scheduled(vertex_id_t v, bool scheduled) {
+    topology[v].scheduled = scheduled;
+}
+
+bool Digraph::is_scheduled(vertex_id_t v) {
+    return topology[v].scheduled;
+}
+
 void Digraph::activate_vertex(vertex_id_t v) {
+    if (is_scheduled(v)) {
+        return;
+    }
+
     Task *task = static_cast<Task*>(task_pool::malloc());
 
     task->task_type = VERTEX;

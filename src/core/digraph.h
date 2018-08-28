@@ -42,6 +42,8 @@ public:
     vertex_bitset_t get_vertex_index(); // Return index of vertices present in the graph.
 
     bool has_vertex(vertex_id_t); // Return true if the vertex is in the graph.
+    void set_scheduled(vertex_id_t, bool);
+    bool is_scheduled(vertex_id_t);
     void activate_vertex(vertex_id_t);
 
     void add_edge(vertex_id_t, vertex_id_t); // Add an edge between two vertices.

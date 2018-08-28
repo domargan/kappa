@@ -2,13 +2,15 @@
 
 void Task::execute() {
     switch (task_type) {
-    case VERTEX:
-        vertex_f(g, v);
-        break;
+        case VERTEX:
+            g->set_scheduled(v, false);
+            vertex_f(g, v);
 
-    case EDGE:
-        edge_f(g, src, dst);
-        break;
+            break;
+        case EDGE:
+            edge_f(g, src, dst);
+
+            break;
     }
 }
 
