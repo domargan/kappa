@@ -123,6 +123,17 @@ public:
         }
     }
 
+    bool empty(void) {
+        auto tail = tail_.load(std::memory_order_acquire);
+        auto const prevTail = tail;
+        tail = tail_.load(std::memory_order_acquire);
+        if (tail == prevTail) {
+            return true;
+        }
+
+        return false;
+    }
+
 private:
     constexpr size_t idx(size_t i) const noexcept { return i % capacity_; }
 
