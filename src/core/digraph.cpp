@@ -65,9 +65,14 @@ bool Digraph::has_vertex(vertex_id_t v) {
 }
 
 void Digraph::activate_vertex(vertex_id_t v) {
-    GlobalThreadPool::get_thread_pool().submit(
-        VertexComputeTask::pool.construct(computation.on_activate, this, v)
-    );
+    Task *task = static_cast<Task*>(task_pool::malloc());
+
+    task->task_type = VERTEX;
+    task->g = this;
+    task->v = v;
+    task->vertex_f = computation.on_activate;
+
+    GlobalThreadPool::get_thread_pool().submit(task);
 }
 
 bool Digraph::has_edge(vertex_id_t src_v, vertex_id_t dst_v) {

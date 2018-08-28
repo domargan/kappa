@@ -12,7 +12,7 @@ typedef double state_t;
 
 typedef uint32_t task_id_t;
 
-typedef enum {COMPUTE, UPDATE} task_type_t;
+typedef enum {VERTEX, EDGE, UPDATE} task_type_t;
 
 typedef std::chrono::microseconds timestamp_real_t;
 typedef uint32_t timestamp_logical_t;

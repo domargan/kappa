@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "thread_pool.h"
 #include "utils/threading.h"
 
@@ -55,7 +57,7 @@ void ThreadPool::init_numa_nodes(const std::vector<uint> nodes) {
     }
 }
 
-void ThreadPool::submit(BaseTask *task) {
+void ThreadPool::submit(Task *task) {
     task_queue.push(task);
 }
 
@@ -71,7 +73,7 @@ void ThreadPool::barrier() {
 
 void ThreadPool::worker(void) {
     while (!done) {
-        BaseTask *task;
+        Task *task;
         task_queue.wait_pop(task, active);
 
         task->execute();

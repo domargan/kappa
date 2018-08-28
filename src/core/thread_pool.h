@@ -20,7 +20,7 @@ public:
     void init_numa_node(const uint, const uint no_of_threads = 16);
     void init_numa_nodes(const std::vector<uint>);
 
-    void submit(BaseTask*);
+    void submit(Task*);
     void barrier();
 
 private:
@@ -29,7 +29,7 @@ private:
 
     std::vector<std::thread> threads;
     std::atomic_bool done;
-    ThreadSafeQueue<BaseTask*> task_queue;
+    ThreadSafeQueue<Task*> task_queue;
     std::atomic_ushort active;
 };
 
