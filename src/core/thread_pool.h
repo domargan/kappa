@@ -8,6 +8,7 @@
 
 #include "task.h"
 #include "thread_safe_queue.hpp"
+#include "mpmc_queue.h"
 
 class ThreadPool {
 public:
@@ -23,13 +24,16 @@ public:
     void submit(Task*);
     void barrier();
 
+    std::atomic_uint task_counter;
+
 private:
     void worker(void);
     void destroy(void);
 
     std::vector<std::thread> threads;
     std::atomic_bool done;
-    ThreadSafeQueue<Task*> task_queue;
+    //ThreadSafeQueue<Task*> task_queue;
+    MPMCQueue<Task*> task_queue;
     std::atomic_ushort active;
 };
 

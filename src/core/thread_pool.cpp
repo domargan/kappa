@@ -6,11 +6,12 @@
 ThreadPool::ThreadPool()
     : threads{},
       done{false},
-      task_queue{},
-      active{0} {}
+      task_queue{1024*1024*128},
+      active{0},
+      task_counter{0} {}
 
 ThreadPool::~ThreadPool() {
-    destroy();
+    //destroy();
 }
 
 void ThreadPool::init_threads(const std::uint32_t num_threads, const unsigned int offset) {
@@ -59,6 +60,8 @@ void ThreadPool::init_numa_nodes(const std::vector<uint> nodes) {
 
 void ThreadPool::submit(Task *task) {
     task_queue.push(task);
+
+    ++task_counter;
 }
 
 void ThreadPool::barrier() {
@@ -74,7 +77,7 @@ void ThreadPool::barrier() {
 void ThreadPool::worker(void) {
     while (!done) {
         Task *task;
-        task_queue.wait_pop(task, active);
+        task_queue.pop(task, active);
 
         task->execute();
         task->release();
