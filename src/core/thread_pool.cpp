@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 
 #include "thread_pool.h"
 #include "utils/threading.h"
@@ -8,7 +9,9 @@ ThreadPool::ThreadPool()
       done{false},
       task_queue{1024*1024*128},
       active{0},
-      task_counter{0} {}
+      task_counter{0} {
+    fs.open("task_amount.txt");
+}
 
 ThreadPool::~ThreadPool() {
     //destroy();
@@ -62,6 +65,13 @@ void ThreadPool::submit(Task *task) {
     task_queue.push(task);
 
     ++task_counter;
+
+    {
+        std::lock_guard<std::mutex> lock{mtx};
+
+        if (task_counter % 100 == 0)
+            fs << task_counter << std::endl;
+    }
 }
 
 void ThreadPool::barrier() {
@@ -83,6 +93,7 @@ void ThreadPool::worker(void) {
         task->release();
 
         --active;
+        --task_counter;
     }
 }
 

@@ -26,6 +26,10 @@ void naive_incremental_compute_edge_array(Computation computation,
     graph_size_t start_line = 0;
     graph_size_t end_line = 0;
 
+    // Measure end-to-end time
+    std::chrono::system_clock::time_point system_begin_total = std::chrono::system_clock::now();
+    std::chrono::steady_clock::time_point cpu_begin_total = std::chrono::steady_clock::now();
+
     for (int i = 0; i < num_of_chunks; ++i) {
         start_line = chunks_start_lines[i];
         end_line = chunks_start_lines[i+1];
@@ -88,6 +92,8 @@ void naive_incremental_compute_edge_array(Computation computation,
 
         GlobalThreadPool::get_thread_pool().barrier();
 
+        GlobalThreadPool::get_thread_pool().task_counter = 0;
+
         std::chrono::system_clock::time_point system_end_compute = std::chrono::system_clock::now();
         std::chrono::steady_clock::time_point cpu_end_compute = std::chrono::steady_clock::now();
 
@@ -102,5 +108,20 @@ void naive_incremental_compute_edge_array(Computation computation,
         fs << order << " , " << size << " , " << std::fixed << ingestion_rate << " , " << std::fixed << cpu_time_update << " , " << std::fixed << cpu_time_compute << std::endl;
     }
 
+    std::chrono::system_clock::time_point system_end_total = std::chrono::system_clock::now();
+    std::chrono::steady_clock::time_point cpu_end_total = std::chrono::steady_clock::now();
+
+    float system_time_total = std::chrono::duration<float>(system_end_total - system_begin_total).count();
+    float cpu_time_total = std::chrono::duration<float>(cpu_end_total - cpu_begin_total).count();
+
+    std::cout << "Finished all computations." << std::endl;
+    std::cout << "(SYS) COMPUTE END-TO-END TIME: " << std::fixed << system_time_total << std::endl;
+    std::cout << "(CPU) COMPUTE END-TO-END TIME: " << std::fixed << cpu_time_total << std::endl;
+    std::cout << "--------------------------------------------------------------------------------" << std::endl;
+
+    fs.close();
+
+    fs.open("end-to-end-time.txt");
+    fs << std::fixed << cpu_time_total << std::endl;
     fs.close();
 }

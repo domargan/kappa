@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <thread>
 #include <vector>
+#include <fstream>
 
 #include "task.h"
 #include "thread_safe_queue.hpp"
@@ -35,6 +36,9 @@ private:
     //ThreadSafeQueue<Task*> task_queue;
     MPMCQueue<Task*> task_queue;
     std::atomic_ushort active;
+
+    std::mutex mtx;
+    std::ofstream fs;
 };
 
 #endif //KAPPA_THREAD_POOL

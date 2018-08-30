@@ -5,6 +5,7 @@
 #include <limits>
 #include <memory>
 #include <stdexcept>
+#include <cassert>
 
 template <typename T> class MPMCQueue {
 public:
@@ -28,6 +29,19 @@ public:
         for (size_t i = 0; i < capacity_; ++i) {
             new (&slots_[i]) Slot();
         }
+        static_assert(sizeof(MPMCQueue<T>) % kCacheLineSize == 0,
+                      "MPMCQueue<T> size must be a multiple of cache line size to "
+                      "prevent false sharing between adjacent queues");
+        static_assert(sizeof(Slot) % kCacheLineSize == 0,
+                      "Slot size must be a multiple of cache line size to prevent "
+                      "false sharing between adjacent slots");
+        assert(reinterpret_cast<size_t>(slots_) % kCacheLineSize == 0 &&
+               "slots_ array must be aligned to cache line size to prevent false "
+               "sharing between adjacent slots");
+        assert(reinterpret_cast<char *>(&tail_) -
+               reinterpret_cast<char *>(&head_) >=
+               kCacheLineSize &&
+               "head and tail must be a cache line apart to prevent false sharing");
     }
 
     ~MPMCQueue() noexcept {
@@ -42,6 +56,8 @@ public:
     MPMCQueue &operator=(const MPMCQueue &) = delete;
 
     template <typename... Args> void emplace(Args &&... args) noexcept {
+        static_assert(std::is_nothrow_constructible<T, Args &&...>::value,
+                      "T must be nothrow constructible with Args&&...");
         auto const head = head_.fetch_add(1);
         auto &slot = slots_[idx(head)];
         while (turn(head) * 2 != slot.turn.load(std::memory_order_acquire))
@@ -51,6 +67,8 @@ public:
     }
 
     template <typename... Args> bool try_emplace(Args &&... args) noexcept {
+        static_assert(std::is_nothrow_constructible<T, Args &&...>::value,
+                      "T must be nothrow constructible with Args&&...");
         auto head = head_.load(std::memory_order_acquire);
         for (;;) {
             auto &slot = slots_[idx(head)];
@@ -71,6 +89,8 @@ public:
     }
 
     void push(const T &v) noexcept {
+        static_assert(std::is_nothrow_copy_constructible<T>::value,
+                      "T must be nothrow copy constructible");
         emplace(v);
     }
 
@@ -82,6 +102,8 @@ public:
     }
 
     bool try_push(const T &v) noexcept {
+        static_assert(std::is_nothrow_copy_constructible<T>::value,
+                      "T must be nothrow copy constructible");
         return try_emplace(v);
     }
 
@@ -155,10 +177,14 @@ private:
         }
 
         template <typename... Args> void construct(Args &&... args) noexcept {
+            static_assert(std::is_nothrow_constructible<T, Args &&...>::value,
+                          "T must be nothrow constructible with Args&&...");
             new (&storage) T(std::forward<Args>(args)...);
         }
 
         void destroy() noexcept {
+            static_assert(std::is_nothrow_destructible<T>::value,
+                          "T must be nothrow destructible");
             reinterpret_cast<T *>(&storage)->~T();
         }
 

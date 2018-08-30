@@ -65,7 +65,7 @@ int main(int argc, char *argv[]) {
     // std::string core_states = "/home/leopold/Developer/graphs/zachary-states.txt";
     // std::string core_states = "/home/dm1515/kappa/utils/nx-validate/results/nx-sssp-zachary.txt";
     // std::string core_states = "/home/dm1515/data/core-graphs/precomputed-states/nx-higgs-shuff-core-10k-pr.txt";
-    std::string core_states = "/home/dm1515/data/core-graphs/precomputed-states/nx-higgs-shuff-core-10k-sssp.txt";
+    std::string core_states = "/home/dm1515/data/core-graphs/precomputed-states/nx-higgs-shuff-core-14M-sssp.txt";
     // std::string core_states = "/home/leopold/Developer/graphs/nx-higgs-shuff-core-10k-sssp.txt";
 
     // ------------------------------------------------------------------------------------------ //
@@ -83,7 +83,7 @@ int main(int argc, char *argv[]) {
     // ------------------------------------------------------------------------------------------ //
 
     // Set core graph size (#edges)
-    graph_size_t core_size = 10000;
+    graph_size_t core_size = 14000000;
 
     // TODO: Use user-defined functions
 
@@ -92,7 +92,7 @@ int main(int argc, char *argv[]) {
     computation.on_activate = SSSP::on_activate;
     computation.on_add_edge = SSSP::on_add_edge;
     computation.on_remove_edge = SSSP::on_remove_edge;
-
+    
     // Create a graph object
     Digraph g = Digraph(max_vertex_num, batch_size, computation);
 
@@ -115,7 +115,7 @@ int main(int argc, char *argv[]) {
 
     // Set a range of entries (lines) from the dataset, for updates to be applied to the graph
     graph_size_t beginning = core_size + 1;
-    graph_size_t end = num_dataset_entries;
+    graph_size_t end = 14500000;
 
     // Logically split the entires in the dataset by lines, splitting into batches
     std::vector<graph_size_t> split = dataset_to_batches(beginning, end, num_dataset_entries, batch_size);
