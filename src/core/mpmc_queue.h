@@ -115,6 +115,8 @@ public:
     }
 
     void pop(T &v, std::atomic_ushort &active) noexcept {
+        ++active;
+
         auto const tail = tail_.fetch_add(1);
         auto &slot = slots_[idx(tail)];
         while (turn(tail) * 2 + 1 != slot.turn.load(std::memory_order_acquire))
@@ -122,8 +124,6 @@ public:
         v = slot.move();
         slot.destroy();
         slot.turn.store(turn(tail) * 2 + 2, std::memory_order_release);
-
-        ++active;
     }
 
     bool try_pop(T &v) noexcept {
