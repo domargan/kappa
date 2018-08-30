@@ -147,15 +147,20 @@ public:
         }
     }
 
-    bool empty(void) {
+    bool empty(void) noexcept {
         auto tail = tail_.load(std::memory_order_acquire);
-        auto const prevTail = tail;
-        tail = tail_.load(std::memory_order_acquire);
-        if (tail == prevTail) {
-            return true;
+        for (;;) {
+            auto &slot = slots_[idx(tail)];
+            if (turn(tail) * 2 + 1 == slot.turn.load(std::memory_order_acquire)) {
+                    return false;
+            } else {
+                auto const prevTail = tail;
+                tail = tail_.load(std::memory_order_acquire);
+                if (tail == prevTail) {
+                    return true;
+                }
+            }
         }
-
-        return false;
     }
 
     void wait_empty(void) {
