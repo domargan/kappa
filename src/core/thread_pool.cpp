@@ -69,8 +69,15 @@ void ThreadPool::submit(Task *task) {
     {
         std::lock_guard<std::mutex> lock{mtx};
 
+        int task_type;
+
+        if (task->task_type == VERTEX) { task_type = 0; } // Schedule vertex for execution (activate vertex)
+        else if (task->task_type == EDGE) { task_type = 1; } // Execute user-defined compute function
+
         if (task_counter % 100 == 0)
-            fs << task_counter << std::endl;
+            fs <<  task->g->get_order() << " " << task->g->get_size() << " " << task_counter << " "  << task_type << " " << std::endl;
+
+
     }
 }
 
