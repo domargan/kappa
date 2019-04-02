@@ -31,9 +31,9 @@
 *.out
 *.app
 
-
 # JetBrains user-specific stuff:
 .idea
+.clion.source.upload.marker
 
 # CMake build folders
 cmake-*
