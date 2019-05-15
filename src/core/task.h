@@ -15,6 +15,7 @@ public:
 
     void (*vertex_f)(Digraph*, vertex_id_t);
     void (*edge_f)(Digraph*, vertex_id_t, vertex_id_t);
+    void (*update_f)(Digraph*, vertex_id_t, vertex_id_t);
 
     Digraph *g;
     vertex_id_t v;

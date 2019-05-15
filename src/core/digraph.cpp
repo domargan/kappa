@@ -11,7 +11,7 @@
 // TODO: For every iteration of vertices from 0 to vertex_index.size() check if the vertex exists before any operations
 // TODO: Remove all calls to vertex_index.size() and replace them with a variable
 
-Digraph::Digraph(graph_size_t v_num, graph_size_t update_batch_size, Computation computation) {
+Digraph::Digraph(graph_size_t v_num, graph_size_t update_batch_size, Updating updating, Computation computation) {
     std::cout << "Digraph constructor called.\n" << std::endl;
 
     max_vertex_allocations = v_num + 1;
@@ -34,6 +34,7 @@ Digraph::Digraph(graph_size_t v_num, graph_size_t update_batch_size, Computation
     size = 0;
 
     this->computation = computation;
+    this->updating = updating;
 
     std::cout << "Digraph structure initialized with " << v_num << " vertex entries.\n" << std::endl;
 }
@@ -78,7 +79,10 @@ void Digraph::activate_vertex(vertex_id_t v) {
         return;
     }
 
+    this->set_scheduled(v, true); // TODO: Verify this
+
     Task *task = static_cast<Task*>(task_pool::malloc());
+    //Task *task = (Task*) malloc(sizeof(Task));
 
     task->task_type = VERTEX;
     task->g = this;

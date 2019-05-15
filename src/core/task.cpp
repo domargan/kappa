@@ -11,6 +11,10 @@ void Task::execute() {
             edge_f(g, src, dst);
 
             break;
+        case UPDATE:
+            update_f(g, src, dst);
+
+            break;
     }
 }
 

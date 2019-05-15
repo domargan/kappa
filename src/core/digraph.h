@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "compute.h"
+#include "update.h"
 #include "datatypes.h"
 #include "vertex.h"
 
@@ -33,10 +34,11 @@ private:
     graph_size_t order; // Current number of vertices in the graph.
     graph_size_t size; // Current number of edges in the graph.
 
+    Updating updating;
     Computation computation;
 
 public:
-    explicit Digraph(graph_size_t, graph_size_t, Computation); // Digraph constructor.
+    explicit Digraph(graph_size_t, graph_size_t, Updating, Computation); // Digraph constructor.
 
     digraph_vector_t get_digraph_vector(); // Return the graph_vector_t data structure.
     vertex_bitset_t get_vertex_index(); // Return index of vertices present in the graph.
