@@ -25,7 +25,10 @@ public:
     void submit(Task*);
     void barrier();
 
+    std::atomic_uint iteration_counter;
     std::atomic_uint task_counter;
+
+    std::chrono::system_clock::time_point tp_start;
 
 private:
     void worker(void);

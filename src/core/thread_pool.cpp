@@ -8,8 +8,11 @@ ThreadPool::ThreadPool()
     : threads{},
       done{false},
       task_queue{1024*1024*128},
+      //task_queue{1024*1024*512},
       active{0},
-      task_counter{0} {
+      task_counter{0},
+      iteration_counter{0},
+      tp_start(std::chrono::system_clock::now()) {
     fs.open("task_amount.txt");
 }
 
@@ -65,19 +68,26 @@ void ThreadPool::submit(Task *task) {
     task_queue.push(task);
 
     ++task_counter;
+    ++iteration_counter;
 
     {
         std::lock_guard<std::mutex> lock{mtx};
 
         int task_type;
 
-        if (task->task_type == VERTEX) { task_type = 0; } // Schedule vertex for execution (activate vertex)
-        else if (task->task_type == EDGE) { task_type = 1; } // Execute user-defined compute function
+        if (task->task_type == VERTEX) { task_type = 0; } // On activate
+        else if (task->task_type == EDGE) { task_type = 1; } // On add edge
+        else if (task->task_type == UPDATE) { task_type = 2; } // Insert/delete edge
 
-        if (task_counter % 100 == 0)
-            fs <<  task->g->get_order() << " " << task->g->get_size() << " " << task_counter << " "  << task_type << " " << std::endl;
-
-
+        if (task_counter % 100 == 0) { // or 1000 when having more inputs
+            fs << std::chrono::duration<float>(std::chrono::system_clock::now() - tp_start).count() << " " // Real time
+                << iteration_counter << " " // Logical time (iterations)
+                << task->g->get_order() << " "
+                << task->g->get_size() << " "
+                << task_counter << " "
+                << task_type << " "
+                << std::endl;
+        }
     }
 }
 
