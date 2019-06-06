@@ -75,8 +75,8 @@ void ThreadPool::submit(Task *task) {
 
         int task_type;
 
-        if (task->task_type == VERTEX) { task_type = 0; } // On activate
-        else if (task->task_type == EDGE) { task_type = 1; } // On add edge
+        if (task->task_type == ON_ACTIVATE) { task_type = 0; } // On activate
+        else if (task->task_type == ON_UPDATE) { task_type = 1; } // On add/remove edge
         else if (task->task_type == UPDATE) { task_type = 2; } // Insert/delete edge
 
         if (task_counter % 100 == 0) { // or 1000 when having more inputs
@@ -106,7 +106,32 @@ void ThreadPool::worker(void) {
         Task *task;
         task_queue.pop(task, active);
 
+        //std::cout << task->task_type << " " << task->timestamp_logical <<  " " << task_counter << std::endl;
+
         task->execute();
+
+        switch (task->task_type) {
+            case ON_ACTIVATE:                    // On activate (basically "compute")
+                task->g->set_vertex_on_activate_ts(task->v, task->timestamp_logical);
+
+                break;
+            case ON_UPDATE:                      // What to do after adding/removing and edge (e.g. run "activate")
+                task->g->set_vertex_on_update_ts(task->src, task->timestamp_logical);
+                task->g->set_vertex_on_update_ts(task->dst, task->timestamp_logical);
+                // TODO: Introduce blocking logic for correctness
+
+                break;
+            case UPDATE:                    // Just removing and adding edges
+                //std::cout << "UPDATE" << std::endl;
+                //std::cout << task->timestamp_logical << std::endl;
+                //std::cout << task->g->get_vertex_update_ts(task->v) << std::endl;
+                task->g->set_vertex_update_ts(task->src, task->timestamp_logical);
+                task->g->set_vertex_update_ts(task->dst, task->timestamp_logical);
+                // TODO: Introduce blocking logic for correctness
+
+                break;
+        }
+
         task->release();
 
         --active;

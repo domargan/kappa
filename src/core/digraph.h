@@ -3,6 +3,7 @@
 
 #include <boost/dynamic_bitset.hpp>
 #include <vector>
+#include <atomic>
 
 #include "compute.h"
 #include "update.h"
@@ -37,6 +38,8 @@ private:
     Updating updating;
     Computation computation;
 
+    std::atomic<timestamp_logical_t> global_logical_ts;
+
 public:
     explicit Digraph(graph_size_t, graph_size_t, Updating, Computation); // Digraph constructor.
 
@@ -69,6 +72,15 @@ public:
     graph_size_t get_max_order(); // Return the number of pre-allocated vertex spaces.
 
     graph_size_t get_size(); // Return the number of edges.
+
+    timestamp_logical_t get_incremented_global_logical_ts();
+    //std::atomic<timestamp_logical_t> &get_counter();
+    void set_vertex_update_ts(vertex_id_t, timestamp_logical_t);
+    timestamp_logical_t get_vertex_update_ts(vertex_id_t);
+    void set_vertex_on_update_ts(vertex_id_t, timestamp_logical_t);
+    timestamp_logical_t get_vertex_on_update_ts(vertex_id_t);
+    void set_vertex_on_activate_ts(vertex_id_t, timestamp_logical_t);
+    timestamp_logical_t get_vertex_on_activate_ts(vertex_id_t);
 };
 
 #endif //KAPPA_DIGRAPH_H

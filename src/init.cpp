@@ -118,7 +118,8 @@ int main(int argc, char *argv[]) {
     computation_wcc.on_remove_edge = WCC::on_remove_edge;
 
     // Create a graph object
-    Digraph g = Digraph(max_vertex_num, batch_size, updating, computation_pr);
+    //Digraph g = Digraph(max_vertex_num, batch_size, updating, computation_pr);
+    Digraph g(max_vertex_num, batch_size, updating, computation_pr);
 
     // Populate the graph with core set of edges
     edge_array_to_digraph(&g, edge_array, 1, core_size);
@@ -133,7 +134,7 @@ int main(int argc, char *argv[]) {
 
     // Load the precomputed states for vertices in the core graph
     //preload_states(&g, core_states, ' ', 1, core_size);
-    //dump_vertex_states(&g, "preloaded-states-check.txt");
+    //dump_vertex_states(&g, "vertex-states-dump.txt");
 
     // ------------------------------------------------------------------------------------------ //
 
@@ -161,7 +162,7 @@ int main(int argc, char *argv[]) {
             edge_array,
             split);
 
-    //dump_vertex_states(&g, "results.txt");
+    dump_vertex_states(&g, "vertex-states-dump.txt");
 
     // ------------------------------------------------------------------------------------------ //
 

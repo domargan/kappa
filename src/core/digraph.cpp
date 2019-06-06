@@ -25,6 +25,9 @@ Digraph::Digraph(graph_size_t v_num, graph_size_t update_batch_size, Updating up
         dv.in_degree = 0;
         dv.out_degree = 0;
         dv.state = &states[i];
+        dv.update_ts = 0;
+        dv.on_update_ts = 0;
+        dv.on_activate_ts = 0;
         dv.scheduled = false;
 
         topology.push_back(dv);
@@ -35,6 +38,8 @@ Digraph::Digraph(graph_size_t v_num, graph_size_t update_batch_size, Updating up
 
     this->computation = computation;
     this->updating = updating;
+
+    this->global_logical_ts = 0;
 
     std::cout << "Digraph structure initialized with " << v_num << " vertex entries.\n" << std::endl;
 }
@@ -84,7 +89,8 @@ void Digraph::activate_vertex(vertex_id_t v) {
     Task *task = static_cast<Task*>(task_pool::malloc());
     //Task *task = (Task*) malloc(sizeof(Task));
 
-    task->task_type = VERTEX;
+    task->task_type = ON_ACTIVATE;
+    task->timestamp_logical = get_incremented_global_logical_ts();
     task->g = this;
     task->v = v;
     task->vertex_f = computation.on_activate;
@@ -224,3 +230,40 @@ graph_size_t Digraph::get_max_order() {
 graph_size_t Digraph::get_size() {
     return size;
 }
+
+timestamp_logical_t Digraph::get_incremented_global_logical_ts() {
+    global_logical_ts++;
+    return global_logical_ts.load();
+}
+
+//std::atomic<timestamp_logical_t> &get_counter() {
+//    static std::atomic<timestamp_logical_t> counter{0};
+//
+//    return counter;
+//}
+
+
+void Digraph::set_vertex_update_ts(vertex_id_t v, timestamp_logical_t ts) {
+    topology[v].update_ts = ts;
+}
+
+timestamp_logical_t Digraph::get_vertex_update_ts(vertex_id_t v) {
+    return topology[v].update_ts;
+}
+
+void Digraph::set_vertex_on_update_ts(vertex_id_t v, timestamp_logical_t ts) {
+    topology[v].on_update_ts = ts;
+}
+
+timestamp_logical_t Digraph::get_vertex_on_update_ts(vertex_id_t v) {
+    return topology[v].on_update_ts;
+}
+
+void Digraph::set_vertex_on_activate_ts(vertex_id_t v, timestamp_logical_t ts) {
+    topology[v].on_activate_ts = ts;
+}
+
+timestamp_logical_t Digraph::get_vertex_on_activate_ts(vertex_id_t v) {
+    return topology[v].on_activate_ts;
+}
+

@@ -12,6 +12,7 @@ public:
     void release();
 
     task_type_t task_type;
+    timestamp_logical_t timestamp_logical;
 
     void (*vertex_f)(Digraph*, vertex_id_t);
     void (*edge_f)(Digraph*, vertex_id_t, vertex_id_t);

@@ -66,10 +66,11 @@ void run(Computation computation,
             //Task *task = (Task*) malloc(sizeof(Task));
 
             task->task_type = UPDATE;
+            task->timestamp_logical = g->get_incremented_global_logical_ts();
+            //std::cout << task->timestamp_logical << std::endl;
             task->g = g;
             task->src = src;
             task->dst = dst;
-
             task->update_f = (u.type == ADD) ? updating.edge_insertion : updating.edge_deletion;
 
             //std::cout << "BREAKPOINT 4" << std::endl;
@@ -103,7 +104,7 @@ void run(Computation computation,
 
         std::cout << "Executing computations for " << updates_in_chunk.size() << " updates" << std::endl;
 
-        // Execute user-defined compute function
+        // Execute user-defined compute functions (in form of ON_UPDATE and ON_ACTIVATE tasks)
         std::chrono::system_clock::time_point system_begin_compute = std::chrono::system_clock::now();
         std::chrono::steady_clock::time_point cpu_begin_compute = std::chrono::steady_clock::now();
 
@@ -111,7 +112,8 @@ void run(Computation computation,
             Task *task = static_cast<Task*>(task_pool::malloc());
             //Task *task = (Task*) malloc(sizeof(Task));
 
-            task->task_type = EDGE;
+            task->task_type = ON_UPDATE;
+            task->timestamp_logical = g->get_incremented_global_logical_ts();
             task->g = g;
             task->src = u.src;
             task->dst = u.dst;

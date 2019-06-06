@@ -12,7 +12,7 @@ void dump_vertex_states(Digraph *g, const std::string &file_name){
 
     for(graph_size_t i=0; i<max_order; i++) {
         if(g->has_vertex(i)){
-            output_file << i << " " << std::fixed << std::setprecision(5) << g->get_state(i) << "\n";
+            output_file << i << " " << std::fixed << std::setprecision(5) << g->get_state(i) << " " << g->get_vertex_update_ts(i) << " " << g->get_vertex_on_update_ts(i) << " " << g->get_vertex_on_activate_ts(i) << "\n";
         }
     }
 
