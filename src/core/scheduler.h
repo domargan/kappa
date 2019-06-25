@@ -1,5 +1,5 @@
-#ifndef KAPPA_THREAD_POOL
-#define KAPPA_THREAD_POOL
+#ifndef KAPPA_SCHEDULER
+#define KAPPA_SCHEDULER
 
 #include <atomic>
 #include <cstdint>
@@ -11,12 +11,13 @@
 #include "thread_safe_queue.hpp"
 #include "mpmc_queue.h"
 
-class ThreadPool {
+// Called ThreadPool before...
+class Scheduler {
 public:
-    ThreadPool();
-    ~ThreadPool();
-    ThreadPool(const ThreadPool&) = delete;
-    ThreadPool &operator=(const ThreadPool&) = delete;
+    Scheduler();
+    ~Scheduler();
+    Scheduler(const Scheduler&) = delete;
+    Scheduler &operator=(const Scheduler&) = delete;
 
     void init_threads(const std::uint32_t, const unsigned int offset = 0);
     void init_numa_node(const uint, const uint no_of_threads = 16);
@@ -34,7 +35,7 @@ private:
     void worker(void);
     void destroy(void);
 
-    std::vector<std::thread> threads;
+    std::vector<std::thread> thread_pool;
     std::atomic_bool done;
     //ThreadSafeQueue<Task*> task_queue;
     MPMCQueue<Task*> task_queue;
@@ -42,6 +43,9 @@ private:
 
     std::mutex mtx;
     std::ofstream fs;
+
+    bool check_task_dependency(Task*);
+
 };
 
-#endif //KAPPA_THREAD_POOL
+#endif //KAPPA_SCHEDULER

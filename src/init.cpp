@@ -10,13 +10,12 @@
 #include "compute.h"
 #include "core/utils/threading.h"
 #include "edge_array_to_graph.h"
-#include "experiments/naive_incremental_compute_edgelist.h"
 #include "experiments/utils/dataset_split.h"
 #include "global_thread_pool.h"
 #include "preload_states.h"
 #include "read_from_disk/edgelist_to_graph.h"
-#include "thread_pool.h"
-#include "utils/dump_vertex_states.h"
+#include "scheduler.h"
+#include "experiments/utils/dump_vertex_states.h"
 
 int main(int argc, char *argv[]) {
     // Parse command-line arguments
@@ -30,7 +29,7 @@ int main(int argc, char *argv[]) {
     graph_size_t batch_size = std::stoi(argv[2]);
 
     // Initialise thread pool
-    ThreadPool &threadPool = GlobalThreadPool::get_thread_pool();
+    Scheduler &threadPool = GlobalThreadPool::get_thread_pool();
 
     if (no_of_cores <= 16) {
         threadPool.init_numa_node(0, no_of_cores);

@@ -1,11 +1,11 @@
 #ifndef KAPPA_GLOBAL_THREAD_POOL_H
 #define KAPPA_GLOBAL_THREAD_POOL_H
 
-#include "thread_pool.h"
+#include "scheduler.h"
 
 namespace GlobalThreadPool {
-    inline ThreadPool &get_thread_pool() {
-        static ThreadPool threadPool;
+    inline Scheduler &get_thread_pool() {
+        static Scheduler threadPool;
 
         return threadPool;
     }

@@ -1,11 +1,12 @@
 #include <iostream>
 #include <fstream>
 
-#include "thread_pool.h"
+#include "scheduler.h"
 #include "utils/threading.h"
 
-ThreadPool::ThreadPool()
-    : threads{},
+// Called ThreadPool before...
+Scheduler::Scheduler()
+    : thread_pool{},
       done{false},
       task_queue{1024*1024*128},
       //task_queue{1024*1024*512},
@@ -16,18 +17,18 @@ ThreadPool::ThreadPool()
     fs.open("task_amount.txt");
 }
 
-ThreadPool::~ThreadPool() {
+Scheduler::~Scheduler() {
     //destroy();
 }
 
-void ThreadPool::init_threads(const std::uint32_t num_threads, const unsigned int offset) {
+void Scheduler::init_threads(const std::uint32_t num_threads, const unsigned int offset) {
     try {
         for (std::uint32_t i = 0u; i < num_threads; ++i) {
             // Create thread
-            threads.emplace_back(&ThreadPool::worker, this);
+            thread_pool.emplace_back(&Scheduler::worker, this);
 
             // Pin thread
-            pin_thread(i + offset, threads[i]);
+            pin_thread(i + offset, thread_pool[i]);
 
             std::cout << "Thread pinned to CPU " << i + offset << std::endl;
         }
@@ -39,14 +40,14 @@ void ThreadPool::init_threads(const std::uint32_t num_threads, const unsigned in
     }
 }
 
-void ThreadPool::init_numa_node(const uint node_no, const uint no_of_threads) {
+void Scheduler::init_numa_node(const uint node_no, const uint no_of_threads) {
     try {
         for (uint i = 0; i < no_of_threads; ++i) {
             // Create thread
-            threads.emplace_back(&ThreadPool::worker, this);
+            thread_pool.emplace_back(&Scheduler::worker, this);
 
             // Pin thread
-            pin_thread(node_no + (i * 4), threads.back());
+            pin_thread(node_no + (i * 4), thread_pool.back());
 
             std::cout << "Thread pinned to CPU " << node_no + (i * 4) << std::endl;
         }
@@ -58,13 +59,23 @@ void ThreadPool::init_numa_node(const uint node_no, const uint no_of_threads) {
     }
 }
 
-void ThreadPool::init_numa_nodes(const std::vector<uint> nodes) {
+void Scheduler::init_numa_nodes(const std::vector<uint> nodes) {
     for (auto node : nodes) {
         init_numa_node(node);
     }
 }
 
-void ThreadPool::submit(Task *task) {
+bool Scheduler::check_task_dependency(Task *task) {
+    vertex_id_t v = task->v;
+    vertex_id_t src = task->src;
+    vertex_id_t dst = task->dst;
+
+    // TODO Finish this
+
+    return true;
+}
+
+void Scheduler::submit(Task *task) {
     task_queue.push(task);
 
     ++task_counter;
@@ -91,7 +102,7 @@ void ThreadPool::submit(Task *task) {
     }
 }
 
-void ThreadPool::barrier() {
+void Scheduler::barrier() {
     while (true) {
         task_queue.wait_empty();
 
@@ -101,7 +112,7 @@ void ThreadPool::barrier() {
     }
 }
 
-void ThreadPool::worker(void) {
+void Scheduler::worker(void) {
     while (!done) {
         Task *task;
         task_queue.pop(task, active);
@@ -139,10 +150,10 @@ void ThreadPool::worker(void) {
     }
 }
 
-void ThreadPool::destroy(void) {
+void Scheduler::destroy(void) {
     done = true;
 
-    for (auto &thread : threads) {
+    for (auto &thread : thread_pool) {
         if (thread.joinable()) {
             thread.join();
         }
