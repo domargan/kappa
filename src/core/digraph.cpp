@@ -18,6 +18,8 @@ Digraph::Digraph(graph_size_t v_num, graph_size_t update_batch_size, Updating up
     vertex_index = boost::dynamic_bitset<>(max_vertex_allocations);
     states.reserve(max_vertex_allocations);
 
+    visited_verts = boost::dynamic_bitset<>(max_vertex_allocations);
+
     for (int i = 0; i < max_vertex_allocations; i++) {
         Dvertex dv{};
         dv.in_neighbors = new neighbors_vector_t;
@@ -28,11 +30,14 @@ Digraph::Digraph(graph_size_t v_num, graph_size_t update_batch_size, Updating up
         dv.update_ts = 0;
         dv.on_update_ts = 0;
         dv.on_activate_ts = 0;
+        //dv.component_label = std::numeric_limits<components_number_t>::infinity();
+        dv.component_label = 0; // TODO: change to approapriate value
         dv.scheduled = false;
 
         topology.push_back(dv);
     }
 
+    cc_count = 0;
     order = 0;
     size = 0;
 
@@ -96,6 +101,26 @@ void Digraph::activate_vertex(vertex_id_t v) {
     task->vertex_f = computation.on_activate;
 
     GlobalThreadPool::get_thread_pool().submit(task);
+}
+
+vertex_bitset_t *Digraph::get_visited_verts(){
+    return &visited_verts;
+}
+
+void Digraph::set_visited(vertex_id_t v){
+    visited_verts[v] = 1;
+}
+
+void Digraph::unset_visited(vertex_id_t v){
+    visited_verts[v] = 0;
+}
+
+void Digraph::reset_visited_verts(){
+    visited_verts.reset();
+}
+
+bool Digraph::has_been_visited(vertex_id_t v){
+    return visited_verts[v];
 }
 
 bool Digraph::has_edge(vertex_id_t src_v, vertex_id_t dst_v) {
@@ -177,15 +202,32 @@ neighbors_vector_t *Digraph::get_out_neighborhood(vertex_id_t v) {
     return topology[v].out_neighbors;
 }
 
-neighbors_vector_t Digraph::get_in_out_neighborhood(vertex_id_t v) {
-    neighbors_vector_t *in = topology[v].in_neighbors;
-    neighbors_vector_t *out = topology[v].out_neighbors;
+neighbors_vector_t *Digraph::get_in_out_neighborhood(vertex_id_t v) {
+    //neighbors_vector_t *in = topology[v].in_neighbors;
+    //neighbors_vector_t *out = topology[v].out_neighbors;
 
-    neighbors_vector_t in_out;
-    in_out.reserve(in->size() + out->size());
+    //std::cout << in->size() << std::endl;
+    //std::cout << out->size() << std::endl;
 
-    in_out.insert(in_out.end(), in->begin(), in->end());
-    in_out.insert(in_out.end(), out->begin(), out->end());
+    //neighbors_vector_t *in_out = new neighbors_vector_t;
+
+    neighbors_vector_t *in_out(topology[v].in_neighbors);
+
+    //in_out->reserve(in->size() + out->size());
+    //in_out->resize(in->size() + out->size());
+
+    //std::cout << in_out->size() << std::endl;
+
+    //in_out->insert(in_out->end(), in->begin(), in->end());
+    //in_out->insert(in_out->end(), out->begin(), out->end());
+    //std::copy(in->begin(), in->end(), in_out->end());
+    //std::copy(out->begin(), out->end(), in_out->end());
+
+    //std::copy(in->begin(), in->end(), std::back_inserter(*in_out));
+    std::copy(topology[v].out_neighbors->begin(), topology[v].out_neighbors->end(), std::back_inserter(*in_out));
+
+    //std::cout << in_out->size() << std::endl;
+
 
     return in_out;
 }
@@ -229,6 +271,35 @@ graph_size_t Digraph::get_max_order() {
 
 graph_size_t Digraph::get_size() {
     return size;
+}
+
+void Digraph::increment_cc_count() {
+    ++cc_count;
+}
+
+void Digraph::decrement_cc_count() {
+    --cc_count;
+}
+
+components_number_t Digraph::get_cc_count() {
+    return cc_count;
+}
+
+void Digraph::reset_cc_count_and_labels() {
+    cc_count = 0;
+
+    for (graph_size_t v = 0; v < topology.size(); v++) {
+        //topology[v].component_label = std::numeric_limits<components_number_t>::infinity();
+        topology[v].component_label = 0;
+    }
+}
+
+void Digraph::set_component_label(vertex_id_t v, components_number_t label) {
+    topology[v].component_label = label;
+}
+
+components_number_t Digraph::get_component_label(vertex_id_t v) {
+    return topology[v].component_label;
 }
 
 timestamp_logical_t Digraph::get_incremented_global_logical_ts() {

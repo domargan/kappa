@@ -8,6 +8,7 @@
 #include "global_thread_pool.h"
 #include "read_from_disk/edgelist_to_edge_array.h"
 #include "update.h"
+#include "../connected_components.h"
 
 // TODO: Proper ingestion component
 
@@ -23,7 +24,7 @@ void run(Computation computation,
     fs << "Order" << " , " << "Size" << " , " << "Ingestion Rate" << " , " << "Ingestion CPU Time" << " , " << "Computation CPU time" << std::endl;
 
     std::ofstream fs2;
-    //fs2.open("task_amount.txt");\
+    //fs2.open("task_amount.txt");
 
     graph_size_t num_of_chunks = chunks_start_lines.size() - 1; //-1 because the last element is just there to mark the end point
 
@@ -96,6 +97,15 @@ void run(Computation computation,
         std::cout << "(SYS) UPDATE TIME FOR chunk " << std::fixed << i+1 << ": " << system_time_update << std::endl;
         std::cout << "(CPU) UPDATE TIME FOR chunk " << std::fixed << i+1 << ": " << cpu_time_update << std::endl;
 
+        std::cout << "Computing CC..." << std::endl;
+        std::chrono::steady_clock::time_point cpu_begin_cc = std::chrono::steady_clock::now();
+        set_components_labels(g);
+        std::chrono::steady_clock::time_point cpu_end_cc = std::chrono::steady_clock::now();
+        std::cout << "Finished computing CC" << std::endl;
+        float cpu_time_cc = std::chrono::duration<float>(cpu_end_cc - cpu_begin_cc).count();
+        std::cout << "(CPU) CC TIME FOR chunk " << std::fixed << i+1 << ": " << cpu_time_cc << std::endl;
+
+
         // g->count_order();
         graph_size_t order = g->get_order();
         graph_size_t size = g->get_size();
@@ -120,6 +130,44 @@ void run(Computation computation,
             task->edge_f = (u.type == ADD) ? computation.on_add_edge : computation.on_remove_edge;
 
             GlobalThreadPool::get_thread_pool().submit(task);
+
+
+            // CC-based scheduling here
+            components_number_t src_component = task->g->get_component_label(u.src);
+            components_number_t dst_component = task->g->get_component_label(u.dst);
+
+
+            if (u.type == REMOVE && src_component != dst_component) {
+
+                std::cout << "YESS" << std::endl;
+
+                //for every vertex in the component of src_component and dst.component schedule computation
+                for (vertex_id_t vertex : cc_map[src_component]) {
+                    Task *task = static_cast<Task*>(task_pool::malloc());
+                    //Task *task = (Task*) malloc(sizeof(Task));
+
+                    task->task_type = ON_ACTIVATE;
+                    task->timestamp_logical = g->get_incremented_global_logical_ts();
+                    task->g = g;
+                    task->v = vertex;
+                    task->vertex_f = computation.on_activate;
+
+                    GlobalThreadPool::get_thread_pool().submit(task);
+                }
+
+                for (vertex_id_t vertex : cc_map[dst_component]) {
+                    Task *task = static_cast<Task*>(task_pool::malloc());
+                    //Task *task = (Task*) malloc(sizeof(Task));
+
+                    task->task_type = ON_ACTIVATE;
+                    task->timestamp_logical = g->get_incremented_global_logical_ts();
+                    task->g = g;
+                    task->v = vertex;
+                    task->vertex_f = computation.on_activate;
+
+                    GlobalThreadPool::get_thread_pool().submit(task);
+                }
+            }
         }
 
         GlobalThreadPool::get_thread_pool().barrier();

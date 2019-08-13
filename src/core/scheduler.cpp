@@ -81,6 +81,8 @@ void Scheduler::submit(Task *task) {
     ++task_counter;
     ++iteration_counter;
 
+    /*
+    // TODO: Remove this block for measurements
     {
         std::lock_guard<std::mutex> lock{mtx};
 
@@ -100,6 +102,7 @@ void Scheduler::submit(Task *task) {
                 << std::endl;
         }
     }
+     */
 }
 
 void Scheduler::barrier() {

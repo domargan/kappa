@@ -8,6 +8,8 @@ typedef uint32_t vertex_id_t;
 
 typedef uint32_t graph_size_t;
 
+typedef uint32_t components_number_t;
+
 typedef double state_t;
 
 typedef uint32_t task_id_t;

@@ -4,6 +4,7 @@
 #include <deletions.h>
 #include <runtimes/runtime_hard_barrier.h>
 
+
 #include "applications/dynamic/pagerank.h"
 #include "applications/dynamic/sssp.h"
 #include "applications/dynamic/wcc.h"
@@ -16,6 +17,7 @@
 #include "read_from_disk/edgelist_to_graph.h"
 #include "scheduler.h"
 #include "experiments/utils/dump_vertex_states.h"
+#include "../connected_components.h"
 
 int main(int argc, char *argv[]) {
     // Parse command-line arguments
@@ -54,12 +56,12 @@ int main(int argc, char *argv[]) {
     // ------------------------------------------------------------------------------------------ //
 
     // Choose dataset
-    // std::string dataset = "/home/dm1515/data/zachary.edgelist";
+    //std::string dataset = "/home/dm1515/data/zachary-mod.edgelist";
     // std::string dataset = "/home/dm1515/data/twitter-2010.txt";
-    // std::string dataset = "/home/dm1515/data/higgs-social_network.edgelist";
-    // std::string dataset = "/home/dm1515/data/higgs-social_network-shuffled.edgelist";
+     std::string dataset = "/home/dm1515/data/higgs-social_network.edgelist";
+    //std::string dataset = "/home/dm1515/data/higgs-social_network-shuffled.edgelist";
     // std::string dataset = "/home/dm1515/data/sx-stackoverflow-no-stamps.txt";
-    std::string dataset = "/home/dm1515/data/wikipedia_link_en/out.wikipedia_link_en_11k";
+    //std::string dataset = "/home/dm1515/data/wikipedia_link_en/out.wikipedia_link_en_11k";
     //std::string dataset = "/home/dm1515/data/wikipedia_link_en/out.wikipedia_link_en";
 
     // Precomputed states for vertices in the core graph
@@ -86,10 +88,10 @@ int main(int argc, char *argv[]) {
 
     // Set core graph size (#edges)
     //graph_size_t core_size = 0;
-    //graph_size_t core_size = 14000000;
+    graph_size_t core_size = 14000000;
     //graph_size_t core_size = 63000000;
     //graph_size_t core_size = 189071210;
-    graph_size_t core_size = 10000;
+    //graph_size_t core_size = 10000;
 
 
     // TODO: Use user-defined functions
@@ -135,6 +137,15 @@ int main(int argc, char *argv[]) {
     //preload_states(&g, core_states, ' ', 1, core_size);
     //dump_vertex_states(&g, "vertex-states-dump.txt");
 
+    // Compute CC for core graph
+    std::cout << "Computing CC..." << std::endl;
+    std::chrono::steady_clock::time_point cpu_begin_cc = std::chrono::steady_clock::now();
+    set_components_labels(&g);
+    std::chrono::steady_clock::time_point cpu_end_cc = std::chrono::steady_clock::now();
+    std::cout << "Finished computing CC" << std::endl;
+    float cpu_time_cc = std::chrono::duration<float>(cpu_end_cc - cpu_begin_cc).count();
+    std::cout << "(CPU) CC TIME FOR core graph: " << cpu_time_cc << std::endl;
+
     // ------------------------------------------------------------------------------------------ //
 
     // Set a range of entries (lines) from the dataset, for updates to be applied to the graph
@@ -142,11 +153,12 @@ int main(int argc, char *argv[]) {
     //graph_size_t end = 10010000;
     //graph_size_t end = 14000000;
     //graph_size_t end = 14010000;
-    //graph_size_t end = 14100000;
+    graph_size_t end = 14100000;
     //graph_size_t end = 14500000;
     //graph_size_t end = 378142420;
     //graph_size_t end = 189371211;
-    graph_size_t end = 11000;
+    //graph_size_t end = 15000;
+    //graph_size_t end = 80;
 
     // Logically split the entires in the dataset by lines, splitting into batches
     std::vector<graph_size_t> split = dataset_to_batches(beginning, end, num_dataset_entries, batch_size);
