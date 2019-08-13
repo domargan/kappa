@@ -3,7 +3,7 @@
 #include <iomanip>
 
 #include "digraph.h"
-#include "global_thread_pool.h"
+#include "global_scheduler.h"
 #include "task.h"
 
 // TODO: Implement vertex iterator (instead of iterating until vertex_index.size())
@@ -100,7 +100,7 @@ void Digraph::activate_vertex(vertex_id_t v) {
     task->v = v;
     task->vertex_f = computation.on_activate;
 
-    GlobalThreadPool::get_thread_pool().submit(task);
+    GlobalScheduler::get_scheduler().submit(task);
 }
 
 vertex_bitset_t *Digraph::get_visited_verts(){

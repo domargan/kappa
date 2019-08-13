@@ -12,7 +12,7 @@
 #include "core/utils/threading.h"
 #include "edge_array_to_graph.h"
 #include "experiments/utils/dataset_split.h"
-#include "global_thread_pool.h"
+#include "global_scheduler.h"
 #include "preload_states.h"
 #include "read_from_disk/edgelist_to_graph.h"
 #include "scheduler.h"
@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
     graph_size_t batch_size = std::stoi(argv[2]);
 
     // Initialise thread pool
-    Scheduler &threadPool = GlobalThreadPool::get_thread_pool();
+    Scheduler &threadPool = GlobalScheduler::get_scheduler();
 
     if (no_of_cores <= 16) {
         threadPool.init_numa_node(0, no_of_cores);

@@ -5,7 +5,7 @@
 
 #include "compute.h"
 #include "digraph.h"
-#include "global_thread_pool.h"
+#include "global_scheduler.h"
 #include "read_from_disk/edgelist_to_edge_array.h"
 #include "update.h"
 #include "../connected_components.h"
@@ -32,7 +32,7 @@ void run(Computation computation,
     graph_size_t end_line = 0;
 
     // Reset start time for queue evaluation
-    GlobalThreadPool::get_thread_pool().tp_start = std::chrono::system_clock::now();
+    GlobalScheduler::get_scheduler().tp_start = std::chrono::system_clock::now();
 
     // Measure end-to-end time
     std::chrono::system_clock::time_point system_begin_total = std::chrono::system_clock::now();
@@ -75,15 +75,15 @@ void run(Computation computation,
             task->update_f = (u.type == ADD) ? updating.edge_insertion : updating.edge_deletion;
 
             //std::cout << "BREAKPOINT 4" << std::endl;
-            GlobalThreadPool::get_thread_pool().submit(task);
+            GlobalScheduler::get_scheduler().submit(task);
         }
 
-        GlobalThreadPool::get_thread_pool().barrier();
+        GlobalScheduler::get_scheduler().barrier();
 
-        GlobalThreadPool::get_thread_pool().task_counter = 0;
+        GlobalScheduler::get_scheduler().task_counter = 0;
 
         // Write to file just to mark the iteration under which the barrier occurs
-        //fs2 << std::chrono::duration<float>(std::chrono::system_clock::now() - GlobalThreadPool::get_thread_pool().tp_start).count() << " " << GlobalThreadPool::get_thread_pool().iteration_counter << " " << g->get_order() << " " << g->get_size()<< " " << "-1" << " " << "-1" << std::endl;
+        //fs2 << std::chrono::duration<float>(std::chrono::system_clock::now() - GlobalScheduler::get_thread_pool().tp_start).count() << " " << GlobalScheduler::get_scheduler().iteration_counter << " " << g->get_order() << " " << g->get_size()<< " " << "-1" << " " << "-1" << std::endl;
 
         std::chrono::system_clock::time_point system_end_update = std::chrono::system_clock::now();
         std::chrono::steady_clock::time_point cpu_end_update = std::chrono::steady_clock::now();
@@ -129,7 +129,7 @@ void run(Computation computation,
             task->dst = u.dst;
             task->edge_f = (u.type == ADD) ? computation.on_add_edge : computation.on_remove_edge;
 
-            GlobalThreadPool::get_thread_pool().submit(task);
+            GlobalScheduler::get_scheduler().submit(task);
 
 
             // CC-based scheduling here
@@ -152,7 +152,7 @@ void run(Computation computation,
                     task->v = vertex;
                     task->vertex_f = computation.on_activate;
 
-                    GlobalThreadPool::get_thread_pool().submit(task);
+                    GlobalScheduler::get_scheduler().submit(task);
                 }
 
                 for (vertex_id_t vertex : cc_map[dst_component]) {
@@ -165,17 +165,17 @@ void run(Computation computation,
                     task->v = vertex;
                     task->vertex_f = computation.on_activate;
 
-                    GlobalThreadPool::get_thread_pool().submit(task);
+                    GlobalScheduler::get_scheduler().submit(task);
                 }
             }
         }
 
-        GlobalThreadPool::get_thread_pool().barrier();
+        GlobalScheduler::get_scheduler().barrier();
 
-        GlobalThreadPool::get_thread_pool().task_counter = 0;
+        GlobalScheduler::get_scheduler().task_counter = 0;
 
         // Write to file just to mark the iteration under which the barrier occurs
-        //fs2 << std::chrono::duration<float>(std::chrono::system_clock::now() - GlobalThreadPool::get_thread_pool().tp_start).count() << " " << GlobalThreadPool::get_thread_pool().iteration_counter << " " << g->get_order() << " " << g->get_size()<< " " << "-1" << " " << "-1" << std::endl;
+        //fs2 << std::chrono::duration<float>(std::chrono::system_clock::now() - GlobalScheduler::get_thread_pool().tp_start).count() << " " << GlobalScheduler::get_scheduler().iteration_counter << " " << g->get_order() << " " << g->get_size()<< " " << "-1" << " " << "-1" << std::endl;
 
         std::chrono::system_clock::time_point system_end_compute = std::chrono::system_clock::now();
         std::chrono::steady_clock::time_point cpu_end_compute = std::chrono::steady_clock::now();
