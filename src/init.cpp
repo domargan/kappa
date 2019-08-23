@@ -57,8 +57,8 @@ int main(int argc, char *argv[]) {
 
     // Choose dataset
     //std::string dataset = "/home/dm1515/data/zachary-mod.edgelist";
-    // std::string dataset = "/home/dm1515/data/twitter-2010.txt";
-     std::string dataset = "/home/dm1515/data/higgs-social_network.edgelist";
+    //std::string dataset = "/home/dm1515/data/twitter-2010.txt";
+    std::string dataset = "/home/dm1515/data/higgs-social_network.edgelist";
     //std::string dataset = "/home/dm1515/data/higgs-social_network-shuffled.edgelist";
     // std::string dataset = "/home/dm1515/data/sx-stackoverflow-no-stamps.txt";
     //std::string dataset = "/home/dm1515/data/wikipedia_link_en/out.wikipedia_link_en_11k";
@@ -74,13 +74,15 @@ int main(int argc, char *argv[]) {
 
     // ------------------------------------------------------------------------------------------ //
 
-    // Preload the data in memory, in form of an edge array
-    raw_edge_array_t edge_array;
-    edge_array = edgelist_to_edge_array(dataset, ' ');
 
-    // Some basic dataset statistics
-    graph_size_t max_vertex_num = unique_vertex_count(edge_array);
+    // Preload the data in memory, in form of an edge array, and do some basic dataset statistics
     graph_size_t num_dataset_entries = edgelist_count_lines(dataset);
+
+    raw_edge_array_t edge_array;
+    edge_array = edgelist_to_edge_array(dataset, num_dataset_entries);
+
+    graph_size_t max_vertex_num = unique_vertex_count(edge_array);
+
     std::cout << "Number of edges in the dataset: " << num_dataset_entries << std::endl;
     std::cout << "Number of vertices in the dataset: " << max_vertex_num << std::endl;
 
@@ -92,9 +94,7 @@ int main(int argc, char *argv[]) {
     //graph_size_t core_size = 63000000;
     //graph_size_t core_size = 189071210;
     //graph_size_t core_size = 10000;
-
-
-    // TODO: Use user-defined functions
+    //graph_size_t core_size = 10000000;
 
     Updating updating;
     updating.edge_insertion = Insertions::edge_insertion;
@@ -127,11 +127,10 @@ int main(int argc, char *argv[]) {
     std::cout << "Number of vertices after pre-populating: " << g.get_order() << std::endl;
     std::cout << "Number of edges after pre-populating: " << g.get_size() << std::endl;
 
-    /*
-    std::vector<graph_size_t> *touched_verts = g.get_touched_src_verts();
-    std::cout << "Touched vertices queue size: " << touched_verts->size() << std::endl;
-    std::cout << "Touched vertices queue capacity: " << touched_verts->capacity() << std::endl;
-    */
+
+    //std::vector<graph_size_t> *touched_verts = g.get_touched_src_verts();
+    //std::cout << "Touched vertices queue size: " << touched_verts->size() << std::endl;
+    //std::cout << "Touched vertices queue capacity: " << touched_verts->capacity() << std::endl;
 
     // Load the precomputed states for vertices in the core graph
     //preload_states(&g, core_states, ' ', 1, core_size);
@@ -159,6 +158,7 @@ int main(int argc, char *argv[]) {
     //graph_size_t end = 189371211;
     //graph_size_t end = 15000;
     //graph_size_t end = 80;
+    //graph_size_t end = 100000000;
 
     // Logically split the entires in the dataset by lines, splitting into batches
     std::vector<graph_size_t> split = dataset_to_batches(beginning, end, num_dataset_entries, batch_size);
