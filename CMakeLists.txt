@@ -8,7 +8,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -ansi -O0 -pedantic-errors -W
 
 set(Boost_INCLUDE_DIR /opt/boost/include)
 set(Boost_LIBRARY_DIR /opt/boost/lib)
-find_package(Boost COMPONENTS system filesystem REQUIRED)
+find_package(Boost COMPONENTS system filesystem iostreams REQUIRED)
 include_directories(${Boost_INCLUDE_DIR})
 link_directories(${Boost_LIBRARY_DIR})
 
