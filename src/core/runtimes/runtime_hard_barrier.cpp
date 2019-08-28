@@ -2,6 +2,7 @@
 
 #include <ctime>
 #include <fstream>
+#include <iomanip>
 
 #include "compute.h"
 #include "digraph.h"
@@ -17,7 +18,8 @@ void run(Computation computation,
         Digraph *g,
         raw_edge_array_t &updates,
         const std::vector<graph_size_t> &chunks_start_lines) {
-    std::cout << "STARTING RUNTIME..." << std::endl;
+    std::cout << "\n-----------------------------------------------------------------------------------------"
+                 "\n[START]\t\tSTARTING RUNTIME..." << std::endl;
 
     std::ofstream fs;
     fs.open("measurements.csv");
@@ -32,21 +34,19 @@ void run(Computation computation,
     graph_size_t end_line = 0;
 
     // Reset start time for queue evaluation
-    GlobalScheduler::get_scheduler().tp_start = std::chrono::system_clock::now();
+    GlobalScheduler::get_scheduler().tp_start = std::chrono::steady_clock::now();
 
     // Measure end-to-end time
-    std::chrono::system_clock::time_point system_begin_total = std::chrono::system_clock::now();
-    std::chrono::steady_clock::time_point cpu_begin_total = std::chrono::steady_clock::now();
+    std::chrono::steady_clock::time_point timer_start_total = std::chrono::steady_clock::now();
 
     for (graph_size_t i = 0; i < num_of_chunks; ++i) {
         start_line = chunks_start_lines[i];
         end_line = chunks_start_lines[i+1];
 
-        std::cout << "Reading updates from chunk " << i+1 << std::endl;
+        std::cout << "\n[START]\t\tReading updates from chunk " << i+1 << std::endl;
 
         // Update the graph
-        std::chrono::system_clock::time_point system_begin_update = std::chrono::system_clock::now();
-        std::chrono::steady_clock::time_point cpu_begin_update = std::chrono::steady_clock::now();
+        std::chrono::steady_clock::time_point timer_start_update = std::chrono::steady_clock::now();
 
         std::vector<Update> updates_in_chunk; // TODO: Make static array and do indexing instead of push_back
 
@@ -105,39 +105,29 @@ void run(Computation computation,
         // ... to here
 
         // Write to file just to mark the iteration under which the barrier occurs
-        //fs2 << std::chrono::duration<float>(std::chrono::system_clock::now() - GlobalScheduler::get_thread_pool().tp_start).count() << " " << GlobalScheduler::get_scheduler().iteration_counter << " " << g->get_order() << " " << g->get_size()<< " " << "-1" << " " << "-1" << std::endl;
+        //fs2 << std::chrono::duration<float>(std::chrono::steady_clock::now() - GlobalScheduler::get_thread_pool().tp_start).count() << " " << GlobalScheduler::get_scheduler().iteration_counter << " " << g->get_order() << " " << g->get_size()<< " " << "-1" << " " << "-1" << std::endl;
 
-        std::chrono::system_clock::time_point system_end_update = std::chrono::system_clock::now();
-        std::chrono::steady_clock::time_point cpu_end_update = std::chrono::steady_clock::now();
+        std::chrono::steady_clock::time_point timer_end_update = std::chrono::steady_clock::now();
 
-        float system_time_update = std::chrono::duration<float>(system_end_update - system_begin_update).count();
-        float cpu_time_update = std::chrono::duration<float>(cpu_end_update - cpu_begin_update).count();
+        float timer_update = std::chrono::duration<float>(timer_end_update - timer_start_update).count();
 
-        float ingestion_rate = (end_line-start_line) / cpu_time_update;
+        float ingestion_rate = (end_line-start_line) / timer_update;
 
-        std::cout << "Finished updating from chunk " << i+1 << std::endl;
-        std::cout << "(SYS) UPDATE TIME FOR chunk " << std::fixed << i+1 << ": " << system_time_update << std::endl;
-        std::cout << "(CPU) UPDATE TIME FOR chunk " << std::fixed << i+1 << ": " << cpu_time_update << std::endl;
+        std::cout << "[END]\t\tFinished updating from chunk\t\t\t\t\t" << i+1 << std::endl;
+        std::cout << "[TIME]\t\tIngesting updates from chunk " << std::fixed << i+1 << ":\t\t\t\t\t" << timer_update << std::endl;
 
         // g->count_order();
         graph_size_t order = g->get_order();
         graph_size_t size = g->get_size();
-        std::cout << "Order: " <<  order << std::endl;
-        std::cout << "Size: " << size << std::endl;
+        std::cout << "[INFO]\t\tOrder:\t\t\t\t\t\t\t\t" <<  order << std::endl;
+        std::cout << "[INFO]\t\tSize:\t\t\t\t\t\t\t\t" << size << std::endl;
 
-        std::cout << "Computing CC..." << std::endl;
-        std::chrono::steady_clock::time_point cpu_begin_cc = std::chrono::steady_clock::now();
         set_components_labels(g);
-        std::chrono::steady_clock::time_point cpu_end_cc = std::chrono::steady_clock::now();
-        std::cout << "Finished computing CC" << std::endl;
-        float cpu_time_cc = std::chrono::duration<float>(cpu_end_cc - cpu_begin_cc).count();
-        std::cout << "(CPU) CC TIME FOR chunk " << std::fixed << i+1 << ": " << cpu_time_cc << std::endl;
 
-        std::cout << "Executing computations for " << updates_in_chunk.size() << " updates" << std::endl;
+        std::cout << "\n[START]\t\tExecuting computations for " << updates_in_chunk.size() << " updates" << std::endl;
 
         // Execute user-defined compute functions (in form of ON_UPDATE and ON_ACTIVATE tasks)
-        std::chrono::system_clock::time_point system_begin_compute = std::chrono::system_clock::now();
-        std::chrono::steady_clock::time_point cpu_begin_compute = std::chrono::steady_clock::now();
+        std::chrono::steady_clock::time_point timer_start_compute = std::chrono::steady_clock::now();
 
         for (auto &u : updates_in_chunk) {
             Task *task = static_cast<Task*>(task_pool::malloc());
@@ -194,36 +184,30 @@ void run(Computation computation,
         GlobalScheduler::get_scheduler().task_counter = 0;
 
         // Write to file just to mark the iteration under which the barrier occurs
-        //fs2 << std::chrono::duration<float>(std::chrono::system_clock::now() - GlobalScheduler::get_thread_pool().tp_start).count() << " " << GlobalScheduler::get_scheduler().iteration_counter << " " << g->get_order() << " " << g->get_size()<< " " << "-1" << " " << "-1" << std::endl;
+        //fs2 << std::chrono::duration<float>(std::chrono::steady_clock::now() - GlobalScheduler::get_thread_pool().tp_start).count() << " " << GlobalScheduler::get_scheduler().iteration_counter << " " << g->get_order() << " " << g->get_size()<< " " << "-1" << " " << "-1" << std::endl;
 
-        std::chrono::system_clock::time_point system_end_compute = std::chrono::system_clock::now();
-        std::chrono::steady_clock::time_point cpu_end_compute = std::chrono::steady_clock::now();
+        std::chrono::steady_clock::time_point timer_end_compute = std::chrono::steady_clock::now();
 
-        float system_time_compute = std::chrono::duration<float>(system_end_compute - system_begin_compute).count();
-        float cpu_time_compute = std::chrono::duration<float>(cpu_end_compute - cpu_begin_compute).count();
+        float timer_compute = std::chrono::duration<float>(timer_end_compute - timer_start_compute).count();
 
-        std::cout << "Finished computations." << std::endl;
-        std::cout << "(SYS) COMPUTE TIME AFTER chunk " << std::fixed << i+1 << ": " << system_time_compute << std::endl;
-        std::cout << "(CPU) COMPUTE TIME AFTER chunk " << std::fixed << i+1 << ": " << cpu_time_compute << std::endl;
-        std::cout << "--------------------------------------------------------------------------------" << std::endl;
+        std::cout << "[END]\t\tFinished computations." << std::endl;
+        std::cout << "[TIME]\t\tComputing for chunk " << std::fixed << i+1 << ":\t\t\t\t\t\t" << timer_compute << std::endl;
 
-        fs << order << " , " << size << " , " << std::fixed << ingestion_rate << " , " << std::fixed << cpu_time_update << " , " << std::fixed << cpu_time_compute << std::endl;
+        fs << order << " , " << size << " , " << std::fixed << ingestion_rate << " , " << std::fixed << timer_update << " , " << std::fixed << timer_compute << std::endl;
     }
 
-    std::chrono::system_clock::time_point system_end_total = std::chrono::system_clock::now();
-    std::chrono::steady_clock::time_point cpu_end_total = std::chrono::steady_clock::now();
+    std::chrono::steady_clock::time_point timer_end_total = std::chrono::steady_clock::now();
 
-    float system_time_total = std::chrono::duration<float>(system_end_total - system_begin_total).count();
-    float cpu_time_total = std::chrono::duration<float>(cpu_end_total - cpu_begin_total).count();
+    float timer_total = std::chrono::duration<float>(timer_end_total - timer_start_total).count();
 
-    std::cout << "Finished all computations." << std::endl;
-    std::cout << "(SYS) COMPUTE END-TO-END TIME: " << std::fixed << system_time_total << std::endl;
-    std::cout << "(CPU) COMPUTE END-TO-END TIME: " << std::fixed << cpu_time_total << std::endl;
-    std::cout << "--------------------------------------------------------------------------------" << std::endl;
+    std::cout << "\n[END]\t\tFinished all computations." << std::endl;
+    std::cout << "[TIME]\t\tEnd-to-end computations:\t\t\t\t\t" << std::fixed << timer_total << std::endl;
 
     fs.close();
 
     fs.open("end-to-end-time.txt");
-    fs << std::fixed << cpu_time_total << std::endl;
+    fs << std::fixed << timer_total << std::endl;
     fs.close();
+
+    std::cout << "\n[END]\t\tEnding runtime..." << std::endl;
 }

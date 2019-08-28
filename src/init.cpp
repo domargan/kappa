@@ -20,6 +20,8 @@
 #include "../connected_components.h"
 
 int main(int argc, char *argv[]) {
+    std::cout << "\n[START]\t\tSTARTING KAPPA..." << std::endl;
+
     // Parse command-line arguments
     if (argc != 3) {
         std::cerr << "Usage: kappa <no_of_cores> <batch_size>" << std::endl;
@@ -57,8 +59,8 @@ int main(int argc, char *argv[]) {
 
     // Choose dataset
     //std::string dataset = "/home/dm1515/data/zachary-mod.edgelist";
-    //std::string dataset = "/home/dm1515/data/twitter-2010.txt";
-    std::string dataset = "/home/dm1515/data/higgs-social_network.edgelist";
+    std::string dataset = "/home/dm1515/data/twitter-2010.txt";
+    //std::string dataset = "/home/dm1515/data/higgs-social_network.edgelist";
     //std::string dataset = "/home/dm1515/data/higgs-social_network-shuffled.edgelist";
     // std::string dataset = "/home/dm1515/data/sx-stackoverflow-no-stamps.txt";
     //std::string dataset = "/home/dm1515/data/wikipedia_link_en/out.wikipedia_link_en_11k";
@@ -76,25 +78,31 @@ int main(int argc, char *argv[]) {
 
 
     // Preload the data in memory, in form of an edge array, and do some basic dataset statistics
-    graph_size_t num_dataset_entries = edgelist_count_lines(dataset);
+    //graph_size_t num_dataset_entries = edgelist_count_lines(dataset);
+    graph_size_t num_dataset_entries = 1468365182;
+    // twitter-2010:            1468365182
+    // higgs-social_network     14855842
+    std::cout << "[INFO]\t\tNumber of edges in the dataset:\t\t\t\t\t" << num_dataset_entries << std::endl;
 
     raw_edge_array_t edge_array;
     edge_array = edgelist_to_edge_array(dataset, num_dataset_entries);
 
-    graph_size_t max_vertex_num = unique_vertex_count(edge_array);
-
-    std::cout << "Number of edges in the dataset: " << num_dataset_entries << std::endl;
-    std::cout << "Number of vertices in the dataset: " << max_vertex_num << std::endl;
+    //graph_size_t max_vertex_num = unique_vertex_count(edge_array);
+    graph_size_t max_vertex_num = 41652230;
+    // twitter-2010             41652230
+    // higgs-social_network     456626
+    std::cout << "[INFO]\t\tNumber of vertices in the dataset:\t\t\t\t" << max_vertex_num << std::endl;
 
     // ------------------------------------------------------------------------------------------ //
 
     // Set core graph size (#edges)
     //graph_size_t core_size = 0;
-    graph_size_t core_size = 14000000;
+    //graph_size_t core_size = 14000000;
     //graph_size_t core_size = 63000000;
     //graph_size_t core_size = 189071210;
     //graph_size_t core_size = 10000;
     //graph_size_t core_size = 10000000;
+    graph_size_t core_size = num_dataset_entries/2;
 
     Updating updating;
     updating.edge_insertion = Insertions::edge_insertion;
@@ -124,8 +132,8 @@ int main(int argc, char *argv[]) {
 
     // Populate the graph with core set of edges
     edge_array_to_digraph(&g, edge_array, 1, core_size);
-    std::cout << "Number of vertices after pre-populating: " << g.get_order() << std::endl;
-    std::cout << "Number of edges after pre-populating: " << g.get_size() << std::endl;
+    std::cout << "[INFO]\t\tNumber of vertices after pre-populating:\t\t\t" << g.get_order() << std::endl;
+    std::cout << "[INFO]\t\tNumber of edges after pre-populating:\t\t\t\t" << g.get_size() << std::endl;
 
 
     //std::vector<graph_size_t> *touched_verts = g.get_touched_src_verts();
@@ -137,13 +145,7 @@ int main(int argc, char *argv[]) {
     //dump_vertex_states(&g, "vertex-states-dump.txt");
 
     // Compute CC for core graph
-    std::cout << "Computing CC..." << std::endl;
-    std::chrono::steady_clock::time_point cpu_begin_cc = std::chrono::steady_clock::now();
     set_components_labels(&g);
-    std::chrono::steady_clock::time_point cpu_end_cc = std::chrono::steady_clock::now();
-    std::cout << "Finished computing CC" << std::endl;
-    float cpu_time_cc = std::chrono::duration<float>(cpu_end_cc - cpu_begin_cc).count();
-    std::cout << "(CPU) CC TIME FOR core graph: " << cpu_time_cc << std::endl;
 
     // ------------------------------------------------------------------------------------------ //
 
@@ -152,13 +154,14 @@ int main(int argc, char *argv[]) {
     //graph_size_t end = 10010000;
     //graph_size_t end = 14000000;
     //graph_size_t end = 14010000;
-    graph_size_t end = 14100000;
+    //graph_size_t end = 14100000;
     //graph_size_t end = 14500000;
     //graph_size_t end = 378142420;
     //graph_size_t end = 189371211;
     //graph_size_t end = 15000;
     //graph_size_t end = 80;
     //graph_size_t end = 100000000;
+    graph_size_t end = core_size + 500000;
 
     // Logically split the entires in the dataset by lines, splitting into batches
     std::vector<graph_size_t> split = dataset_to_batches(beginning, end, num_dataset_entries, batch_size);
@@ -177,7 +180,8 @@ int main(int argc, char *argv[]) {
 
     // ------------------------------------------------------------------------------------------ //
 
-    std::cout << "Kappa finished." << std::endl;
+    std::cout << "\n-----------------------------------------------------------------------------------------"
+                 "\n[END]\t\tKappa finished." << std::endl;
 
     return 0;
 }

@@ -12,7 +12,8 @@ void preload_states(Digraph* digraph, const std::string &states_file, char separ
     fs.open(states_file);
 
     if (fs) {
-        std::cout << "Opened " << states_file << "\nUpdating core vertex states with entries from file..." << std::endl;
+        std::cout << "\n-----------------------------------------------------------------------------------------"
+                     "\n[START]\t\tPreloading core vertex states with entries from file " << states_file << std::endl;
 
         std::string line;
 
@@ -43,5 +44,5 @@ void preload_states(Digraph* digraph, const std::string &states_file, char separ
 
     fs.close();
 
-    std::cout << "\nFinished populating." << std::endl;
+    std::cout << "[END]\t\tFinished preloading vertex states" << std::endl;
 }

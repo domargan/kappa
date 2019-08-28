@@ -13,7 +13,7 @@ Scheduler::Scheduler()
       active{0},
       task_counter{0},
       iteration_counter{0},
-      tp_start(std::chrono::system_clock::now()) {
+      tp_start(std::chrono::steady_clock::now()) {
     fs.open("task_amount.txt");
 }
 
@@ -30,7 +30,7 @@ void Scheduler::init_threads(const std::uint32_t num_threads, const unsigned int
             // Pin thread
             pin_thread(i + offset, thread_pool[i]);
 
-            std::cout << "Thread pinned to CPU " << i + offset << std::endl;
+            std::cout << "[INFO]\t\tThread pinned to CPU " << i + offset << std::endl;
         }
     }
     catch (...) {
@@ -49,7 +49,7 @@ void Scheduler::init_numa_node(const uint node_no, const uint no_of_threads) {
             // Pin thread
             pin_thread(node_no + (i * 4), thread_pool.back());
 
-            std::cout << "Thread pinned to CPU " << node_no + (i * 4) << std::endl;
+            std::cout << "[INFO]\t\tThread pinned to CPU " << node_no + (i * 4) << std::endl;
         }
     }
     catch (...) {
@@ -93,7 +93,7 @@ void Scheduler::submit(Task *task) {
         else if (task->task_type == UPDATE) { task_type = 2; } // Insert/delete edge
 
         if (task_counter % 100 == 0) { // or 1000 when having more inputs
-            fs << std::chrono::duration<float>(std::chrono::system_clock::now() - tp_start).count() << " " // Real time
+            fs << std::chrono::duration<float>(std::chrono::steady_clock::now() - tp_start).count() << " " // Real time
                 << iteration_counter << " " // Logical time (iterations)
                 << task->g->get_order() << " "
                 << task->g->get_size() << " "

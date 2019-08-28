@@ -5,13 +5,14 @@
 
 #include "edgelist_to_graph.h"
 
-
+// TODO: Update this function so it uses tricks similar to edgelist_to_edge_array to speedup things
 void edgelist_to_digraph(Digraph* digraph, const std::string &edgelist_file, char separator, graph_size_t beggining_line, graph_size_t end_line) {
     std::fstream fs;
     fs.open(edgelist_file);
 
     if (fs) {
-        std::cout << "Opened " << edgelist_file << "\nPopulating Digraph with entries from edgelist file..." << std::endl;
+        std::cout << "\n-----------------------------------------------------------------------------------------"
+                     "\n[START]\t\tPopulating Digraph structure with edges from file " << edgelist_file << std::endl;
 
         std::string line;
 
@@ -47,5 +48,5 @@ void edgelist_to_digraph(Digraph* digraph, const std::string &edgelist_file, cha
 
     fs.close();
 
-    std::cout << "\nFinished populating." << std::endl;
+    std::cout << "[END]\t\tFinished populating digraph with edge entries from file." << std::endl;
 }

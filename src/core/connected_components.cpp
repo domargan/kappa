@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <stack>
 #include "connected_components.h"
 
@@ -42,6 +43,9 @@ void dfs_explore_recursive(Digraph *g, vertex_id_t v) {
 }
 
 void set_components_labels(Digraph *g) {
+    std::cout << "\n[START]\t\tComputing CC..." << std::endl;
+    std::chrono::steady_clock::time_point timer_start = std::chrono::steady_clock::now();
+
     g->reset_visited_verts();
     g->reset_cc_count_and_labels();
     cc_map.clear();
@@ -56,4 +60,9 @@ void set_components_labels(Digraph *g) {
             }
         }
     }
+
+    std::chrono::steady_clock::time_point timer_end = std::chrono::steady_clock::now();
+    std::cout << "[END]\t\tFinished computing CC." << std::endl;
+    float time = std::chrono::duration<float>(timer_end - timer_start).count();
+    std::cout << "[TIME]\t\tComputing CC:\t\t\t\t\t\t\t" << time << std::endl;
 }

@@ -12,7 +12,8 @@
 // TODO: Remove all calls to vertex_index.size() and replace them with a variable
 
 Digraph::Digraph(graph_size_t v_num, graph_size_t update_batch_size, Updating updating, Computation computation) {
-    std::cout << "Digraph constructor called.\n" << std::endl;
+    std::cout << "\n-----------------------------------------------------------------------------------------"
+                 "\n[START]\t\tDigraph constructor called..." << std::endl;
 
     max_vertex_allocations = v_num + 1;
     vertex_index = boost::dynamic_bitset<>(max_vertex_allocations);
@@ -46,7 +47,7 @@ Digraph::Digraph(graph_size_t v_num, graph_size_t update_batch_size, Updating up
 
     this->global_logical_ts = 0;
 
-    std::cout << "Digraph structure initialized with " << v_num << " vertex entries.\n" << std::endl;
+    std::cout << "[END]\t\tDigraph structure initialized with " << v_num << " vertex entries." << std::endl;
 }
 
 digraph_vector_t Digraph::get_digraph_vector() {

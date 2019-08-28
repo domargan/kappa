@@ -6,11 +6,14 @@
 #include <set>
 #include <boost/progress.hpp>
 #include <boost/iostreams/device/mapped_file.hpp>
+#include <iomanip>
 
 #include "edgelist_to_edge_array.h"
 
 graph_size_t edgelist_count_lines(std::string edgelist_file){
-    std::chrono::steady_clock::time_point begin_timer = std::chrono::steady_clock::now();
+    std::chrono::steady_clock::time_point timer_start = std::chrono::steady_clock::now();
+    std::cout << "\n-----------------------------------------------------------------------------------------"
+                 "\n[START]\t\tCounting dataset lines..." << std::endl;
 
     std::ifstream fs;
     fs.open(edgelist_file);
@@ -27,23 +30,29 @@ graph_size_t edgelist_count_lines(std::string edgelist_file){
 
     fs.close();
 
-    std::chrono::steady_clock::time_point end_timer = std::chrono::steady_clock::now();
-    float time = std::chrono::duration<float>(end_timer - begin_timer).count();
-    std::cout << "\n(CPU) LINECOUNT TIME: " << time << std::endl;
+    std::cout << "[END]\t\tFinished counting dataset lines..." << std::endl;
+
+    std::chrono::steady_clock::time_point timer_end = std::chrono::steady_clock::now();
+    float time = std::chrono::duration<float>(timer_end - timer_start).count();
+    std::cout << "[TIME]\t\tCounting dataset lines:\t\t\t\t\t\t" << time << std::endl;
 
     return number_of_lines;
 }
 
 graph_size_t edgelist_count_lines2(std::string edgelist_file){
-    std::chrono::steady_clock::time_point begin_timer = std::chrono::steady_clock::now();
+    std::chrono::steady_clock::time_point timer_start = std::chrono::steady_clock::now();
+    std::cout << "\n-----------------------------------------------------------------------------------------"
+                 "\n[START]\t\tCounting dataset lines..." << std::endl;
 
     std::ifstream edgelist(edgelist_file);
     int number_of_lines = std::count(std::istreambuf_iterator<char>(edgelist),
                                      std::istreambuf_iterator<char>(), '\n');
 
-    std::chrono::steady_clock::time_point end_timer = std::chrono::steady_clock::now();
-    float time = std::chrono::duration<float>(end_timer - begin_timer).count();
-    std::cout << "\n(CPU) LINECOUNT TIME: " << time << std::endl;
+    std::cout << "[END]\t\tFinished counting dataset lines..." << std::endl;
+
+    std::chrono::steady_clock::time_point timer_end = std::chrono::steady_clock::now();
+    float time = std::chrono::duration<float>(timer_end - timer_start).count();
+    std::cout << "[TIME]\t\tCounting dataset lines:\t\t\t\t\t\t" << time << std::endl;
 
     return number_of_lines;
 }
@@ -72,14 +81,26 @@ std::set<vertex_id_t> extract_vertices(raw_edge_array_t& edges) {
 }
 
 graph_size_t unique_vertex_count(raw_edge_array_t& edges){
+    std::chrono::steady_clock::time_point timer_start = std::chrono::steady_clock::now();
+    std::cout << "\n-----------------------------------------------------------------------------------------"
+                 "\n[START]\t\tExtracting vertices info from the dataset..." << std::endl;
+
     std::set<vertex_id_t> vertex_set = extract_vertices(edges);
     graph_size_t v_num = static_cast<graph_size_t>(vertex_set.size());
+
+    std::cout << "[END]\t\tFinished extracting vertices from the dataset." << std::endl;
+
+    std::chrono::steady_clock::time_point timer_end = std::chrono::steady_clock::now();
+    float time_read_file = std::chrono::duration<float>(timer_end - timer_start).count();
+    std::cout << "[TIME]\t\tExtracting vertices info:\t\t\t\t\t" << time_read_file << std::endl;
 
     return v_num;
 }
 
 raw_edge_array_t edgelist_to_edge_array(std::string edgelist_file, int line_count) {
-    std::chrono::steady_clock::time_point begin_read_file = std::chrono::steady_clock::now();
+    std::chrono::steady_clock::time_point timer_start = std::chrono::steady_clock::now();
+    std::cout << "\n-----------------------------------------------------------------------------------------"
+                 "\n[START]\t\tParsing dataset into edge array..." << std::endl;
 
     boost::iostreams::mapped_file_source file(edgelist_file);
     std::string fileContent(file.data(), file.size());
@@ -106,9 +127,11 @@ raw_edge_array_t edgelist_to_edge_array(std::string edgelist_file, int line_coun
 
     fileContent.clear();
 
-    std::chrono::steady_clock::time_point end_read_file = std::chrono::steady_clock::now();
-    float time_read_file = std::chrono::duration<float>(end_read_file - begin_read_file).count();
-    std::cout << "\n(CPU) DATASET READING AND PARSING TIME: " << time_read_file << std::endl;
+    std::cout << "[END]\t\tFinished parsing dataset into edge array." << std::endl;
+
+    std::chrono::steady_clock::time_point timer_end = std::chrono::steady_clock::now();
+    float time_read_file = std::chrono::duration<float>(timer_end - timer_start).count();
+    std::cout << "[TIME]\t\tDataset reading and parsing:\t\t\t\t\t" << time_read_file << std::endl;
 
     return edge_array;
 }
