@@ -163,6 +163,26 @@ void Digraph::add_edge(vertex_id_t src_v, vertex_id_t dst_v) {
     }
 }
 
+void Digraph::add_edge_populate(vertex_id_t src_v, vertex_id_t dst_v) {
+        if(!has_vertex(src_v)) {
+            vertex_index[src_v] = 1;
+            ++order;
+        }
+
+        if(!has_vertex(dst_v)){
+            vertex_index[dst_v] = 1;
+            ++order;
+        }
+
+        topology[src_v].out_neighbors->push_back(dst_v);
+        topology[dst_v].in_neighbors->push_back(src_v);
+
+        topology[src_v].out_degree++;
+        topology[dst_v].in_degree++;
+
+        ++size;
+}
+
 void Digraph::remove_edge(vertex_id_t src_v, vertex_id_t dst_v) {
     if (has_edge(src_v, dst_v)) {
         // Erase-remove has a worst-case time of O(n).

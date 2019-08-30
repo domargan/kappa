@@ -15,7 +15,7 @@ void edge_array_to_digraph(Digraph* g, raw_edge_array_t& edge_array, graph_size_
 
     while (current_line < end_line) {
 
-        g->add_edge(edge_array[current_line][0], edge_array[current_line][1]);
+        g->add_edge_populate(edge_array[current_line][0], edge_array[current_line][1]);
         ++current_line;
 
         ++show_progress;

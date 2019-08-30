@@ -64,6 +64,7 @@ public:
     bool has_been_visited(vertex_id_t);
 
     void add_edge(vertex_id_t, vertex_id_t); // Add an edge between two vertices.
+    void add_edge_populate(vertex_id_t, vertex_id_t); // Same as above but optimised to prepopulate the graph with edges.
     void remove_edge(vertex_id_t, vertex_id_t); // Remove the edge between two vertices.
     bool has_edge(vertex_id_t, vertex_id_t); // Return true of the edge is in the graph.
 

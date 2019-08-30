@@ -34,7 +34,7 @@ void edgelist_to_digraph(Digraph* digraph, const std::string &edgelist_file, cha
                     vertex_pair.push_back(static_cast<vertex_id_t &&>(stoi(vertex)));
                 }
 
-                digraph->add_edge(vertex_pair.at(0), vertex_pair.at(1));
+                digraph->add_edge_populate(vertex_pair.at(0), vertex_pair.at(1));
 
                 vertex_pair.clear();
 
