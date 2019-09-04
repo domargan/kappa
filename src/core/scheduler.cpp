@@ -8,13 +8,15 @@
 Scheduler::Scheduler()
     : thread_pool{},
       done{false},
+      paused{true},
       task_queue{1024*1024*128},
       //task_queue{1024*1024*512},
-      active{0},
-      task_counter{0},
-      iteration_counter{0},
-      tp_start(std::chrono::steady_clock::now()) {
-    fs.open("task_amount.txt");
+      active{0}//,
+      //task_counter{0},
+      //iteration_counter{0},
+      //tp_start(std::chrono::steady_clock::now()) {
+    //fs.open("task_amount.txt");
+{
 }
 
 Scheduler::~Scheduler() {
@@ -65,21 +67,19 @@ void Scheduler::init_numa_nodes(const std::vector<uint> nodes) {
     }
 }
 
-bool Scheduler::check_task_dependency(Task *task) {
-    vertex_id_t v = task->v;
-    vertex_id_t src = task->src;
-    vertex_id_t dst = task->dst;
+void Scheduler::start_workers() {
+    paused = false;
+}
 
-    // TODO Finish this
-
-    return true;
+void Scheduler::halt_workers() {
+    paused = true;
 }
 
 void Scheduler::submit(Task *task) {
     task_queue.push(task);
 
-    ++task_counter;
-    ++iteration_counter;
+    //++task_counter;
+    //++iteration_counter;
 
     /*
     // TODO: Remove this block for measurements
@@ -117,13 +117,17 @@ void Scheduler::barrier() {
 
 void Scheduler::worker(void) {
     while (!done) {
-        Task *task;
-        task_queue.pop(task, active);
+        if(!paused) { // Try to use the blocking feature of the que instead of this, e.g. while(task_queue.try_pop(...))
+            std::cout << "WORKING" << std::endl;
+            Task *task;
+        //task_queue.pop(task, active);
+        if (task_queue.try_pop(task, active)) {
 
         //std::cout << task->task_type << " " << task->timestamp_logical <<  " " << task_counter << std::endl;
 
         task->execute();
 
+        /*
         switch (task->task_type) {
             case ON_ACTIVATE:                    // On activate (basically "compute")
                 task->g->set_vertex_on_activate_ts(task->v, task->timestamp_logical);
@@ -145,16 +149,22 @@ void Scheduler::worker(void) {
 
                 break;
         }
+         */
 
         task->release();
 
         --active;
-        --task_counter;
+        //--task_counter;
+        }
+        } else {
+            std::cout << "HALT" << std::endl;
+        }
     }
 }
 
 void Scheduler::destroy(void) {
     done = true;
+    paused = true;
 
     for (auto &thread : thread_pool) {
         if (thread.joinable()) {
@@ -162,3 +172,15 @@ void Scheduler::destroy(void) {
         }
     }
 }
+
+/*
+bool Scheduler::check_task_dependency(Task *task) {
+    vertex_id_t v = task->v;
+    vertex_id_t src = task->src;
+    vertex_id_t dst = task->dst;
+
+    // TODO Finish this
+
+    return true;
+}
+*/

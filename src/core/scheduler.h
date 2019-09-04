@@ -23,13 +23,16 @@ public:
     void init_numa_node(const uint, const uint no_of_threads = 16);
     void init_numa_nodes(const std::vector<uint>);
 
+    void start_workers();
+    void halt_workers();
+
     void submit(Task*);
     void barrier();
 
-    std::atomic_uint iteration_counter;
-    std::atomic_uint task_counter;
+    //std::atomic_uint iteration_counter;
+    //std::atomic_uint task_counter;
 
-    std::chrono::steady_clock::time_point tp_start;
+    //std::chrono::steady_clock::time_point tp_start;
 
 private:
     void worker(void);
@@ -37,14 +40,15 @@ private:
 
     std::vector<std::thread> thread_pool;
     std::atomic_bool done;
+    std::atomic_bool paused;
     //ThreadSafeQueue<Task*> task_queue;
     MPMCQueue<Task*> task_queue;
     std::atomic_ushort active;
 
     std::mutex mtx;
-    std::ofstream fs;
+    //std::ofstream fs;
 
-    bool check_task_dependency(Task*);
+    //bool check_task_dependency(Task*); // Not yet implemented -- maybe it will not be needed -- Remove?
 
 };
 
