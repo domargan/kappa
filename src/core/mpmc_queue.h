@@ -126,7 +126,7 @@ public:
         ++active; // There might be a bug here in case of 1 item in the queue
     }
 
-    bool try_pop(T &v) noexcept {
+    bool try_pop(T &v, std::atomic_ushort &active) noexcept {
         auto tail = tail_.load(std::memory_order_acquire);
         for (;;) {
             auto &slot = slots_[idx(tail)];
@@ -135,6 +135,8 @@ public:
                     v = slot.move();
                     slot.destroy();
                     slot.turn.store(turn(tail) * 2 + 2, std::memory_order_release);
+
+                    ++active; // There might be a bug here in case of 1 item in the queue
                     return true;
                 }
             } else {
