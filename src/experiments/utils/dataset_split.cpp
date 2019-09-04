@@ -45,11 +45,11 @@ std::vector<graph_size_t> dataset_to_batches(graph_size_t beginning, graph_size_
 
             if (chunk_line_mark < end) {
                 chunks_line_marks.at(i) = chunk_line_mark;
-                std::cout << "[INFO]\t\tChunk " << i + 1 << " start line:\t\t\t\t\t" << chunk_line_mark << std::endl;
+                std::cout << "[INFO]\t\tChunk " << i + 1 << " start line:\t\t\t\t\t\t" << chunk_line_mark << std::endl;
             } else {
                 chunk_line_mark = end;
                 chunks_line_marks.at(i) = chunk_line_mark;
-                std::cout << "[INFO]\t\tLast chunk (" << i << ") ends before the line:\t\t\t\t\t" << chunk_line_mark << std::endl;
+                std::cout << "[INFO]\t\tLast chunk (" << i << ") ends before the line:\t\t\t\t" << chunk_line_mark << std::endl;
             }
         }
     } else {
@@ -101,7 +101,7 @@ std::vector<graph_size_t> dataset_to_batches_with_core(graph_size_t beginning, g
     graph_size_t chunk_line_mark = beginning + core_size;
 
     chunks_line_marks.at(1) = chunk_line_mark;
-    std::cout << "[INFO]\t\tChunk 2 start line:\t\t\t\t\t" << chunk_line_mark << std::endl;
+    std::cout << "[INFO]\t\tChunk 2 start line:\t\t\t\t\t\t" << chunk_line_mark << std::endl;
 
     if(chunks_num > 2){
         for(graph_size_t i=2; i<=chunks_num; i++){
