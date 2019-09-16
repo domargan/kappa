@@ -1,9 +1,9 @@
 #include "insertions.h"
 
 namespace Insertions {
-    void edge_insertion(Digraph *g, vertex_id_t src, vertex_id_t dst) {
-        g->add_edge(src, dst);
+void edge_insertion(Digraph* g, vertex_id_t src, vertex_id_t dst) {
+  g->add_edge(src, dst);
 
-        // TODO: implement src reachability analysis here
-    }
+  // TODO: implement src reachability analysis here
+}
 }

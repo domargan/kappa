@@ -3,6 +3,10 @@
 
 #include "digraph.h"
 
-void edgelist_to_digraph(Digraph*, const std::string &, char, graph_size_t, graph_size_t);
+void edgelist_to_digraph(Digraph*,
+                         const std::string&,
+                         char,
+                         graph_size_t,
+                         graph_size_t);
 
-#endif //KAPPA_EDGELIST_TO_GRAPH_H
+#endif  // KAPPA_EDGELIST_TO_GRAPH_H

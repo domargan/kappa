@@ -3,9 +3,9 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 
 project(kappa VERSION 0.1 LANGUAGES CXX)
 
-if(NOT CMAKE_BUILD_TYPE)
+if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
-endif()
+endif ()
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "-std=c++17 -ansi -pedantic-errors -Wall -Wextra -pthread")
@@ -23,14 +23,14 @@ set(PROJECT_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
 file(GLOB_RECURSE kappa_SOURCES "${PROJECT_SOURCE_DIR}/*.cpp")
 file(GLOB_RECURSE kappa_HEADERS "${PROJECT_SOURCE_DIR}/*.h")
 
-set (kappa_INCLUDE_DIRS "")
+set(kappa_INCLUDE_DIRS "")
 foreach (_headerFile ${kappa_HEADERS})
     get_filename_component(_dir ${_headerFile} PATH)
-    list (APPEND kappa_INCLUDE_DIRS ${_dir})
-endforeach()
+    list(APPEND kappa_INCLUDE_DIRS ${_dir})
+endforeach ()
 list(REMOVE_DUPLICATES kappa_INCLUDE_DIRS)
 
-add_executable (kappa ${kappa_SOURCES})
+add_executable(kappa ${kappa_SOURCES})
 target_include_directories(kappa PRIVATE ${kappa_INCLUDE_DIRS})
 target_link_libraries(kappa ${Boost_LIBRARIES})
 

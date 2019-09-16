@@ -4,7 +4,7 @@
 #include "digraph.h"
 
 namespace Deletions {
-    void edge_deletion(Digraph*, vertex_id_t, vertex_id_t);
+void edge_deletion(Digraph*, vertex_id_t, vertex_id_t);
 }
 
-#endif //KAPPA_DELETIONS_H
+#endif  // KAPPA_DELETIONS_H

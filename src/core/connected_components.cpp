@@ -1,68 +1,70 @@
-#include <iostream>
-#include <iomanip>
-#include <stack>
 #include "connected_components.h"
+#include <iomanip>
+#include <iostream>
+#include <stack>
 
 cc_map_t cc_map = {};
 
-void dfs_explore(Digraph *g, vertex_id_t v) {
-    std::stack<vertex_id_t> stack;
+void dfs_explore(Digraph* g, vertex_id_t v) {
+  std::stack<vertex_id_t> stack;
 
-    stack.push(v);
+  stack.push(v);
 
-    while (!stack.empty()) {
-        v = stack.top();
-        stack.pop();
+  while (!stack.empty()) {
+    v = stack.top();
+    stack.pop();
 
-        if (!g->has_been_visited(v)) {
-            //std::cout << v << std::endl;
-            g->set_visited(v);
-            g->set_component_label(v, g->get_cc_count());
-            cc_map[g->get_cc_count()].push_back(v);
-        }
-
-        for (auto neighbor : g->get_in_out_neighborhood(v)) {
-            if (!g->has_been_visited(neighbor)) {
-                stack.push(neighbor);
-            }
-        }
+    if (!g->has_been_visited(v)) {
+      // std::cout << v << std::endl;
+      g->set_visited(v);
+      g->set_component_label(v, g->get_cc_count());
+      cc_map[g->get_cc_count()].push_back(v);
     }
-}
-
-void dfs_explore_recursive(Digraph *g, vertex_id_t v) {
-    g->set_visited(v);
-
-    g->set_component_label(v, g->get_cc_count());
-    cc_map[g->get_cc_count()].push_back(v);
 
     for (auto neighbor : g->get_in_out_neighborhood(v)) {
-        if (!g->has_been_visited(neighbor)) {
-            dfs_explore_recursive(g, neighbor);
-        }
+      if (!g->has_been_visited(neighbor)) {
+        stack.push(neighbor);
+      }
     }
+  }
 }
 
-void set_components_labels(Digraph *g) {
-    std::cout << "\n[START]\t\tComputing CC..." << std::endl;
-    std::chrono::steady_clock::time_point timer_start = std::chrono::steady_clock::now();
+void dfs_explore_recursive(Digraph* g, vertex_id_t v) {
+  g->set_visited(v);
 
-    g->reset_visited_verts();
-    g->reset_cc_count_and_labels();
-    cc_map.clear();
+  g->set_component_label(v, g->get_cc_count());
+  cc_map[g->get_cc_count()].push_back(v);
 
-    graph_size_t max_order = g->get_max_order();
-    for (graph_size_t v=0; v<max_order; v++) {
-        if (g->has_vertex(v)) {
-            if (!g->has_been_visited(v)) {
-                dfs_explore_recursive(g, v);
-
-                g->increment_cc_count();
-            }
-        }
+  for (auto neighbor : g->get_in_out_neighborhood(v)) {
+    if (!g->has_been_visited(neighbor)) {
+      dfs_explore_recursive(g, neighbor);
     }
+  }
+}
 
-    std::chrono::steady_clock::time_point timer_end = std::chrono::steady_clock::now();
-    std::cout << "[END]\t\tFinished computing CC." << std::endl;
-    float time = std::chrono::duration<float>(timer_end - timer_start).count();
-    std::cout << "[TIME]\t\tComputing CC:\t\t\t\t\t\t\t" << time << std::endl;
+void set_components_labels(Digraph* g) {
+  std::cout << "\n[START]\t\tComputing CC..." << std::endl;
+  std::chrono::steady_clock::time_point timer_start =
+      std::chrono::steady_clock::now();
+
+  g->reset_visited_verts();
+  g->reset_cc_count_and_labels();
+  cc_map.clear();
+
+  graph_size_t max_order = g->get_max_order();
+  for (graph_size_t v = 0; v < max_order; v++) {
+    if (g->has_vertex(v)) {
+      if (!g->has_been_visited(v)) {
+        dfs_explore_recursive(g, v);
+
+        g->increment_cc_count();
+      }
+    }
+  }
+
+  std::chrono::steady_clock::time_point timer_end =
+      std::chrono::steady_clock::now();
+  std::cout << "[END]\t\tFinished computing CC." << std::endl;
+  float time = std::chrono::duration<float>(timer_end - timer_start).count();
+  std::cout << "[TIME]\t\tComputing CC:\t\t\t\t\t\t\t" << time << std::endl;
 }

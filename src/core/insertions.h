@@ -4,7 +4,7 @@
 #include "digraph.h"
 
 namespace Insertions {
-    void edge_insertion(Digraph*, vertex_id_t, vertex_id_t);
+void edge_insertion(Digraph*, vertex_id_t, vertex_id_t);
 }
 
-#endif //KAPPA_INSERTIONS_H
+#endif  // KAPPA_INSERTIONS_H

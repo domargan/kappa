@@ -5,7 +5,8 @@
 #include "pagerank.h"
 
 // TODO: Implement incremental PR init value assignment for new vertices
-// TODO: E.g. Is the considerd graph order for init values as large as the max vertex num or as the current temporary order?
+// TODO: E.g. Is the considerd graph order for init values as large as the max
+// vertex num or as the current temporary order?
 
 /*
 void init_pr_values(Digraph* g){
@@ -34,7 +35,8 @@ void pr_compute_single_vertex(vertex_id_t v, Digraph* g) {
         }
     }
 
-    float pr = ((1.0 - DEFAULT_DAMPING_FACTOR) / g->get_order()) + (DEFAULT_DAMPING_FACTOR * pr_neighbourhood_sum);
+    float pr = ((1.0 - DEFAULT_DAMPING_FACTOR) / g->get_order()) +
+(DEFAULT_DAMPING_FACTOR * pr_neighbourhood_sum);
 
     g->update_state(v, pr);
 }
@@ -49,9 +51,11 @@ void pr_compute(Digraph* g){
 
     //g->count_order();
 
-    // Note: Don't forget to set initial PageRank vertex states outside (before) this function!
+    // Note: Don't forget to set initial PageRank vertex states outside (before)
+this function!
 
-    //std::cout << "Starting PageRank computation (maximum " << DEFAULT_MAX_ITERATIONS << " iterations)..." << std::endl;
+    //std::cout << "Starting PageRank computation (maximum " <<
+DEFAULT_MAX_ITERATIONS << " iterations)..." << std::endl;
 
     graph_size_t max_order = g->get_max_order();
 
@@ -73,9 +77,10 @@ void pr_compute(Digraph* g){
     }
 
     if(num_iterations == DEFAULT_MAX_ITERATIONS) {
-    //    std::cout << "PageRank stopped after " << num_iterations << " iterations" << std::endl;
-    } else {
-    //    std::cout << "PageRank converged after " << num_iterations << " iterations" << std::endl;
+    //    std::cout << "PageRank stopped after " << num_iterations << "
+iterations" << std::endl; } else {
+    //    std::cout << "PageRank converged after " << num_iterations << "
+iterations" << std::endl;
     }
 }
  */

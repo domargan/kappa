@@ -6,4 +6,4 @@
 void dfs(Digraph*, vertex_id_t);
 void dfs_compute(Digraph*, vertex_id_t);
 
-#endif //KAPPA_DFS_H
+#endif  // KAPPA_DFS_H

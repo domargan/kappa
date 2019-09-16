@@ -3,53 +3,53 @@
 
 #include <atomic>
 #include <cstdint>
+#include <fstream>
 #include <thread>
 #include <vector>
-#include <fstream>
 
+#include "mpmc_queue.h"
 #include "task.h"
 #include "thread_safe_queue.hpp"
-#include "mpmc_queue.h"
 
 // Called ThreadPool before...
 class Scheduler {
-public:
-    Scheduler();
-    ~Scheduler();
-    Scheduler(const Scheduler&) = delete;
-    Scheduler &operator=(const Scheduler&) = delete;
+ public:
+  Scheduler();
+  ~Scheduler();
+  Scheduler(const Scheduler&) = delete;
+  Scheduler& operator=(const Scheduler&) = delete;
 
-    void init_threads(const std::uint32_t, const unsigned int offset = 0);
-    void init_numa_node(const uint, const uint no_of_threads = 16);
-    void init_numa_nodes(const std::vector<uint>);
+  void init_threads(const std::uint32_t, const unsigned int offset = 0);
+  void init_numa_node(const uint, const uint no_of_threads = 16);
+  void init_numa_nodes(const std::vector<uint>);
 
-    void start_workers();
-    void halt_workers();
+  void start_workers();
+  void halt_workers();
 
-    void submit(Task*);
-    void barrier();
+  void submit(Task*);
+  void barrier();
 
-    //std::atomic_uint iteration_counter;
-    //std::atomic_uint task_counter;
+  // std::atomic_uint iteration_counter;
+  // std::atomic_uint task_counter;
 
-    //std::chrono::steady_clock::time_point tp_start;
+  // std::chrono::steady_clock::time_point tp_start;
 
-private:
-    void worker(void);
-    void destroy(void);
+ private:
+  void worker(void);
+  void destroy(void);
 
-    std::vector<std::thread> thread_pool;
-    std::atomic_bool done;
-    std::atomic_bool paused;
-    //ThreadSafeQueue<Task*> task_queue;
-    MPMCQueue<Task*> task_queue;
-    std::atomic_ushort active;
+  std::vector<std::thread> thread_pool;
+  std::atomic_bool done;
+  std::atomic_bool paused;
+  // ThreadSafeQueue<Task*> task_queue;
+  MPMCQueue<Task*> task_queue;
+  std::atomic_ushort active;
 
-    std::mutex mtx;
-    //std::ofstream fs;
+  std::mutex mtx;
+  // std::ofstream fs;
 
-    //bool check_task_dependency(Task*); // Not yet implemented -- maybe it will not be needed -- Remove?
-
+  // bool check_task_dependency(Task*); // Not yet implemented -- maybe it will
+  // not be needed -- Remove?
 };
 
-#endif //KAPPA_SCHEDULER
+#endif  // KAPPA_SCHEDULER

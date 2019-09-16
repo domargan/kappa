@@ -5,4 +5,4 @@
 
 void cc_compute(Digraph*);
 
-#endif //KAPPA_CONNECTED_COMPONENTS_H
+#endif  // KAPPA_CONNECTED_COMPONENTS_H

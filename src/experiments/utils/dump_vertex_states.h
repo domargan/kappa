@@ -3,6 +3,6 @@
 
 #include "digraph.h"
 
-void dump_vertex_states(Digraph *, const std::string &);
+void dump_vertex_states(Digraph*, const std::string&);
 
-#endif //KAPPA_DUMP_VERTEX_STATES_H
+#endif  // KAPPA_DUMP_VERTEX_STATES_H

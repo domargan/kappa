@@ -2,214 +2,218 @@
 #define KAPPA_MPMC_QUEUE_H
 
 #include <atomic>
+#include <cassert>
 #include <limits>
 #include <memory>
 #include <stdexcept>
-#include <cassert>
 
-template <typename T> class MPMCQueue {
-public:
-    explicit MPMCQueue(const size_t capacity)
-            : capacity_(capacity), head_(0), tail_(0) {
-        if (capacity_ < 1) {
-            throw std::invalid_argument("capacity < 1");
-        }
-        size_t space = capacity * sizeof(Slot) + kCacheLineSize - 1;
-        buf_ = malloc(space);
-        if (buf_ == nullptr) {
-            throw std::bad_alloc();
-        }
-        void *buf = buf_;
-        slots_ = reinterpret_cast<Slot *>(
-                std::align(kCacheLineSize, capacity * sizeof(Slot), buf, space));
-        if (slots_ == nullptr) {
-            free(buf_);
-            throw std::bad_alloc();
-        }
-        for (size_t i = 0; i < capacity_; ++i) {
-            new (&slots_[i]) Slot();
-        }
-        static_assert(sizeof(MPMCQueue<T>) % kCacheLineSize == 0,
-                      "MPMCQueue<T> size must be a multiple of cache line size to "
-                      "prevent false sharing between adjacent queues");
-        static_assert(sizeof(Slot) % kCacheLineSize == 0,
-                      "Slot size must be a multiple of cache line size to prevent "
-                      "false sharing between adjacent slots");
-        assert(reinterpret_cast<size_t>(slots_) % kCacheLineSize == 0 &&
-               "slots_ array must be aligned to cache line size to prevent false "
-               "sharing between adjacent slots");
-        assert(reinterpret_cast<char *>(&tail_) -
-               reinterpret_cast<char *>(&head_) >=
+template <typename T>
+class MPMCQueue {
+ public:
+  explicit MPMCQueue(const size_t capacity)
+      : capacity_(capacity), head_(0), tail_(0) {
+    if (capacity_ < 1) {
+      throw std::invalid_argument("capacity < 1");
+    }
+    size_t space = capacity * sizeof(Slot) + kCacheLineSize - 1;
+    buf_ = malloc(space);
+    if (buf_ == nullptr) {
+      throw std::bad_alloc();
+    }
+    void* buf = buf_;
+    slots_ = reinterpret_cast<Slot*>(
+        std::align(kCacheLineSize, capacity * sizeof(Slot), buf, space));
+    if (slots_ == nullptr) {
+      free(buf_);
+      throw std::bad_alloc();
+    }
+    for (size_t i = 0; i < capacity_; ++i) {
+      new (&slots_[i]) Slot();
+    }
+    static_assert(sizeof(MPMCQueue<T>) % kCacheLineSize == 0,
+                  "MPMCQueue<T> size must be a multiple of cache line size to "
+                  "prevent false sharing between adjacent queues");
+    static_assert(sizeof(Slot) % kCacheLineSize == 0,
+                  "Slot size must be a multiple of cache line size to prevent "
+                  "false sharing between adjacent slots");
+    assert(reinterpret_cast<size_t>(slots_) % kCacheLineSize == 0 &&
+           "slots_ array must be aligned to cache line size to prevent false "
+           "sharing between adjacent slots");
+    assert(reinterpret_cast<char*>(&tail_) - reinterpret_cast<char*>(&head_) >=
                kCacheLineSize &&
-               "head and tail must be a cache line apart to prevent false sharing");
-    }
+           "head and tail must be a cache line apart to prevent false sharing");
+  }
 
-    ~MPMCQueue() noexcept {
-        for (size_t i = 0; i < capacity_; ++i) {
-            slots_[i].~Slot();
+  ~MPMCQueue() noexcept {
+    for (size_t i = 0; i < capacity_; ++i) {
+      slots_[i].~Slot();
+    }
+    free(buf_);
+  }
+
+  // non-copyable and non-movable
+  MPMCQueue(const MPMCQueue&) = delete;
+  MPMCQueue& operator=(const MPMCQueue&) = delete;
+
+  template <typename... Args>
+  void emplace(Args&&... args) noexcept {
+    static_assert(std::is_nothrow_constructible<T, Args&&...>::value,
+                  "T must be nothrow constructible with Args&&...");
+    auto const head = head_.fetch_add(1);
+    auto& slot = slots_[idx(head)];
+    while (turn(head) * 2 != slot.turn.load(std::memory_order_acquire))
+      ;
+    slot.construct(std::forward<Args>(args)...);
+    slot.turn.store(turn(head) * 2 + 1, std::memory_order_release);
+  }
+
+  template <typename... Args>
+  bool try_emplace(Args&&... args) noexcept {
+    static_assert(std::is_nothrow_constructible<T, Args&&...>::value,
+                  "T must be nothrow constructible with Args&&...");
+    auto head = head_.load(std::memory_order_acquire);
+    for (;;) {
+      auto& slot = slots_[idx(head)];
+      if (turn(head) * 2 == slot.turn.load(std::memory_order_acquire)) {
+        if (head_.compare_exchange_strong(head, head + 1)) {
+          slot.construct(std::forward<Args>(args)...);
+          slot.turn.store(turn(head) * 2 + 1, std::memory_order_release);
+          return true;
         }
-        free(buf_);
-    }
-
-    // non-copyable and non-movable
-    MPMCQueue(const MPMCQueue &) = delete;
-    MPMCQueue &operator=(const MPMCQueue &) = delete;
-
-    template <typename... Args> void emplace(Args &&... args) noexcept {
-        static_assert(std::is_nothrow_constructible<T, Args &&...>::value,
-                      "T must be nothrow constructible with Args&&...");
-        auto const head = head_.fetch_add(1);
-        auto &slot = slots_[idx(head)];
-        while (turn(head) * 2 != slot.turn.load(std::memory_order_acquire))
-            ;
-        slot.construct(std::forward<Args>(args)...);
-        slot.turn.store(turn(head) * 2 + 1, std::memory_order_release);
-    }
-
-    template <typename... Args> bool try_emplace(Args &&... args) noexcept {
-        static_assert(std::is_nothrow_constructible<T, Args &&...>::value,
-                      "T must be nothrow constructible with Args&&...");
-        auto head = head_.load(std::memory_order_acquire);
-        for (;;) {
-            auto &slot = slots_[idx(head)];
-            if (turn(head) * 2 == slot.turn.load(std::memory_order_acquire)) {
-                if (head_.compare_exchange_strong(head, head + 1)) {
-                    slot.construct(std::forward<Args>(args)...);
-                    slot.turn.store(turn(head) * 2 + 1, std::memory_order_release);
-                    return true;
-                }
-            } else {
-                auto const prevHead = head;
-                head = head_.load(std::memory_order_acquire);
-                if (head == prevHead) {
-                    return false;
-                }
-            }
+      } else {
+        auto const prevHead = head;
+        head = head_.load(std::memory_order_acquire);
+        if (head == prevHead) {
+          return false;
         }
+      }
     }
+  }
 
-    void push(const T &v) noexcept {
-        static_assert(std::is_nothrow_copy_constructible<T>::value,
-                      "T must be nothrow copy constructible");
-        emplace(v);
-    }
+  void push(const T& v) noexcept {
+    static_assert(std::is_nothrow_copy_constructible<T>::value,
+                  "T must be nothrow copy constructible");
+    emplace(v);
+  }
 
-    template <typename P,
+  template <typename P,
             typename = typename std::enable_if<
-                    std::is_nothrow_constructible<T, P &&>::value>::type>
-    void push(P &&v) noexcept {
-        emplace(std::forward<P>(v));
-    }
+                std::is_nothrow_constructible<T, P&&>::value>::type>
+  void push(P&& v) noexcept {
+    emplace(std::forward<P>(v));
+  }
 
-    bool try_push(const T &v) noexcept {
-        static_assert(std::is_nothrow_copy_constructible<T>::value,
-                      "T must be nothrow copy constructible");
-        return try_emplace(v);
-    }
+  bool try_push(const T& v) noexcept {
+    static_assert(std::is_nothrow_copy_constructible<T>::value,
+                  "T must be nothrow copy constructible");
+    return try_emplace(v);
+  }
 
-    template <typename P,
+  template <typename P,
             typename = typename std::enable_if<
-                    std::is_nothrow_constructible<T, P &&>::value>::type>
-    bool try_push(P &&v) noexcept {
-        return try_emplace(std::forward<P>(v));
+                std::is_nothrow_constructible<T, P&&>::value>::type>
+  bool try_push(P&& v) noexcept {
+    return try_emplace(std::forward<P>(v));
+  }
+
+  void pop(T& v, std::atomic_ushort& active) noexcept {
+    auto const tail = tail_.fetch_add(1);
+    auto& slot = slots_[idx(tail)];
+    while (turn(tail) * 2 + 1 != slot.turn.load(std::memory_order_acquire))
+      ;
+    v = slot.move();
+    slot.destroy();
+    slot.turn.store(turn(tail) * 2 + 2, std::memory_order_release);
+
+    ++active;  // There might be a bug here in case of 1 item in the queue
+  }
+
+  bool try_pop(T& v, std::atomic_ushort& active) noexcept {
+    auto tail = tail_.load(std::memory_order_acquire);
+    for (;;) {
+      auto& slot = slots_[idx(tail)];
+      if (turn(tail) * 2 + 1 == slot.turn.load(std::memory_order_acquire)) {
+        if (tail_.compare_exchange_strong(tail, tail + 1)) {
+          v = slot.move();
+          slot.destroy();
+          slot.turn.store(turn(tail) * 2 + 2, std::memory_order_release);
+
+          ++active;  // There might be a bug here in case of 1 item in the queue
+          return true;
+        }
+      } else {
+        auto const prevTail = tail;
+        tail = tail_.load(std::memory_order_acquire);
+        if (tail == prevTail) {
+          return false;
+        }
+      }
+    }
+  }
+
+  bool empty(void) noexcept {
+    auto tail = tail_.load(std::memory_order_acquire);
+    for (;;) {
+      auto& slot = slots_[idx(tail)];
+      if (turn(tail) * 2 + 1 == slot.turn.load(std::memory_order_acquire)) {
+        return false;
+      } else {
+        auto const prevTail = tail;
+        tail = tail_.load(std::memory_order_acquire);
+        if (tail == prevTail) {
+          return true;
+        }
+      }
+    }
+  }
+
+  void wait_empty(void) {
+    while (!empty())
+      ;
+  }
+
+ private:
+  constexpr size_t idx(size_t i) const noexcept { return i % capacity_; }
+
+  constexpr size_t turn(size_t i) const noexcept { return i / capacity_; }
+
+  static constexpr size_t kCacheLineSize = 128;
+
+  struct Slot {
+    ~Slot() noexcept {
+      if (turn & 1) {
+        destroy();
+      }
     }
 
-    void pop(T &v, std::atomic_ushort &active) noexcept {
-        auto const tail = tail_.fetch_add(1);
-        auto &slot = slots_[idx(tail)];
-        while (turn(tail) * 2 + 1 != slot.turn.load(std::memory_order_acquire))
-            ;
-        v = slot.move();
-        slot.destroy();
-        slot.turn.store(turn(tail) * 2 + 2, std::memory_order_release);
-
-        ++active; // There might be a bug here in case of 1 item in the queue
+    template <typename... Args>
+    void construct(Args&&... args) noexcept {
+      static_assert(std::is_nothrow_constructible<T, Args&&...>::value,
+                    "T must be nothrow constructible with Args&&...");
+      new (&storage) T(std::forward<Args>(args)...);
     }
 
-    bool try_pop(T &v, std::atomic_ushort &active) noexcept {
-        auto tail = tail_.load(std::memory_order_acquire);
-        for (;;) {
-            auto &slot = slots_[idx(tail)];
-            if (turn(tail) * 2 + 1 == slot.turn.load(std::memory_order_acquire)) {
-                if (tail_.compare_exchange_strong(tail, tail + 1)) {
-                    v = slot.move();
-                    slot.destroy();
-                    slot.turn.store(turn(tail) * 2 + 2, std::memory_order_release);
-
-                    ++active; // There might be a bug here in case of 1 item in the queue
-                    return true;
-                }
-            } else {
-                auto const prevTail = tail;
-                tail = tail_.load(std::memory_order_acquire);
-                if (tail == prevTail) {
-                    return false;
-                }
-            }
-        }
+    void destroy() noexcept {
+      static_assert(std::is_nothrow_destructible<T>::value,
+                    "T must be nothrow destructible");
+      reinterpret_cast<T*>(&storage)->~T();
     }
 
-    bool empty(void) noexcept {
-        auto tail = tail_.load(std::memory_order_acquire);
-        for (;;) {
-            auto &slot = slots_[idx(tail)];
-            if (turn(tail) * 2 + 1 == slot.turn.load(std::memory_order_acquire)) {
-                    return false;
-            } else {
-                auto const prevTail = tail;
-                tail = tail_.load(std::memory_order_acquire);
-                if (tail == prevTail) {
-                    return true;
-                }
-            }
-        }
-    }
+    T&& move() noexcept { return reinterpret_cast<T&&>(storage); }
 
-    void wait_empty(void) {
-        while(!empty());
-    }
+    // Align to avoid false sharing between adjacent slots
+    alignas(kCacheLineSize) std::atomic<size_t> turn = {0};
+    typename std::aligned_storage<sizeof(T), alignof(T)>::type storage;
+  };
 
-private:
-    constexpr size_t idx(size_t i) const noexcept { return i % capacity_; }
+ private:
+  const size_t capacity_;
+  Slot* slots_;
+  void* buf_;
 
-    constexpr size_t turn(size_t i) const noexcept { return i / capacity_; }
-
-    static constexpr size_t kCacheLineSize = 128;
-
-    struct Slot {
-        ~Slot() noexcept {
-            if (turn & 1) {
-                destroy();
-            }
-        }
-
-        template <typename... Args> void construct(Args &&... args) noexcept {
-            static_assert(std::is_nothrow_constructible<T, Args &&...>::value,
-                          "T must be nothrow constructible with Args&&...");
-            new (&storage) T(std::forward<Args>(args)...);
-        }
-
-        void destroy() noexcept {
-            static_assert(std::is_nothrow_destructible<T>::value,
-                          "T must be nothrow destructible");
-            reinterpret_cast<T *>(&storage)->~T();
-        }
-
-        T &&move() noexcept { return reinterpret_cast<T &&>(storage); }
-
-        // Align to avoid false sharing between adjacent slots
-        alignas(kCacheLineSize) std::atomic<size_t> turn = {0};
-        typename std::aligned_storage<sizeof(T), alignof(T)>::type storage;
-    };
-
-private:
-    const size_t capacity_;
-    Slot *slots_;
-    void *buf_;
-
-    // Align to avoid false sharing between head_ and tail_
-    alignas(kCacheLineSize) std::atomic<size_t> head_;
-    alignas(kCacheLineSize) std::atomic<size_t> tail_;
+  // Align to avoid false sharing between head_ and tail_
+  alignas(kCacheLineSize) std::atomic<size_t> head_;
+  alignas(kCacheLineSize) std::atomic<size_t> tail_;
 };
 
-#endif //KAPPA_MPMC_QUEUE_H
+#endif  // KAPPA_MPMC_QUEUE_H

@@ -7,9 +7,9 @@
 #include "update.h"
 
 void run(Computation,
-        Updating,
-        Digraph*,
-        raw_edge_array_t&,
-        const std::vector<vertex_id_t> &);
+         Updating,
+         Digraph*,
+         raw_edge_array_t&,
+         const std::vector<vertex_id_t>&);
 
-#endif //KAPPA_RUNTIME_HARD_BARRIER_H
+#endif  // KAPPA_RUNTIME_HARD_BARRIER_H

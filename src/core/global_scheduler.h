@@ -4,11 +4,11 @@
 #include "scheduler.h"
 
 namespace GlobalScheduler {
-    inline Scheduler &get_scheduler() {
-        static Scheduler scheduler;
+inline Scheduler& get_scheduler() {
+  static Scheduler scheduler;
 
-        return scheduler;
-    }
+  return scheduler;
 }
+}  // namespace GlobalScheduler
 
-#endif //KAPPA_GLOBAL_SCHEDULER_H
+#endif  // KAPPA_GLOBAL_SCHEDULER_H

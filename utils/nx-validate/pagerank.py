@@ -1,5 +1,5 @@
-import sys
 import networkx as nx
+import sys
 
 INPUT_GRAPH = sys.argv[1]
 

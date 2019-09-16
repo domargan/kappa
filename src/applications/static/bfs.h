@@ -5,4 +5,4 @@
 
 void bfs(Digraph*, vertex_id_t);
 
-#endif //KAPPA_BFS_H
+#endif  // KAPPA_BFS_H
