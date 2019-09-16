@@ -1,10 +1,16 @@
 cmake_minimum_required(VERSION 3.8 FATAL_ERROR)#
-#set(CMAKE_VERBOSE_MAKEFILE ON)
+set(CMAKE_VERBOSE_MAKEFILE ON)
 
 project(kappa VERSION 0.1 LANGUAGES CXX)
 
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release)
+endif()
+
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -ansi -O3 -pedantic-errors -Wall -Wextra -pthread")
+set(CMAKE_CXX_FLAGS "-std=c++17 -ansi -pedantic-errors -Wall -Wextra -pthread")
+set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 set(Boost_INCLUDE_DIR /opt/boost/include)
 set(Boost_LIBRARY_DIR /opt/boost/lib)
