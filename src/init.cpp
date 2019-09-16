@@ -18,10 +18,10 @@
 #include "scheduler.h"
 #include "experiments/utils/dump_vertex_states.h"
 #include "../connected_components.h"
+#include "../data/datasets_constants.h"
+
 
 int main(int argc, char *argv[]) {
-    std::cout << "\n[START]\t\tSTARTING KAPPA..." << std::endl;
-
     // Parse command-line arguments
     if (argc != 3) {
         std::cerr << "Usage: kappa <no_of_cores> <batch_size>" << std::endl;
@@ -29,26 +29,31 @@ int main(int argc, char *argv[]) {
         exit(-1);
     }
 
+    std::cout << "\n[START]\t\tSTARTING KAPPA..." << std::endl;
+
     uint no_of_cores = std::stoi(argv[1]);
     graph_size_t batch_size = std::stoi(argv[2]);
 
-    // Initialise thread pool
-    Scheduler &threadPool = GlobalScheduler::get_scheduler();
+    // Initialise scheduler
+    Scheduler &scheduler = GlobalScheduler::get_scheduler();
+
+    GlobalScheduler::get_scheduler().halt_workers();
+    scheduler.halt_workers();
 
     if (no_of_cores <= 16) {
-        threadPool.init_numa_node(0, no_of_cores);
+        scheduler.init_numa_node(0, no_of_cores);
     } else if (no_of_cores <= 32) {
-        threadPool.init_numa_node(0);
-        threadPool.init_numa_node(1, no_of_cores - 16);
+        scheduler.init_numa_node(0);
+        scheduler.init_numa_node(1, no_of_cores - 16);
     } else if (no_of_cores <= 48) {
-        threadPool.init_numa_node(0);
-        threadPool.init_numa_node(1);
-        threadPool.init_numa_node(2, no_of_cores - 32);
+        scheduler.init_numa_node(0);
+        scheduler.init_numa_node(1);
+        scheduler.init_numa_node(2, no_of_cores - 32);
     } else if (no_of_cores <= 64) {
-        threadPool.init_numa_node(0);
-        threadPool.init_numa_node(1);
-        threadPool.init_numa_node(2);
-        threadPool.init_numa_node(3, no_of_cores - 48);
+        scheduler.init_numa_node(0);
+        scheduler.init_numa_node(1);
+        scheduler.init_numa_node(2);
+        scheduler.init_numa_node(3, no_of_cores - 48);
     } else {
         std::cerr << "no_of_cores not valid" << std::endl;
 
@@ -76,21 +81,18 @@ int main(int argc, char *argv[]) {
 
     // ------------------------------------------------------------------------------------------ //
 
-
     // Preload the data in memory, in form of an edge array, and do some basic dataset statistics
     //graph_size_t num_dataset_entries = edgelist_count_lines(dataset);
-    graph_size_t num_dataset_entries = 1468365182;
-    // twitter-2010:            1468365182
-    // higgs-social_network     14855842
+    graph_size_t num_dataset_entries = twitter2010_size;
+    //graph_size_t num_dataset_entries = higgs_size;
     std::cout << "[INFO]\t\tNumber of edges in the dataset:\t\t\t\t\t" << num_dataset_entries << std::endl;
 
     raw_edge_array_t edge_array;
     edge_array = edgelist_to_edge_array(dataset, num_dataset_entries);
 
     //graph_size_t max_vertex_num = unique_vertex_count(edge_array);
-    graph_size_t max_vertex_num = 41652230;
-    // twitter-2010             41652230
-    // higgs-social_network     456626
+    graph_size_t max_vertex_num = twitter2010_order;
+    //graph_size_t max_vertex_num = higgs_order;
     std::cout << "[INFO]\t\tNumber of vertices in the dataset:\t\t\t\t" << max_vertex_num << std::endl;
 
     // ------------------------------------------------------------------------------------------ //
@@ -127,7 +129,7 @@ int main(int argc, char *argv[]) {
     computation_wcc.on_remove_edge = WCC::on_remove_edge;
 
     // Create a graph object
-    //Digraph g = Digraph(max_vertex_num, batch_size, updating, computation_pr);
+    //Digraph* g = Digraph(max_vertex_num, batch_size, updating, computation_pr);
     Digraph g(max_vertex_num, batch_size, updating, computation_pr);
 
     // Populate the graph with core set of edges
@@ -135,17 +137,13 @@ int main(int argc, char *argv[]) {
     std::cout << "[INFO]\t\tNumber of vertices after pre-populating:\t\t\t" << g.get_order() << std::endl;
     std::cout << "[INFO]\t\tNumber of edges after pre-populating:\t\t\t\t" << g.get_size() << std::endl;
 
-
-    //std::vector<graph_size_t> *touched_verts = g.get_touched_src_verts();
+    //std::vector<graph_size_t> *touched_verts = g->get_touched_src_verts();
     //std::cout << "Touched vertices queue size: " << touched_verts->size() << std::endl;
     //std::cout << "Touched vertices queue capacity: " << touched_verts->capacity() << std::endl;
 
     // Load the precomputed states for vertices in the core graph
     //preload_states(&g, core_states, ' ', 1, core_size);
     //dump_vertex_states(&g, "vertex-states-dump.txt");
-
-    // Compute CC for core graph
-    set_components_labels(&g);
 
     // ------------------------------------------------------------------------------------------ //
 
@@ -162,21 +160,25 @@ int main(int argc, char *argv[]) {
     //graph_size_t end = 80;
     //graph_size_t end = 100000000;
     graph_size_t end = core_size + 500000;
+    //graph_size_t end = core_size + 5;
 
     // Logically split the entires in the dataset by lines, splitting into batches
     std::vector<graph_size_t> split = dataset_to_batches(beginning, end, num_dataset_entries, batch_size);
+
+    // ------------------------------------------------------------------------------------------ //
 
     // Main experiment part
     // Interchanging processes:
     // - updating the graph
     // - running incremental localised computation
+
     run(computation_pr,
             updating,
             &g,
             edge_array,
             split);
 
-    dump_vertex_states(&g, "vertex-states-dump.txt");
+    //dump_vertex_states(&g, "vertex-states-dump.txt");
 
     // ------------------------------------------------------------------------------------------ //
 
