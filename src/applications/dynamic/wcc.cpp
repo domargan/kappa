@@ -12,7 +12,7 @@ namespace WCC {
     state_t get_max_label(Digraph *g, vertex_id_t v) {
         state_t max = 0;
 
-        for (auto neighbour : *(g->get_in_out_neighborhood(v))) {
+        for (auto neighbour : g->get_in_out_neighborhood(v)) {
             state_t neighbour_state = g->get_state(neighbour);
 
             if (neighbour_state > max) {
@@ -34,7 +34,7 @@ namespace WCC {
         g->set_state(v, max_label);
 
         if (old_label != max_label) {
-            for (auto neighbour : *(g->get_in_out_neighborhood(v))) {
+            for (auto neighbour : g->get_in_out_neighborhood(v)) {
                 g->activate_vertex(neighbour);
             }
         }
@@ -50,7 +50,7 @@ namespace WCC {
 
             g->set_state(smaller, new_max);
 
-            for (auto neighbour : *(g->get_in_out_neighborhood(smaller))) {
+            for (auto neighbour : g->get_in_out_neighborhood(smaller)) {
                 g->activate_vertex(neighbour);
             }
         }
@@ -59,13 +59,13 @@ namespace WCC {
     void on_remove_edge(Digraph *g, vertex_id_t src, vertex_id_t dst) {
         g->set_state(src, get_new_label());
 
-        for (auto neighbour : *(g->get_in_out_neighborhood(src))) {
+        for (auto neighbour : g->get_in_out_neighborhood(src)) {
             g->activate_vertex(neighbour);
         }
 
         g->set_state(dst, get_new_label());
 
-        for (auto neighbour : *(g->get_in_out_neighborhood(dst))) {
+        for (auto neighbour : g->get_in_out_neighborhood(dst)) {
             g->activate_vertex(neighbour);
         }
     }

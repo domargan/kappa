@@ -57,7 +57,7 @@ public:
     void set_scheduled(vertex_id_t, bool);
     bool is_scheduled(vertex_id_t);
     void activate_vertex(vertex_id_t);
-    vertex_bitset_t *get_visited_verts();
+    vertex_bitset_t get_visited_verts();
     void set_visited(vertex_id_t);
     void unset_visited(vertex_id_t);
     void reset_visited_verts();
@@ -70,9 +70,9 @@ public:
 
     void print_edges(); // (use just for testing)
 
-    neighbors_vector_t *get_in_neighborhood(vertex_id_t); // Return the vector of incoming neighbors of a vertex.
-    neighbors_vector_t *get_out_neighborhood(vertex_id_t); // Return the vector of outcoming neighbors of a vertex.
-    neighbors_vector_t *get_in_out_neighborhood(vertex_id_t);
+    neighbors_vector_t get_in_neighborhood(vertex_id_t); // Return the vector of incoming neighbors of a vertex.
+    neighbors_vector_t get_out_neighborhood(vertex_id_t); // Return the vector of outcoming neighbors of a vertex.
+    neighbors_vector_t get_in_out_neighborhood(vertex_id_t);
     graph_size_t get_in_degree(vertex_id_t); // Return the in-degree of a vertex.
     graph_size_t get_out_degree(vertex_id_t); // Return the out-degree of a vertex.
     graph_size_t get_degree(vertex_id_t); // Return the degree of a vertex.

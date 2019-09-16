@@ -118,7 +118,6 @@ void Scheduler::barrier() {
 void Scheduler::worker(void) {
     while (!done) {
         if(!paused) { // Try to use the blocking feature of the que instead of this, e.g. while(task_queue.try_pop(...))
-            std::cout << "WORKING" << std::endl;
             Task *task;
         //task_queue.pop(task, active);
         if (task_queue.try_pop(task, active)) {
@@ -156,8 +155,6 @@ void Scheduler::worker(void) {
         --active;
         //--task_counter;
         }
-        } else {
-            std::cout << "HALT" << std::endl;
         }
     }
 }

@@ -23,8 +23,8 @@ Digraph::Digraph(graph_size_t v_num, graph_size_t update_batch_size, Updating up
 
     for (int i = 0; i < max_vertex_allocations; i++) {
         Dvertex dv{};
-        dv.in_neighbors = new neighbors_vector_t;
-        dv.out_neighbors = new neighbors_vector_t;
+        dv.in_neighbors;
+        dv.out_neighbors;
         dv.in_degree = 0;
         dv.out_degree = 0;
         dv.state = &states[i];
@@ -62,10 +62,10 @@ vertex_bitset_t Digraph::get_vertex_index() {
 void Digraph::print_edges() {
     for (std::vector<Dvertex>::size_type v = 0; v != topology.size(); v++) {
         std::cout << "v" << v << ": " << std::endl;
-        for (vertex_id_t in_neighbor : *topology[v].in_neighbors) {
+        for (vertex_id_t in_neighbor : topology[v].in_neighbors) {
             std::cout << in_neighbor << " " << std::endl;
         }
-        for (vertex_id_t out_neighbor : *topology[v].out_neighbors) {
+        for (vertex_id_t out_neighbor : topology[v].out_neighbors) {
             std::cout << out_neighbor << " " << std::endl;
         }
         std::cout << std::endl;
@@ -96,7 +96,7 @@ void Digraph::activate_vertex(vertex_id_t v) {
     //Task *task = (Task*) malloc(sizeof(Task));
 
     task->task_type = ON_ACTIVATE;
-    task->timestamp_logical = get_incremented_global_logical_ts();
+    //task->timestamp_logical = get_incremented_global_logical_ts();
     task->g = this;
     task->v = v;
     task->vertex_f = computation.on_activate;
@@ -104,8 +104,8 @@ void Digraph::activate_vertex(vertex_id_t v) {
     GlobalScheduler::get_scheduler().submit(task);
 }
 
-vertex_bitset_t *Digraph::get_visited_verts(){
-    return &visited_verts;
+vertex_bitset_t Digraph::get_visited_verts(){
+    return visited_verts;
 }
 
 void Digraph::set_visited(vertex_id_t v){
@@ -129,8 +129,8 @@ bool Digraph::has_edge(vertex_id_t src_v, vertex_id_t dst_v) {
 
     // TODO: Remove duplicated neighbors vectors and implement a new way of checking for existance of the
     // edges that are in the opposite direction of those represented by neighbor vectors
-    return std::find(topology[src_v].out_neighbors->begin(), topology[src_v].out_neighbors->end(), dst_v)
-           != topology[src_v].out_neighbors->end();
+    return std::find(topology[src_v].out_neighbors.begin(), topology[src_v].out_neighbors.end(), dst_v)
+           != topology[src_v].out_neighbors.end();
 }
 
 void Digraph::add_edge(vertex_id_t src_v, vertex_id_t dst_v) {
@@ -153,8 +153,8 @@ void Digraph::add_edge(vertex_id_t src_v, vertex_id_t dst_v) {
             computation.init_state(this, dst_v);
         }
 
-        topology[src_v].out_neighbors->push_back(dst_v);
-        topology[dst_v].in_neighbors->push_back(src_v);
+        topology[src_v].out_neighbors.push_back(dst_v);
+        topology[dst_v].in_neighbors.push_back(src_v);
 
         topology[src_v].out_degree++;
         topology[dst_v].in_degree++;
@@ -174,8 +174,8 @@ void Digraph::add_edge_populate(vertex_id_t src_v, vertex_id_t dst_v) {
             ++order;
         }
 
-        topology[src_v].out_neighbors->push_back(dst_v);
-        topology[dst_v].in_neighbors->push_back(src_v);
+        topology[src_v].out_neighbors.push_back(dst_v);
+        topology[dst_v].in_neighbors.push_back(src_v);
 
         topology[src_v].out_degree++;
         topology[dst_v].in_degree++;
@@ -188,13 +188,13 @@ void Digraph::remove_edge(vertex_id_t src_v, vertex_id_t dst_v) {
         // Erase-remove has a worst-case time of O(n).
 
         // TODO: Remove duplicated neighbors vectors
-        topology[src_v].out_neighbors->erase
-                (std::remove(topology[src_v].out_neighbors->begin(), topology[src_v].out_neighbors->end(), dst_v),
-                 topology[src_v].out_neighbors->end());
+        topology[src_v].out_neighbors.erase
+                (std::remove(topology[src_v].out_neighbors.begin(), topology[src_v].out_neighbors.end(), dst_v),
+                 topology[src_v].out_neighbors.end());
 
-        topology[dst_v].in_neighbors->erase
-                (std::remove(topology[dst_v].in_neighbors->begin(), topology[dst_v].in_neighbors->end(), src_v),
-                 topology[dst_v].in_neighbors->end());
+        topology[dst_v].in_neighbors.erase
+                (std::remove(topology[dst_v].in_neighbors.begin(), topology[dst_v].in_neighbors.end(), src_v),
+                 topology[dst_v].in_neighbors.end());
 
         topology[src_v].out_degree--;
         topology[dst_v].in_degree--;
@@ -214,41 +214,19 @@ void Digraph::remove_edge(vertex_id_t src_v, vertex_id_t dst_v) {
     }
 }
 
-neighbors_vector_t *Digraph::get_in_neighborhood(vertex_id_t v) {
+neighbors_vector_t Digraph::get_in_neighborhood(vertex_id_t v) {
     // TODO: Remove duplicated neighbors vectors
     return topology[v].in_neighbors;
 }
 
-neighbors_vector_t *Digraph::get_out_neighborhood(vertex_id_t v) {
+neighbors_vector_t Digraph::get_out_neighborhood(vertex_id_t v) {
     return topology[v].out_neighbors;
 }
 
-neighbors_vector_t *Digraph::get_in_out_neighborhood(vertex_id_t v) {
-    //neighbors_vector_t *in = topology[v].in_neighbors;
-    //neighbors_vector_t *out = topology[v].out_neighbors;
+neighbors_vector_t Digraph::get_in_out_neighborhood(vertex_id_t v) {
+    neighbors_vector_t in_out(topology[v].in_neighbors);
 
-    //std::cout << in->size() << std::endl;
-    //std::cout << out->size() << std::endl;
-
-    //neighbors_vector_t *in_out = new neighbors_vector_t;
-
-    neighbors_vector_t *in_out(topology[v].in_neighbors);
-
-    //in_out->reserve(in->size() + out->size());
-    //in_out->resize(in->size() + out->size());
-
-    //std::cout << in_out->size() << std::endl;
-
-    //in_out->insert(in_out->end(), in->begin(), in->end());
-    //in_out->insert(in_out->end(), out->begin(), out->end());
-    //std::copy(in->begin(), in->end(), in_out->end());
-    //std::copy(out->begin(), out->end(), in_out->end());
-
-    //std::copy(in->begin(), in->end(), std::back_inserter(*in_out));
-    std::copy(topology[v].out_neighbors->begin(), topology[v].out_neighbors->end(), std::back_inserter(*in_out));
-
-    //std::cout << in_out->size() << std::endl;
-
+    std::copy(topology[v].out_neighbors.begin(), topology[v].out_neighbors.end(), std::back_inserter(in_out));
 
     return in_out;
 }

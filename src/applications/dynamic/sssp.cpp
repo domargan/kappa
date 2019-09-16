@@ -8,7 +8,7 @@ namespace SSSP {
     state_t get_min_distance(Digraph *g, vertex_id_t v) {
         state_t min = std::numeric_limits<double>::infinity();
 
-        for (auto neighbour : *(g->get_in_neighborhood(v))) {
+        for (auto neighbour : g->get_in_neighborhood(v)) {
             state_t neighbour_state = g->get_state(neighbour);
 
             if (neighbour_state < min) {
@@ -32,7 +32,7 @@ namespace SSSP {
         if (old_distance > min + 1) {
             g->set_state(v, min + 1);
 
-            for (auto neighbour : *(g->get_out_neighborhood(v))) {
+            for (auto neighbour : g->get_out_neighborhood(v)) {
                 g->activate_vertex(neighbour);
             }
         }
@@ -45,7 +45,7 @@ namespace SSSP {
         if (src_state + 1 < dst_state) {
             g->set_state(dst, src_state + 1);
 
-            for (auto neighbour : *(g->get_out_neighborhood(dst))) {
+            for (auto neighbour : g->get_out_neighborhood(dst)) {
                 g->activate_vertex(neighbour);
             }
         }

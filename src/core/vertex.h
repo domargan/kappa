@@ -9,8 +9,8 @@ typedef std::vector<vertex_id_t> neighbors_vector_t;
 
 typedef struct Dvertex {
     // TODO: remove duplicated neighbor vectors
-    neighbors_vector_t* in_neighbors;
-    neighbors_vector_t* out_neighbors;
+    neighbors_vector_t in_neighbors;
+    neighbors_vector_t out_neighbors;
     graph_size_t in_degree;
     graph_size_t out_degree;
     state_t* state;

@@ -10,7 +10,7 @@ namespace PageRank {
     void on_activate(Digraph *g, vertex_id_t v) {
         float shares = 0.0;
 
-        for (auto neighbour : *(g->get_in_neighborhood(v))) {
+        for (auto neighbour : g->get_in_neighborhood(v)) {
             graph_size_t out_degree = g->get_out_degree(neighbour);
 
             if (out_degree > 0) {
@@ -24,20 +24,20 @@ namespace PageRank {
         g->set_state(v, new_pr);
 
         if (std::abs(new_pr - old_pr) >= EPSILON) {
-            for (auto neighbour : *(g->get_out_neighborhood(v))) {
+            for (auto neighbour : g->get_out_neighborhood(v)) {
                 g->activate_vertex(neighbour);
             }
         }
     }
 
     void on_add_edge(Digraph *g, vertex_id_t src, vertex_id_t dst) {
-        for (auto neighbour : *(g->get_out_neighborhood(src))) {
+        for (auto neighbour : g->get_out_neighborhood(src)) {
             g->activate_vertex(neighbour);
         }
     }
 
     void on_remove_edge(Digraph *g, vertex_id_t src, vertex_id_t dst) {
-        for (auto neighbour : *(g->get_out_neighborhood(src))) {
+        for (auto neighbour : g->get_out_neighborhood(src)) {
             g->activate_vertex(neighbour);
         }
 

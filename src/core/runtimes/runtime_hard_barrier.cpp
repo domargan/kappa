@@ -139,7 +139,7 @@ void run(Computation computation,
             //Task *task = (Task*) malloc(sizeof(Task));
 
             task->task_type = ON_UPDATE;
-            task->timestamp_logical = g->get_incremented_global_logical_ts();
+            //task->timestamp_logical = g->get_incremented_global_logical_ts();
             task->g = g;
             task->src = u.src;
             task->dst = u.dst;
@@ -161,7 +161,7 @@ void run(Computation computation,
                     //Task *task = (Task*) malloc(sizeof(Task));
 
                     task->task_type = ON_ACTIVATE;
-                    task->timestamp_logical = g->get_incremented_global_logical_ts();
+                    //task->timestamp_logical = g->get_incremented_global_logical_ts();
                     task->g = g;
                     task->v = vertex;
                     task->vertex_f = computation.on_activate;
@@ -174,7 +174,7 @@ void run(Computation computation,
                     //Task *task = (Task*) malloc(sizeof(Task));
 
                     task->task_type = ON_ACTIVATE;
-                    task->timestamp_logical = g->get_incremented_global_logical_ts();
+                    //task->timestamp_logical = g->get_incremented_global_logical_ts();
                     task->g = g;
                     task->v = vertex;
                     task->vertex_f = computation.on_activate;

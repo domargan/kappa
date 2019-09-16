@@ -21,7 +21,7 @@ void dfs_explore(Digraph *g, vertex_id_t v) {
             cc_map[g->get_cc_count()].push_back(v);
         }
 
-        for (auto neighbor : *(g->get_in_out_neighborhood(v))) {
+        for (auto neighbor : g->get_in_out_neighborhood(v)) {
             if (!g->has_been_visited(neighbor)) {
                 stack.push(neighbor);
             }
@@ -35,7 +35,7 @@ void dfs_explore_recursive(Digraph *g, vertex_id_t v) {
     g->set_component_label(v, g->get_cc_count());
     cc_map[g->get_cc_count()].push_back(v);
 
-    for (auto neighbor : *(g->get_in_out_neighborhood(v))) {
+    for (auto neighbor : g->get_in_out_neighborhood(v)) {
         if (!g->has_been_visited(neighbor)) {
             dfs_explore_recursive(g, neighbor);
         }
