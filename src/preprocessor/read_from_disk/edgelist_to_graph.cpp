@@ -1,62 +1,52 @@
 #include <boost/progress.hpp>
+#include <boost/iostreams/device/mapped_file.hpp>
 #include <fstream>
 #include <iostream>
 #include <sstream>
 
 #include "edgelist_to_graph.h"
 
-// TODO: Update this function so it uses tricks similar to
-// edgelist_to_edge_array to speedup things
 void edgelist_to_digraph(Digraph* digraph,
-                         const std::string& edgelist_file,
-                         char separator,
-                         graph_size_t beggining_line,
-                         graph_size_t end_line) {
-  std::fstream fs;
-  fs.open(edgelist_file);
+                         std::string edgelist_file,
+                         int line_count) {
+  std::chrono::steady_clock::time_point timer_start =
+      std::chrono::steady_clock::now();
+  std::cout
+      << "\n-----------------------------------------------------------------"
+         "------------------------"
+         "\n[START]\t\tPopulating Digraph structure with edges from file "
+      << edgelist_file << std::endl;
 
-  if (fs) {
-    std::cout
-        << "\n-----------------------------------------------------------------"
-           "------------------------"
-           "\n[START]\t\tPopulating Digraph structure with edges from file "
-        << edgelist_file << std::endl;
+  boost::iostreams::mapped_file_source file(edgelist_file);
+  std::string fileContent(file.data(), file.size());
+  file.close();
 
-    std::string line;
+  std::istringstream iss{fileContent};
+  std::string line;
+  int line_idx = 0;
 
-    graph_size_t line_counter = 0;
+  boost::progress_display show_progress(line_count);
 
-    boost::progress_display show_progress(end_line - beggining_line);
+  while (std::getline(iss, line)) {
+    int pos = line.find_first_of(' ');
 
-    while (getline(fs, line)) {
-      line_counter++;
+    digraph->add_edge_populate(stoi(line.substr(0, pos)),
+                               stoi(line.substr(pos + 1)));
 
-      if (line_counter >= beggining_line && line_counter <= end_line) {
-        std::stringstream sep(line);
-        std::string vertex;
-
-        std::vector<vertex_id_t> vertex_pair;
-
-        // TODO: edges needs only 2 values per field, simplify with an
-        // 1(vector)x2(array) structure
-        while (getline(sep, vertex, separator)) {
-          vertex_pair.push_back(static_cast<vertex_id_t&&>(stoi(vertex)));
-        }
-
-        digraph->add_edge_populate(vertex_pair.at(0), vertex_pair.at(1));
-
-        vertex_pair.clear();
-
-        ++show_progress;
-      } else if (line_counter > end_line) {
-        break;
-      }
-    }
+    ++line_idx;
+    ++show_progress;
   }
 
-  fs.close();
+  fileContent.clear();
 
   std::cout
       << "[END]\t\tFinished populating digraph with edge entries from file."
       << std::endl;
+
+  std::chrono::steady_clock::time_point timer_end =
+      std::chrono::steady_clock::now();
+  float time_read_file =
+      std::chrono::duration<float>(timer_end - timer_start).count();
+  std::cout << "[TIME]\t\tPopulating digraph with edges from file:\t\t\t\t\t"
+            << time_read_file << std::endl;
 }
