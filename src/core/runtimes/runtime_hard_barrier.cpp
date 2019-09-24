@@ -16,8 +16,10 @@
 void run(Computation computation,
          Updating updating,
          Digraph* g,
-         raw_edge_array_t& updates,
-         const std::vector<graph_size_t>& chunks_start_lines) {
+         raw_edge_array_t& additions,
+         raw_edge_array_t& deletions,
+         const std::vector<graph_size_t>& additions_batch_start_lines,
+         const std::vector<graph_size_t>& deletions_batch_start_lines) {
   std::cout << "\n-------------------------------------------------------------"
                "----------------------------"
                "\n[START]\t\tSTARTING RUNTIME..."
@@ -38,12 +40,26 @@ void run(Computation computation,
   // std::ofstream fs2;
   // fs2.open("task_amount.txt");
 
-  graph_size_t num_of_chunks =
-      chunks_start_lines.size() -
+  graph_size_t additions_num_of_batches =
+      additions_batch_start_lines.size() -
       1;  //-1 because the last element is just there to mark the end point
 
-  graph_size_t start_line = 0;
-  graph_size_t end_line = 0;
+  graph_size_t deletion_num_of_batches =
+      deletions_batch_start_lines.size() -
+      1;  //-1 because the last element is just there to mark the end point
+
+  if (additions_num_of_batches != deletion_num_of_batches) {
+    std::cerr
+        << "Number of generated addition and deletion batches must be equal!"
+        << std::endl;
+    exit(-1);
+  }
+
+  graph_size_t additions_start_line = 0;
+  graph_size_t additions_end_line = 0;
+
+  graph_size_t deletions_start_line = 0;
+  graph_size_t deletions_end_line = 0;
 
   // Reset start time for queue evaluation
   // GlobalScheduler::get_scheduler().tp_start =
@@ -56,51 +72,55 @@ void run(Computation computation,
   std::chrono::steady_clock::time_point timer_start_total =
       std::chrono::steady_clock::now();
 
-  for (graph_size_t i = 0; i < num_of_chunks; ++i) {
-    start_line = chunks_start_lines[i];
-    end_line = chunks_start_lines[i + 1];
+  for (graph_size_t batch = 0; batch < additions_num_of_batches; ++batch) {
+    additions_start_line = additions_batch_start_lines[batch];
+    additions_end_line = additions_batch_start_lines[batch + 1];
 
-    std::cout << "\n[START]\t\tReading updates from chunk " << i + 1
+    std::cout << "\n[START]\t\tReading updates from batch " << batch + 1
               << std::endl;
 
     // Update the graph
     std::chrono::steady_clock::time_point timer_start_update =
         std::chrono::steady_clock::now();
 
-    std::vector<Update> updates_in_chunk;  // TODO: Make static array and do
-                                           // indexing instead of push_back
+    std::vector<Update> updates_in_batch;  // TODO: Make static array and do
+    // indexing instead of push_back
 
     // Comment out from here...
-    for (graph_size_t j = start_line - 1; j < end_line - 1; j++) {
-      // std::cout << "READING EDGE " << updates[j][0] << " " << updates[j][1]
+    for (graph_size_t line = additions_start_line - 1;
+         line < additions_end_line - 1; line++) {
+      // std::cout << "READING EDGE " << additions[line][0] << " " <<
+      // additions[line][1]
       // << std::endl;
 
-      vertex_id_t src = updates[j][0];
-      vertex_id_t dst = updates[j][1];
+      vertex_id_t src = additions[line][0];
+      vertex_id_t dst = additions[line][1];
 
       // std::cout << src << " " << dst << std::endl;
 
       g->add_edge(src, dst);
 
       Update u(ADD, src, dst);
-      updates_in_chunk.push_back(u);
+      updates_in_batch.push_back(u);
     }
-    // ... to here for switching between task-based and no-task updates
+    // ... to here for switching between task-based and no-task additions
 
     // From here...
     /*
     for (graph_size_t j = start_line - 1; j < end_line - 1; j++) {
-        // std::cout << "READING EDGE " << updates[j][0] << " " << updates[j][1]
+        // std::cout << "READING EDGE " << additions[j][0] << " " <<
+    additions[j][1]
     << std::endl;
 
         //std::cout << "BREAKPOINT 1" << std::endl;
-        vertex_id_t src = updates[j][0];
-        vertex_id_t dst = updates[j][1];
+        vertex_id_t src = additions[j][0];
+        vertex_id_t dst = additions[j][1];
 
         //std::cout << "BREAKPOINT 2" << std::endl;
         // TODO: For now we only have edge additions, so hardcoding ADD type.
-    Introduce edge removals. Update u(ADD, src, dst);
-        updates_in_chunk.push_back(u);
+        // Introduce edge removals.
+        Update u(ADD, src, dst);
+        updates_in_batch.push_back(u);
 
         //std::cout << "BREAKPOINT 3" << std::endl;
         Task *task = static_cast<Task*>(task_pool::malloc());
@@ -140,12 +160,12 @@ void run(Computation computation,
         std::chrono::duration<float>(timer_end_update - timer_start_update)
             .count();
 
-    float ingestion_rate = (end_line - start_line) / timer_update;
+    // float ingestion_rate = (end_line - start_line) / timer_update;
 
-    std::cout << "[END]\t\tFinished updating from chunk\t\t\t\t\t" << i + 1
+    std::cout << "[END]\t\tFinished updating from batch\t\t\t\t\t" << batch + 1
               << std::endl;
-    std::cout << "[TIME]\t\tIngesting updates from chunk " << std::fixed
-              << i + 1 << ":\t\t\t\t\t" << timer_update << std::endl;
+    std::cout << "[TIME]\t\tIngesting updates from batch " << std::fixed
+              << batch + 1 << ":\t\t\t\t\t" << timer_update << std::endl;
 
     // g->count_order();
     graph_size_t order = g->get_order();
@@ -156,7 +176,7 @@ void run(Computation computation,
     set_components_labels(g);
 
     std::cout << "\n[START]\t\tExecuting computations for "
-              << updates_in_chunk.size() << " updates" << std::endl;
+              << updates_in_batch.size() << " additions" << std::endl;
 
     // Execute user-defined compute functions (in form of ON_UPDATE and
     // ON_ACTIVATE tasks)
@@ -165,7 +185,7 @@ void run(Computation computation,
 
     GlobalScheduler::get_scheduler().start_workers();
 
-    for (auto& u : updates_in_chunk) {
+    for (auto& u : updates_in_batch) {
       Task* task = static_cast<Task*>(task_pool::malloc());
       // Task *task = (Task*) malloc(sizeof(Task));
 
@@ -236,12 +256,15 @@ void run(Computation computation,
             .count();
 
     std::cout << "[END]\t\tFinished computations." << std::endl;
-    std::cout << "[TIME]\t\tComputing for chunk " << std::fixed << i + 1
+    std::cout << "[TIME]\t\tComputing for batch " << std::fixed << batch + 1
               << ":\t\t\t\t\t\t" << timer_compute << std::endl;
 
-    fs << order << " , " << size << " , " << std::fixed << ingestion_rate
-       << " , " << std::fixed << timer_update << " , " << std::fixed
-       << timer_compute << std::endl;
+    /*
+    fs << order << " , " << size << " , " << std::fixed << ingestion_rate << " ,
+    "
+       << std::fixed << timer_update << " , " << std::fixed << timer_compute
+       << std::endl;
+  */
   }
 
   std::chrono::steady_clock::time_point timer_end_total =

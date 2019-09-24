@@ -3,26 +3,24 @@
 #include <insertions.h>
 #include <runtimes/runtime_hard_barrier.h>
 #include <iostream>
+#include <read_from_disk/edgelist_to_graph.h>
 
-#include "../connected_components.h"
 #include "../data/datasets_constants.h"
 #include "applications/dynamic/pagerank.h"
 #include "applications/dynamic/sssp.h"
 #include "applications/dynamic/wcc.h"
 #include "compute.h"
-#include "core/utils/threading.h"
 #include "edge_array_to_graph.h"
 #include "experiments/utils/dataset_split.h"
-#include "experiments/utils/dump_vertex_states.h"
 #include "global_scheduler.h"
-#include "preload_states.h"
-#include "read_from_disk/edgelist_to_graph.h"
 #include "scheduler.h"
 
 int main(int argc, char* argv[]) {
   // Parse command-line arguments
-  if (argc != 3) {
-    std::cerr << "Usage: kappa <no_of_cores> <batch_size>" << std::endl;
+  if (argc != 4) {
+    std::cerr << "Usage: kappa <no_of_cores> <additions_batch_size> "
+                 "<deletions_batch_size>"
+              << std::endl;
 
     exit(-1);
   }
@@ -30,7 +28,8 @@ int main(int argc, char* argv[]) {
   std::cout << "\n[START]\t\tSTARTING KAPPA..." << std::endl;
 
   uint no_of_cores = std::stoi(argv[1]);
-  graph_size_t batch_size = std::stoi(argv[2]);
+  graph_size_t additions_batch_size = std::stoi(argv[2]);
+  graph_size_t deletions_batch_size = std::stoi(argv[3]);
 
   // Initialise scheduler
   Scheduler& scheduler = GlobalScheduler::get_scheduler();
@@ -59,65 +58,64 @@ int main(int argc, char* argv[]) {
   }
 
   // ------------------------------------------------------------------------------------------
-  // //
 
-  // Choose dataset
-  // std::string dataset = "/home/dm1515/data/zachary-mod.edgelist";
-  std::string dataset = "/home/dm1515/data/twitter-2010.txt";
-  // std::string dataset = "/home/dm1515/data/higgs-social_network.edgelist";
-  // std::string dataset =
-  // "/home/dm1515/data/higgs-social_network-shuffled.edgelist";
-  // std::string dataset = "/home/dm1515/data/sx-stackoverflow-no-stamps.txt";
-  // std::string dataset =
-  // "/home/dm1515/data/wikipedia_link_en/out.wikipedia_link_en_11k";
-  // std::string dataset =
-  // "/home/dm1515/data/wikipedia_link_en/out.wikipedia_link_en";
+  // Choose core dataset file
+  // std::string core_dataset_file = "/home/dm1515/data/test/zachary.edgelist";
+  std::string core_dataset_file =
+      "/home/dm1515/data/twitter_no_new_node/core_graph.snap";
 
-  // Precomputed states for vertices in the core graph
-  // std::string core_states =
-  // "/home/dm1515/kappa/utils/nx-validate/results/nx-sssp-zachary.txt";
+  // Choose additons file
+  // std::string additions_file =
+  //    "/home/dm1515/data/test/zachary-additions.edgelist";
+  std::string additions_file =
+      "/home/dm1515/data/twitter_no_new_node/batch_1m_add.snap";
+
+  // Choose deletions file
+  // std::string deletions_file =
+  //    "/home/dm1515/data/test/zachary-deletions.edgelist";
+  std::string deletions_file =
+      "/home/dm1515/data/twitter_no_new_node/batch_1m_del.snap";
+
+  // Choose file with precomputed states for core graph
   // std::string core_states =
   // "/home/dm1515/data/core-graphs/precomputed-states/nx-higgs-shuff-core-10k-pr.txt";
-  // std::string core_states =
-  // "/home/dm1515/data/core-graphs/precomputed-states/nx-higgs-shuff-core-14M-pr.txt";
-  // std::string core_states =
-  // "/home/dm1515/data/core-graphs/precomputed-states/nx-higgs-shuff-core-14M-sssp.txt";
-  // std::string core_states =
-  // "/home/dm1515/data/core-graphs/precomputed-states/nx-higgs-shuff-core-14M-wcc.txt";
-  // std::string core_states =
-  // "/home/dm1515/data/core-graphs/precomputed-states/sx-stackoverflow-no-stamps-core-63M.txt";
 
   // ------------------------------------------------------------------------------------------
-  // //
 
-  // Preload the data in memory, in form of an edge array, and do some basic
-  // dataset statistics
-  // graph_size_t num_dataset_entries = edgelist_count_lines(dataset);
-  graph_size_t num_dataset_entries = twitter2010_size;
-  // graph_size_t num_dataset_entries = higgs_size;
-  std::cout << "[INFO]\t\tNumber of edges in the dataset:\t\t\t\t\t"
-            << num_dataset_entries << std::endl;
+  // graph_size_t total_dataset_size = 83;
+  graph_size_t total_dataset_size = twitter2010_size;
+  std::cout << "[INFO]\t\tTotal number of edges in the dataset:\t\t\t\t\t"
+            << total_dataset_size << std::endl;
 
-  raw_edge_array_t edge_array;
-  edge_array = edgelist_to_edge_array(dataset, num_dataset_entries);
+  // graph_size_t total_dataset_order = 34;
+  graph_size_t total_dataset_order = twitter2010_order;
+  std::cout << "[INFO]\t\tTotal number of vertices in the dataset:\t\t\t\t"
+            << total_dataset_order << std::endl;
 
-  // graph_size_t max_vertex_num = unique_vertex_count(edge_array);
-  graph_size_t max_vertex_num = twitter2010_order;
-  // graph_size_t max_vertex_num = higgs_order;
-  std::cout << "[INFO]\t\tNumber of vertices in the dataset:\t\t\t\t"
-            << max_vertex_num << std::endl;
+  // graph_size_t core_size = 78;
+  graph_size_t core_size = twitter2010_core_size;
+  std::cout << "[INFO]\t\tNumber of edges in the core dataset:\t\t\t\t\t"
+            << core_size << std::endl;
+
+  // graph_size_t additions_size = edgelist_count_lines(additions_file);
+  graph_size_t additions_size = 1000000; // TODO: Do not hardcode this value
+  std::cout << "[INFO]\t\tTotal number of edges in additions file:\t\t\t\t"
+            << additions_size << std::endl;
+
+  // graph_size_t deletions_size = edgelist_count_lines(deletions_file);
+  graph_size_t deletions_size = 1000000;
+  std::cout << "[INFO]\t\tTotal number of edges in deletions file:\t\t\t\t"
+            << deletions_size << std::endl;
+
+  if (additions_batch_size > additions_size ||
+      deletions_batch_size > deletions_size) {
+    std::cerr << "Batch size must be smaller or equal to the total number of "
+                 "edges in updates file!"
+              << std::endl;
+    exit(-1);
+  }
 
   // ------------------------------------------------------------------------------------------
-  // //
-
-  // Set core graph size (#edges)
-  // graph_size_t core_size = 0;
-  // graph_size_t core_size = 14000000;
-  // graph_size_t core_size = 63000000;
-  // graph_size_t core_size = 189071210;
-  // graph_size_t core_size = 10000;
-  // graph_size_t core_size = 10000000;
-  graph_size_t core_size = num_dataset_entries / 2;
 
   Updating updating;
   updating.edge_insertion = Insertions::edge_insertion;
@@ -141,63 +139,72 @@ int main(int argc, char* argv[]) {
   computation_wcc.on_add_edge = WCC::on_add_edge;
   computation_wcc.on_remove_edge = WCC::on_remove_edge;
 
+  // ------------------------------------------------------------------------------------------
+
   // Create a graph object
-  // Digraph* g = Digraph(max_vertex_num, batch_size, updating, computation_pr);
-  Digraph g(max_vertex_num, batch_size, updating, computation_pr);
+  // Digraph* g = Digraph(total_dataset_order, batch_size, updating,
+  // computation_pr);
+  Digraph g(total_dataset_order, additions_batch_size, updating,
+            computation_pr);
+  // TODO: Remove batch_size argument from Digraph constructor
 
   // Populate the graph with core set of edges
-  edge_array_to_digraph(&g, edge_array, 1, core_size);
+  edgelist_to_digraph(&g, core_dataset_file, core_size);
+
   std::cout << "[INFO]\t\tNumber of vertices after pre-populating:\t\t\t"
             << g.get_order() << std::endl;
   std::cout << "[INFO]\t\tNumber of edges after pre-populating:\t\t\t\t"
             << g.get_size() << std::endl;
-
-  // std::vector<graph_size_t> *touched_verts = g->get_touched_src_verts();
-  // std::cout << "Touched vertices queue size: " << touched_verts->size() <<
-  // std::endl; std::cout << "Touched vertices queue capacity: " <<
-  // touched_verts->capacity() << std::endl;
 
   // Load the precomputed states for vertices in the core graph
   // preload_states(&g, core_states, ' ', 1, core_size);
   // dump_vertex_states(&g, "vertex-states-dump.txt");
 
   // ------------------------------------------------------------------------------------------
-  // //
 
-  // Set a range of entries (lines) from the dataset, for updates to be applied
-  // to the graph
-  graph_size_t beginning = core_size + 1;
-  // graph_size_t end = 10010000;
-  // graph_size_t end = 14000000;
-  // graph_size_t end = 14010000;
-  // graph_size_t end = 14100000;
-  // graph_size_t end = 14500000;
-  // graph_size_t end = 378142420;
-  // graph_size_t end = 189371211;
-  // graph_size_t end = 15000;
-  // graph_size_t end = 80;
-  // graph_size_t end = 100000000;
-  graph_size_t end = core_size + 500000;
-  // graph_size_t end = core_size + 5;
+  raw_edge_array_t additions_edge_array;
+  additions_edge_array = edgelist_to_edge_array(additions_file, additions_size);
 
-  // Logically split the entires in the dataset by lines, splitting into batches
-  std::vector<graph_size_t> split =
-      dataset_to_batches(beginning, end, num_dataset_entries, batch_size);
+  raw_edge_array_t deletions_edge_array;
+  deletions_edge_array = edgelist_to_edge_array(deletions_file, deletions_size);
 
   // ------------------------------------------------------------------------------------------
-  // //
+
+  // Logically split addition and deletion edge arrays into batches
+  graph_size_t beginning_additons = 1;
+  graph_size_t end_additions = additions_size;
+
+  graph_size_t beginning_deletions = 1;
+  graph_size_t end_deletions = deletions_size;
+
+  if (additions_batch_size > end_additions - beginning_additons + 1 ||
+      deletions_batch_size > end_deletions - beginning_deletions + 1) {
+    std::cerr << "Batch size must be smaller or equal than total number of "
+                 "edges to be modified!"
+              << std::endl;
+    exit(-1);
+  }
+
+  std::vector<graph_size_t> split_additions = dataset_to_batches(
+      beginning_additons, end_additions, additions_size, additions_batch_size);
+
+  std::vector<graph_size_t> split_deletions = dataset_to_batches(
+      beginning_deletions, end_deletions, deletions_size, deletions_batch_size);
+
+  // ------------------------------------------------------------------------------------------
 
   // Main experiment part
   // Interchanging processes:
   // - updating the graph
-  // - running incremental localised computation
+  // - computing CC
+  // - running user-defined computation
 
-  run(computation_pr, updating, &g, edge_array, split);
+  run(computation_pr, updating, &g, additions_edge_array, deletions_edge_array,
+      split_additions, split_deletions);
 
   // dump_vertex_states(&g, "vertex-states-dump.txt");
 
   // ------------------------------------------------------------------------------------------
-  // //
 
   std::cout << "\n-------------------------------------------------------------"
                "----------------------------"
