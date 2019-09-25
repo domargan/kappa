@@ -53,7 +53,6 @@ class Digraph {
 
  public:
   explicit Digraph(graph_size_t,
-                   graph_size_t,
                    Updating,
                    Computation);  // Digraph constructor.
 

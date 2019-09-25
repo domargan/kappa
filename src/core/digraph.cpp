@@ -16,7 +16,6 @@
 // variable
 
 Digraph::Digraph(graph_size_t v_num,
-                 graph_size_t update_batch_size,
                  Updating updating,
                  Computation computation) {
   std::cout << "\n-------------------------------------------------------------"

@@ -144,8 +144,7 @@ int main(int argc, char* argv[]) {
   // Create a graph object
   // Digraph* g = Digraph(total_dataset_order, batch_size, updating,
   // computation_pr);
-  Digraph g(total_dataset_order, additions_batch_size, updating,
-            computation_pr);
+  Digraph g(total_dataset_order, updating, computation_pr);
   // TODO: Remove batch_size argument from Digraph constructor
 
   // Populate the graph with core set of edges
