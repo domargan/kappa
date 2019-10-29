@@ -3,6 +3,7 @@
 #include <ctime>
 #include <fstream>
 #include <iomanip>
+#include <dump_vertex_states.h>
 
 #include "../connected_components.h"
 #include "compute.h"
@@ -30,8 +31,6 @@ void run(Computation computation,
   fs << "Order"
      << " , "
      << "Size"
-     << " , "
-     << "Ingestion Rate"
      << " , "
      << "Ingestion CPU Time"
      << " , "
@@ -75,6 +74,9 @@ void run(Computation computation,
   for (graph_size_t batch = 0; batch < additions_num_of_batches; ++batch) {
     additions_start_line = additions_batch_start_lines[batch];
     additions_end_line = additions_batch_start_lines[batch + 1];
+
+    deletions_start_line = deletions_batch_start_lines[batch];
+    deletions_end_line = deletions_batch_start_lines[batch + 1];
 
     std::cout << "\n[START]\t\tReading updates from batch " << batch + 1
               << std::endl;
@@ -146,6 +148,23 @@ void run(Computation computation,
     */
     // ... to here
 
+    for (graph_size_t line = deletions_start_line - 1;
+         line < deletions_end_line - 1; line++) {
+      // std::cout << "READING EDGE " << deletions[line][0] << " " <<
+      // deletions[line][1]
+      // << std::endl;
+
+      vertex_id_t src = deletions[line][0];
+      vertex_id_t dst = deletions[line][1];
+
+      // std::cout << src << " " << dst << std::endl;
+
+      g->remove_edge(src, dst);
+
+      Update u(REMOVE, src, dst);
+      updates_in_batch.push_back(u);
+    }
+
     // Write to file just to mark the iteration under which the barrier occurs
     // fs2 << std::chrono::duration<float>(std::chrono::steady_clock::now() -
     // GlobalScheduler::get_thread_pool().tp_start).count() << " " <<
@@ -160,8 +179,6 @@ void run(Computation computation,
         std::chrono::duration<float>(timer_end_update - timer_start_update)
             .count();
 
-    // float ingestion_rate = (end_line - start_line) / timer_update;
-
     std::cout << "[END]\t\tFinished updating from batch\t\t\t\t\t" << batch + 1
               << std::endl;
     std::cout << "[TIME]\t\tIngesting updates from batch " << std::fixed
@@ -175,8 +192,10 @@ void run(Computation computation,
 
     set_components_labels(g);
 
+    dump_vertex_states(g, "vertex-states-dump-after-updates.txt");
+
     std::cout << "\n[START]\t\tExecuting computations for "
-              << updates_in_batch.size() << " additions" << std::endl;
+              << updates_in_batch.size() << " updates" << std::endl;
 
     // Execute user-defined compute functions (in form of ON_UPDATE and
     // ON_ACTIVATE tasks)
@@ -202,6 +221,12 @@ void run(Computation computation,
       // CC-based scheduling here
       components_number_t src_component = task->g->get_component_label(u.src);
       components_number_t dst_component = task->g->get_component_label(u.dst);
+
+      if (u.type == ADD) {
+        std::cout << "compute for ADD" << std::endl;
+      } else if (u.type == REMOVE) {
+        std::cout << "compute for REMOVE" << std::endl;
+      }
 
       if (u.type == REMOVE && src_component != dst_component) {
         std::cout << "YESS" << std::endl;
@@ -259,12 +284,8 @@ void run(Computation computation,
     std::cout << "[TIME]\t\tComputing for batch " << std::fixed << batch + 1
               << ":\t\t\t\t\t\t" << timer_compute << std::endl;
 
-    /*
-    fs << order << " , " << size << " , " << std::fixed << ingestion_rate << " ,
-    "
-       << std::fixed << timer_update << " , " << std::fixed << timer_compute
-       << std::endl;
-  */
+    fs << order << " , " << size << " , " << std::fixed << timer_update << " , "
+       << std::fixed << timer_compute << std::endl;
   }
 
   std::chrono::steady_clock::time_point timer_end_total =
@@ -279,10 +300,6 @@ void run(Computation computation,
 
   fs.close();
   // fs2.close();
-
-  fs.open("end-to-end-time.txt");
-  fs << std::fixed << timer_total << std::endl;
-  fs.close();
 
   std::cout << "\n[END]\t\tEnding runtime..." << std::endl;
 }

@@ -4,6 +4,8 @@
 #include <runtimes/runtime_hard_barrier.h>
 #include <iostream>
 #include <read_from_disk/edgelist_to_graph.h>
+#include <preload_states.h>
+#include <dump_vertex_states.h>
 
 #include "../data/datasets_constants.h"
 #include "applications/dynamic/pagerank.h"
@@ -60,50 +62,50 @@ int main(int argc, char* argv[]) {
   // ------------------------------------------------------------------------------------------
 
   // Choose core dataset file
-  // std::string core_dataset_file = "/home/dm1515/data/test/zachary.edgelist";
-  std::string core_dataset_file =
-      "/home/dm1515/data/twitter_no_new_node/core_graph.snap";
+  std::string core_dataset_file = "/home/dm1515/data/test/zachary.edgelist";
+  // std::string core_dataset_file =
+  //    "/home/dm1515/data/twitter_no_new_node/core_graph.snap";
 
   // Choose additons file
-  // std::string additions_file =
-  //    "/home/dm1515/data/test/zachary-additions.edgelist";
   std::string additions_file =
-      "/home/dm1515/data/twitter_no_new_node/batch_1m_add.snap";
+      "/home/dm1515/data/test/zachary-additions-2.edgelist";
+  // std::string additions_file =
+  //    "/home/dm1515/data/twitter_no_new_node/batch_1m_add.snap";
 
   // Choose deletions file
-  // std::string deletions_file =
-  //    "/home/dm1515/data/test/zachary-deletions.edgelist";
   std::string deletions_file =
-      "/home/dm1515/data/twitter_no_new_node/batch_1m_del.snap";
+      "/home/dm1515/data/test/zachary-deletions-2.edgelist";
+  // std::string deletions_file =
+  //    "/home/dm1515/data/twitter_no_new_node/batch_1m_del.snap";
 
   // Choose file with precomputed states for core graph
-  // std::string core_states =
-  // "/home/dm1515/data/core-graphs/precomputed-states/nx-higgs-shuff-core-10k-pr.txt";
+  std::string core_states =
+      "/home/dm1515/data/test/states/zachary-sssp-states-nx.txt";
 
   // ------------------------------------------------------------------------------------------
 
-  // graph_size_t total_dataset_size = 83;
-  graph_size_t total_dataset_size = twitter2010_size;
+  graph_size_t total_dataset_size = 83;
+  // graph_size_t total_dataset_size = twitter2010_size;
   std::cout << "[INFO]\t\tTotal number of edges in the dataset:\t\t\t\t\t"
             << total_dataset_size << std::endl;
 
-  // graph_size_t total_dataset_order = 34;
-  graph_size_t total_dataset_order = twitter2010_order;
+  graph_size_t total_dataset_order = 38;
+  // graph_size_t total_dataset_order = twitter2010_order;
   std::cout << "[INFO]\t\tTotal number of vertices in the dataset:\t\t\t\t"
             << total_dataset_order << std::endl;
 
-  // graph_size_t core_size = 78;
-  graph_size_t core_size = twitter2010_core_size;
+  graph_size_t core_size = 78;
+  // graph_size_t core_size = twitter2010_core_size;
   std::cout << "[INFO]\t\tNumber of edges in the core dataset:\t\t\t\t\t"
             << core_size << std::endl;
 
-  // graph_size_t additions_size = edgelist_count_lines(additions_file);
-  graph_size_t additions_size = 1000000; // TODO: Do not hardcode this value
+  graph_size_t additions_size = edgelist_count_lines(additions_file);
+  // graph_size_t additions_size = 1000000;  // TODO: Do not hardcode this value
   std::cout << "[INFO]\t\tTotal number of edges in additions file:\t\t\t\t"
             << additions_size << std::endl;
 
-  // graph_size_t deletions_size = edgelist_count_lines(deletions_file);
-  graph_size_t deletions_size = 1000000;
+  graph_size_t deletions_size = edgelist_count_lines(deletions_file);
+  // graph_size_t deletions_size = 1000000;
   std::cout << "[INFO]\t\tTotal number of edges in deletions file:\t\t\t\t"
             << deletions_size << std::endl;
 
@@ -144,8 +146,7 @@ int main(int argc, char* argv[]) {
   // Create a graph object
   // Digraph* g = Digraph(total_dataset_order, batch_size, updating,
   // computation_pr);
-  Digraph g(total_dataset_order, updating, computation_pr);
-  // TODO: Remove batch_size argument from Digraph constructor
+  Digraph g(total_dataset_order, updating, computation_sssp);
 
   // Populate the graph with core set of edges
   edgelist_to_digraph(&g, core_dataset_file, core_size);
@@ -156,8 +157,8 @@ int main(int argc, char* argv[]) {
             << g.get_size() << std::endl;
 
   // Load the precomputed states for vertices in the core graph
-  // preload_states(&g, core_states, ' ', 1, core_size);
-  // dump_vertex_states(&g, "vertex-states-dump.txt");
+  preload_states(&g, core_states, ' ', 1, 34);
+  dump_vertex_states(&g, "vertex-states-dump-core.txt");
 
   // ------------------------------------------------------------------------------------------
 
@@ -198,10 +199,10 @@ int main(int argc, char* argv[]) {
   // - computing CC
   // - running user-defined computation
 
-  run(computation_pr, updating, &g, additions_edge_array, deletions_edge_array,
-      split_additions, split_deletions);
+  run(computation_sssp, updating, &g, additions_edge_array,
+      deletions_edge_array, split_additions, split_deletions);
 
-  // dump_vertex_states(&g, "vertex-states-dump.txt");
+  dump_vertex_states(&g, "vertex-states-dump-end.txt");
 
   // ------------------------------------------------------------------------------------------
 
