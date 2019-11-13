@@ -9,7 +9,7 @@ endif ()
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "-std=c++17 -ansi -pedantic-errors -Wall -Wextra -pthread")
-set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
+set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -DPRINT_TEST")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 set(Boost_INCLUDE_DIR /opt/boost/include)
