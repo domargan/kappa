@@ -8,7 +8,8 @@ void init_state(Digraph* g, vertex_id_t v) {
 }
 
 void on_activate(Digraph* g, vertex_id_t v) {
-  float shares = 0.0;
+  //float shares = 0.0;
+  float shares = g->get_state(v); // TODO: Verify this, was 0.0 before
 
   for (auto neighbour : g->get_in_neighborhood(v)) {
     graph_size_t out_degree = g->get_out_degree(neighbour);
