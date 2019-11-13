@@ -111,6 +111,7 @@ void Digraph::activate_vertex(vertex_id_t v) {
   task->v = v;
   task->vertex_f = computation.on_activate;
 
+  std::cout << "(submitting task) ON_ACTIVATE\t\t" << v  << std::endl;
   GlobalScheduler::get_scheduler().submit(task);
 }
 
@@ -152,6 +153,15 @@ void Digraph::add_edge(vertex_id_t src_v, vertex_id_t dst_v) {
     // Reallocation may happen.
     // If a reallocation happens, the reallocation is O(n).
 
+
+    topology[src_v].out_neighbors.push_back(dst_v);
+    topology[dst_v].in_neighbors.push_back(src_v);
+
+    topology[src_v].out_degree++;
+    topology[dst_v].in_degree++;
+
+    ++size;
+
     if (!has_vertex(src_v)) {
       vertex_index[src_v] = 1;
       ++order;
@@ -165,14 +175,6 @@ void Digraph::add_edge(vertex_id_t src_v, vertex_id_t dst_v) {
 
       computation.init_state(this, dst_v);
     }
-
-    topology[src_v].out_neighbors.push_back(dst_v);
-    topology[dst_v].in_neighbors.push_back(src_v);
-
-    topology[src_v].out_degree++;
-    topology[dst_v].in_degree++;
-
-    ++size;
   }
 }
 
