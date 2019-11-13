@@ -9,9 +9,6 @@
 
 #include "datatypes.h"
 
-// typedef std::vector<std::vector<vertex_id_t>> raw_edge_array_t;
-typedef std::vector<std::array<vertex_id_t, 2>> raw_edge_array_t;
-
 graph_size_t edgelist_count_lines(std::string);
 graph_size_t edgelist_count_lines2(std::string);
 raw_edge_array_t edgelist_to_edge_array(std::string, int);
