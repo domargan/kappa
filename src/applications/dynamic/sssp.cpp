@@ -8,14 +8,20 @@ namespace SSSP {
 state_t get_min_distance(Digraph* g, vertex_id_t v) {
   state_t min = std::numeric_limits<double>::infinity();
 
+#if defined(PRINT_TEST)
+  std::cout << "MIN DISTANCE CALLED FOR " << v << std::endl;
+#endif
+
+  std::cout << g->get_in_neighborhood(v).size() << std::endl;
+
   for (auto neighbour : g->get_in_neighborhood(v)) {
     state_t neighbour_state = g->get_state(neighbour);
+    std::cout << "NBOUR STATE: " << neighbour_state << std::endl;
 
     if (neighbour_state < min) {
       min = neighbour_state;
     }
   }
-
   return min;
 }
 
@@ -23,6 +29,10 @@ void init_state(Digraph* g, vertex_id_t v) {
   state_t state = (v == SOURCE) ? 0 : get_min_distance(g, v) + 1;
 
   g->set_state(v, state);
+#if defined(PRINT_TEST)
+  std::cout << "(setting state) VERTEX: " << v << "  STATE: " << state
+            << std::endl;
+#endif
 }
 
 void on_activate(Digraph* g, vertex_id_t v) {
@@ -31,6 +41,10 @@ void on_activate(Digraph* g, vertex_id_t v) {
 
   if (old_distance > min + 1) {
     g->set_state(v, min + 1);
+#if defined(PRINT_TEST)
+    std::cout << "(setting state) VERTEX: " << v << "  STATE: " << min + 1
+              << std::endl;
+#endif
 
     for (auto neighbour : g->get_out_neighborhood(v)) {
       g->activate_vertex(neighbour);
@@ -44,6 +58,10 @@ void on_add_edge(Digraph* g, vertex_id_t src, vertex_id_t dst) {
 
   if (src_state + 1 < dst_state) {
     g->set_state(dst, src_state + 1);
+#if defined(PRINT_TEST)
+    std::cout << "(setting state) VERTEX: " << dst
+              << "  STATE: " << src_state + 1 << std::endl;
+#endif
 
     for (auto neighbour : g->get_out_neighborhood(dst)) {
       g->activate_vertex(neighbour);
