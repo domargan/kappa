@@ -9,9 +9,7 @@
 void run(Computation,
          Updating,
          Digraph*,
-         raw_edge_array_t&,
-         raw_edge_array_t&,
-         const std::vector<vertex_id_t>&,
+         raw_update_array_t&,
          const std::vector<vertex_id_t>&);
 
 #endif  // KAPPA_RUNTIME_HARD_BARRIER_H

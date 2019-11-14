@@ -7,20 +7,15 @@
 
 #include "../connected_components.h"
 #include "compute.h"
-#include "digraph.h"
 #include "global_scheduler.h"
 #include "read_from_disk/edgelist_to_edge_array.h"
 #include "update.h"
 
-// TODO: Proper ingestion component
-
 void run(Computation computation,
          Updating updating,
          Digraph* g,
-         raw_edge_array_t& additions,
-         raw_edge_array_t& deletions,
-         const std::vector<graph_size_t>& additions_batch_start_lines,
-         const std::vector<graph_size_t>& deletions_batch_start_lines) {
+         raw_update_array_t& updates,
+         const std::vector<graph_size_t>& updates_batch_start_lines) {
   std::cout << "\n-------------------------------------------------------------"
                "----------------------------"
                "\n[START]\t\tSTARTING RUNTIME..."
@@ -39,26 +34,12 @@ void run(Computation computation,
   // std::ofstream fs2;
   // fs2.open("task_amount.txt");
 
-  graph_size_t additions_num_of_batches =
-      additions_batch_start_lines.size() -
+  graph_size_t updates_num_of_batches =
+      updates_batch_start_lines.size() -
       1;  //-1 because the last element is just there to mark the end point
 
-  graph_size_t deletion_num_of_batches =
-      deletions_batch_start_lines.size() -
-      1;  //-1 because the last element is just there to mark the end point
-
-  if (additions_num_of_batches != deletion_num_of_batches) {
-    std::cerr
-        << "Number of generated addition and deletion batches must be equal!"
-        << std::endl;
-    exit(-1);
-  }
-
-  graph_size_t additions_start_line = 0;
-  graph_size_t additions_end_line = 0;
-
-  graph_size_t deletions_start_line = 0;
-  graph_size_t deletions_end_line = 0;
+  graph_size_t updates_start_line = 0;
+  graph_size_t updates_end_line = 0;
 
   // Reset start time for queue evaluation
   // GlobalScheduler::get_scheduler().tp_start =
@@ -71,12 +52,9 @@ void run(Computation computation,
   std::chrono::steady_clock::time_point timer_start_total =
       std::chrono::steady_clock::now();
 
-  for (graph_size_t batch = 0; batch < additions_num_of_batches; ++batch) {
-    additions_start_line = additions_batch_start_lines[batch];
-    additions_end_line = additions_batch_start_lines[batch + 1];
-
-    deletions_start_line = deletions_batch_start_lines[batch];
-    deletions_end_line = deletions_batch_start_lines[batch + 1];
+  for (graph_size_t batch = 0; batch < updates_num_of_batches; ++batch) {
+    updates_start_line = updates_batch_start_lines[batch];
+    updates_end_line = updates_batch_start_lines[batch + 1];
 
     std::cout << "\n[START]\t\tReading updates from batch " << batch + 1
               << std::endl;
@@ -89,37 +67,43 @@ void run(Computation computation,
     // indexing instead of push_back
 
     // Comment out from here...
-    for (graph_size_t line = additions_start_line - 1;
-         line < additions_end_line - 1; line++) {
-      // std::cout << "READING EDGE " << additions[line][0] << " " <<
-      // additions[line][1]
+    for (graph_size_t line = updates_start_line - 1;
+         line < updates_end_line - 1; line++) {
+      // std::cout << "READING EDGE " << updates[line][0] << " " <<
+      // updates[line][1]
       // << std::endl;
 
-      vertex_id_t src = additions[line][0];
-      vertex_id_t dst = additions[line][1];
+      vertex_id_t src = updates[line][0];
+      vertex_id_t dst = updates[line][1];
+      bool add_edge = updates[line][2] != 0;
 
       // std::cout << src << " " << dst << std::endl;
 
-      g->add_edge(src, dst);
-
-      Update u(ADD, src, dst);
-      updates_in_batch.push_back(u);
+      if (add_edge) {
+        g->add_edge(src, dst);
+        Update u(ADD, src, dst);
+        updates_in_batch.push_back(u);
+      } else {
+        g->remove_edge(src, dst);
+        Update u(REMOVE, src, dst);
+        updates_in_batch.push_back(u);
+      }
     }
-    // ... to here for switching between task-based and no-task additions
+    // ... to here for switching between task-based and no-task updates
 
     // From here...
     /*
     for (graph_size_t j = start_line - 1; j < end_line - 1; j++) {
-        // std::cout << "READING EDGE " << additions[j][0] << " " <<
-    additions[j][1]
+        // std::cout << "READING EDGE " << updates[j][0] << " " <<
+    updates[j][1]
     << std::endl;
 
         //std::cout << "BREAKPOINT 1" << std::endl;
-        vertex_id_t src = additions[j][0];
-        vertex_id_t dst = additions[j][1];
+        vertex_id_t src = updates[j][0];
+        vertex_id_t dst = updates[j][1];
 
         //std::cout << "BREAKPOINT 2" << std::endl;
-        // TODO: For now we only have edge additions, so hardcoding ADD type.
+        // TODO: For now we only have edge updates, so hardcoding ADD type.
         // Introduce edge removals.
         Update u(ADD, src, dst);
         updates_in_batch.push_back(u);
@@ -147,23 +131,6 @@ void run(Computation computation,
     GlobalScheduler::get_scheduler().task_counter = 0;
     */
     // ... to here
-
-    for (graph_size_t line = deletions_start_line - 1;
-         line < deletions_end_line - 1; line++) {
-      // std::cout << "READING EDGE " << deletions[line][0] << " " <<
-      // deletions[line][1]
-      // << std::endl;
-
-      vertex_id_t src = deletions[line][0];
-      vertex_id_t dst = deletions[line][1];
-
-      // std::cout << src << " " << dst << std::endl;
-
-      g->remove_edge(src, dst);
-
-      Update u(REMOVE, src, dst);
-      updates_in_batch.push_back(u);
-    }
 
     // Write to file just to mark the iteration under which the barrier occurs
     // fs2 << std::chrono::duration<float>(std::chrono::steady_clock::now() -
@@ -205,35 +172,34 @@ void run(Computation computation,
     GlobalScheduler::get_scheduler().start_workers();
 
     for (auto& u : updates_in_batch) {
-      Task* task = static_cast<Task*>(task_pool::malloc());
-      // Task *task = (Task*) malloc(sizeof(Task));
-
-      task->task_type = ON_UPDATE;
-      // task->timestamp_logical = g->get_incremented_global_logical_ts();
-      task->g = g;
-      task->src = u.src;
-      task->dst = u.dst;
-      task->edge_f = (u.type == ADD) ? computation.on_add_edge
-                                     : computation.on_remove_edge;
-
-      GlobalScheduler::get_scheduler().submit(task);
-
-      // CC-based scheduling here
-      components_number_t src_component = task->g->get_component_label(u.src);
-      components_number_t dst_component = task->g->get_component_label(u.dst);
-
       if (u.type == ADD) {
-        std::cout << "compute for ADD" << std::endl;
-      } else if (u.type == REMOVE) {
-        std::cout << "compute for REMOVE" << std::endl;
-      }
+        Task* task = static_cast<Task*>(task_pool::malloc());
+        // Task *task = (Task*) malloc(sizeof(Task));
 
-      if (u.type == REMOVE && src_component != dst_component) {
-        std::cout << "YESS" << std::endl;
+        task->task_type = ON_UPDATE;
+        // task->timestamp_logical = g->get_incremented_global_logical_ts();
+        task->g = g;
+        task->src = u.src;
+        task->dst = u.dst;
 
-        // for every vertex in the component of src_component and dst.component
-        // schedule computation
+        task->edge_f = computation.on_add_edge;
+        std::cout << "(submitting task) ON_UPDATE-ADD\t\t" << u.src << " "
+                  << u.dst << std::endl;
+        GlobalScheduler::get_scheduler().submit(task);
+      } else {
+        // TODO: ON_UPDATE tasks for edge removals?
+
+        // CC-based scheduling here
+        components_number_t src_component = g->get_component_label(u.src);
+        components_number_t dst_component = g->get_component_label(u.dst);
+
+        // for every vertex in the component of src_component and
+        // dst.component schedule computation
         for (vertex_id_t vertex : cc_map[src_component]) {
+          computation.init_state(g,
+                                 vertex);  // TODO: Put init state computation
+                                           // outside, as a task?
+
           Task* task = static_cast<Task*>(task_pool::malloc());
           // Task *task = (Task*) malloc(sizeof(Task));
 
@@ -243,20 +209,32 @@ void run(Computation computation,
           task->v = vertex;
           task->vertex_f = computation.on_activate;
 
+          std::cout << "(submitting task) ON_ACTIVATE\t\t" << vertex
+                    << std::endl;
           GlobalScheduler::get_scheduler().submit(task);
         }
 
-        for (vertex_id_t vertex : cc_map[dst_component]) {
-          Task* task = static_cast<Task*>(task_pool::malloc());
-          // Task *task = (Task*) malloc(sizeof(Task));
+        if (src_component != dst_component) {
+          std::cout << "BROKEN COMPONENTS" << std::endl;
 
-          task->task_type = ON_ACTIVATE;
-          // task->timestamp_logical = g->get_incremented_global_logical_ts();
-          task->g = g;
-          task->v = vertex;
-          task->vertex_f = computation.on_activate;
+          for (vertex_id_t vertex : cc_map[dst_component]) {
+            computation.init_state(g,
+                                   vertex);  // TODO: Put init state computation
+                                             // outside, as a task?
 
-          GlobalScheduler::get_scheduler().submit(task);
+            Task* task = static_cast<Task*>(task_pool::malloc());
+            // Task *task = (Task*) malloc(sizeof(Task));
+
+            task->task_type = ON_ACTIVATE;
+            // task->timestamp_logical = g->get_incremented_global_logical_ts();
+            task->g = g;
+            task->v = vertex;
+            task->vertex_f = computation.on_activate;
+
+            std::cout << "(submitting task) ON_ACTIVATE\t\t" << vertex
+                      << std::endl;
+            GlobalScheduler::get_scheduler().submit(task);
+          }
         }
       }
     }
