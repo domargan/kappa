@@ -64,9 +64,10 @@ void run(Computation computation,
         std::chrono::steady_clock::now();
 
     std::vector<Update> updates_in_batch;  // TODO: Make static array and do
-    // indexing instead of push_back
+                                           // indexing instead of push_back
 
     // Comment out from here...
+#if defined(UPDATES_NO_TASKS)
     for (graph_size_t line = updates_start_line - 1;
          line < updates_end_line - 1; line++) {
       // std::cout << "READING EDGE " << updates[line][0] << " " <<
@@ -90,7 +91,7 @@ void run(Computation computation,
       }
     }
     // ... to here for switching between task-based and no-task updates
-
+#else
     // From here...
     /*
     for (graph_size_t j = start_line - 1; j < end_line - 1; j++) {
@@ -130,6 +131,7 @@ void run(Computation computation,
 
     GlobalScheduler::get_scheduler().task_counter = 0;
     */
+#endif
     // ... to here
 
     // Write to file just to mark the iteration under which the barrier occurs
@@ -159,7 +161,9 @@ void run(Computation computation,
 
     set_components_labels(g);
 
+#if defined(PRINT_TEST)
     dump_vertex_states(g, "vertex-states-dump-after-updates.txt");
+#endif
 
     std::cout << "\n[START]\t\tExecuting computations for "
               << updates_in_batch.size() << " updates" << std::endl;
@@ -189,6 +193,7 @@ void run(Computation computation,
 #endif
         GlobalScheduler::get_scheduler().submit(task);
       } else {
+#if defined(RECOMPUTE_ALL)
         // TODO: ON_UPDATE tasks for edge removals?
 
         // CC-based scheduling here
@@ -243,6 +248,75 @@ void run(Computation computation,
             GlobalScheduler::get_scheduler().submit(task);
           }
         }
+#else
+        // CC-based scheduling here
+
+        components_number_t src_component = g->get_component_label(u.src);
+        components_number_t dst_component = g->get_component_label(u.dst);
+
+        if (src_component != dst_component) {
+          std::cout << "BROKEN COMPONENTS" << std::endl;
+
+          for (vertex_id_t vertex : cc_map[src_component]) {
+            computation.init_state(g,
+                                   vertex);  // TODO: Put init state computation
+            // outside, as a task?
+
+            Task* task = static_cast<Task*>(task_pool::malloc());
+            // Task *task = (Task*) malloc(sizeof(Task));
+
+            task->task_type = ON_ACTIVATE;
+            // task->timestamp_logical = g->get_incremented_global_logical_ts();
+            task->g = g;
+            task->v = vertex;
+            task->vertex_f = computation.on_activate;
+
+#if defined(PRINT_TEST)
+            std::cout << "(submitting task) ON_ACTIVATE\t\t" << vertex
+                      << std::endl;
+#endif
+            GlobalScheduler::get_scheduler().submit(task);
+          }
+
+          for (vertex_id_t vertex : cc_map[dst_component]) {
+            computation.init_state(g,
+                                   vertex);  // TODO: Put init state computation
+            // outside, as a task?
+
+            Task* task = static_cast<Task*>(task_pool::malloc());
+            // Task *task = (Task*) malloc(sizeof(Task));
+
+            task->task_type = ON_ACTIVATE;
+            // task->timestamp_logical = g->get_incremented_global_logical_ts();
+            task->g = g;
+            task->v = vertex;
+            task->vertex_f = computation.on_activate;
+
+#if defined(PRINT_TEST)
+            std::cout << "(submitting task) ON_ACTIVATE\t\t" << vertex
+                      << std::endl;
+#endif
+            GlobalScheduler::get_scheduler().submit(task);
+          }
+
+        } else {
+          Task* task = static_cast<Task*>(task_pool::malloc());
+          // Task *task = (Task*) malloc(sizeof(Task));
+
+          task->task_type = ON_UPDATE;
+          // task->timestamp_logical = g->get_incremented_global_logical_ts();
+          task->g = g;
+          task->src = u.src;
+          task->dst = u.dst;
+          task->edge_f = computation.on_remove_edge;
+
+#if defined(PRINT_TEST)
+          std::cout << "(submitting task) ON_UPDATE-REMOVE\t\t" << u.src << " "
+                    << u.dst << std::endl;
+#endif
+          GlobalScheduler::get_scheduler().submit(task);
+        }
+#endif
       }
     }
 
