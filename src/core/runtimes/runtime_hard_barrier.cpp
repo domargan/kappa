@@ -183,8 +183,10 @@ void run(Computation computation,
         task->dst = u.dst;
 
         task->edge_f = computation.on_add_edge;
+#if defined(PRINT_TEST)
         std::cout << "(submitting task) ON_UPDATE-ADD\t\t" << u.src << " "
                   << u.dst << std::endl;
+#endif
         GlobalScheduler::get_scheduler().submit(task);
       } else {
         // TODO: ON_UPDATE tasks for edge removals?
@@ -209,8 +211,10 @@ void run(Computation computation,
           task->v = vertex;
           task->vertex_f = computation.on_activate;
 
+#if defined(PRINT_TEST)
           std::cout << "(submitting task) ON_ACTIVATE\t\t" << vertex
                     << std::endl;
+#endif
           GlobalScheduler::get_scheduler().submit(task);
         }
 
@@ -231,8 +235,11 @@ void run(Computation computation,
             task->v = vertex;
             task->vertex_f = computation.on_activate;
 
+#if defined(PRINT_TEST)
             std::cout << "(submitting task) ON_ACTIVATE\t\t" << vertex
                       << std::endl;
+#endif
+
             GlobalScheduler::get_scheduler().submit(task);
           }
         }
