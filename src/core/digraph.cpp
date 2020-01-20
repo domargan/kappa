@@ -110,8 +110,9 @@ void Digraph::activate_vertex(vertex_id_t v) {
   task->g = this;
   task->v = v;
   task->vertex_f = computation.on_activate;
-
+#if defined(PRINT_TEST)
   std::cout << "(submitting task) ON_ACTIVATE\t\t" << v  << std::endl;
+#endif
   GlobalScheduler::get_scheduler().submit(task);
 }
 
