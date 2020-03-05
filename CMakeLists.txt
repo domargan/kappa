@@ -8,7 +8,7 @@ if (NOT CMAKE_BUILD_TYPE)
 endif ()
 
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_FLAGS "-std=c++17 -ansi -pedantic-errors -Wall -Wextra -pthread -DUPDATES_NO_TASKS")
+set(CMAKE_CXX_FLAGS "-std=c++17 -ansi -pedantic-errors -Wall -Wextra -pthread -DUPDATES_NO_TASKS -DRECOMPUTE_ONLY_BREAKAGES_DEL")
 set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -DPRINT_TEST")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 

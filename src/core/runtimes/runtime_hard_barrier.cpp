@@ -45,7 +45,7 @@ void run(Computation computation,
   // GlobalScheduler::get_scheduler().tp_start =
   // std::chrono::steady_clock::now();
 
-  // Compute CC for core graph
+  // Compute CC for core graph if not preloading states
   set_components_labels(g);
 
   // Measure end-to-end time
@@ -66,8 +66,8 @@ void run(Computation computation,
     std::vector<Update> updates_in_batch;  // TODO: Make static array and do
                                            // indexing instead of push_back
 
-    // Comment out from here...
 #if defined(UPDATES_NO_TASKS)
+    // Comment out from here...
     for (graph_size_t line = updates_start_line - 1;
          line < updates_end_line - 1; line++) {
       // std::cout << "READING EDGE " << updates[line][0] << " " <<
@@ -93,46 +93,42 @@ void run(Computation computation,
     // ... to here for switching between task-based and no-task updates
 #else
     // From here...
-    /*
     for (graph_size_t j = start_line - 1; j < end_line - 1; j++) {
-        // std::cout << "READING EDGE " << updates[j][0] << " " <<
-    updates[j][1]
-    << std::endl;
+      // std::cout << "READING EDGE " << updates[j][0] << " " <<
+      updates[j][1] << std::endl;
 
-        //std::cout << "BREAKPOINT 1" << std::endl;
-        vertex_id_t src = updates[j][0];
-        vertex_id_t dst = updates[j][1];
+      // std::cout << "BREAKPOINT 1" << std::endl;
+      vertex_id_t src = updates[j][0];
+      vertex_id_t dst = updates[j][1];
 
-        //std::cout << "BREAKPOINT 2" << std::endl;
-        // TODO: For now we only have edge updates, so hardcoding ADD type.
-        // Introduce edge removals.
-        Update u(ADD, src, dst);
-        updates_in_batch.push_back(u);
+      // std::cout << "BREAKPOINT 2" << std::endl;
+      // TODO: For now we only have edge updates, so hardcoding ADD type.
+      // Introduce edge removals.
+      Update u(ADD, src, dst);
+      updates_in_batch.push_back(u);
 
-        //std::cout << "BREAKPOINT 3" << std::endl;
-        Task *task = static_cast<Task*>(task_pool::malloc());
-        //Task *task = (Task*) malloc(sizeof(Task));
+      // std::cout << "BREAKPOINT 3" << std::endl;
+      Task* task = static_cast<Task*>(task_pool::malloc());
+      // Task *task = (Task*) malloc(sizeof(Task));
 
-        task->task_type = UPDATE;
-        task->timestamp_logical = g->get_incremented_global_logical_ts();
-        //std::cout << task->timestamp_logical << std::endl;
-        task->g = g;
-        task->src = src;
-        task->dst = dst;
-        task->update_f = (u.type == ADD) ? updating.edge_insertion :
-    updating.edge_deletion;
+      task->task_type = UPDATE;
+      task->timestamp_logical = g->get_incremented_global_logical_ts();
+      // std::cout << task->timestamp_logical << std::endl;
+      task->g = g;
+      task->src = src;
+      task->dst = dst;
+      task->update_f =
+          (u.type == ADD) ? updating.edge_insertion : updating.edge_deletion;
 
-        //std::cout << "BREAKPOINT 4" << std::endl;
-        GlobalScheduler::get_scheduler().submit(task);
+      // std::cout << "BREAKPOINT 4" << std::endl;
+      GlobalScheduler::get_scheduler().submit(task);
     }
-
 
     GlobalScheduler::get_scheduler().barrier();
 
     GlobalScheduler::get_scheduler().task_counter = 0;
-    */
-#endif
     // ... to here
+#endif
 
     // Write to file just to mark the iteration under which the barrier occurs
     // fs2 << std::chrono::duration<float>(std::chrono::steady_clock::now() -
@@ -161,9 +157,7 @@ void run(Computation computation,
 
     set_components_labels(g);
 
-#if defined(PRINT_TEST)
     dump_vertex_states(g, "vertex-states-dump-after-updates.txt");
-#endif
 
     std::cout << "\n[START]\t\tExecuting computations for "
               << updates_in_batch.size() << " updates" << std::endl;
@@ -193,7 +187,8 @@ void run(Computation computation,
 #endif
         GlobalScheduler::get_scheduler().submit(task);
       } else {
-#if defined(RECOMPUTE_ALL)
+#if defined(RECOMPUTE_ALL_DEL)  // Recompute the entire component(s) upon edge
+                                // deletion
         // TODO: ON_UPDATE tasks for edge removals?
 
         // CC-based scheduling here
@@ -248,15 +243,25 @@ void run(Computation computation,
             GlobalScheduler::get_scheduler().submit(task);
           }
         }
-#else
+#elif defined( \
+    RECOMPUTE_ONLY_BREAKAGES_DEL)  // Recompute the entire component(s) iff
+                                   // an edge deletion breaks the components
+                                   // into 2
         // CC-based scheduling here
 
         components_number_t src_component = g->get_component_label(u.src);
         components_number_t dst_component = g->get_component_label(u.dst);
 
         if (src_component != dst_component) {
+#if defined(PRINT_TEST)
           std::cout << "BROKEN COMPONENTS" << std::endl;
-
+          std::cout << "src vertes: " << u.src << std::endl;
+          std::cout << "dst vertes: " << u.dst << std::endl;
+          std::cout << "src_component size: " << cc_map[src_component].size()
+                    << std::endl;
+          std::cout << "dst_component size: " << cc_map[dst_component].size()
+                    << std::endl;
+#endif
           for (vertex_id_t vertex : cc_map[src_component]) {
             computation.init_state(g,
                                    vertex);  // TODO: Put init state computation
@@ -298,7 +303,6 @@ void run(Computation computation,
 #endif
             GlobalScheduler::get_scheduler().submit(task);
           }
-
         } else {
           Task* task = static_cast<Task*>(task_pool::malloc());
           // Task *task = (Task*) malloc(sizeof(Task));
@@ -316,6 +320,22 @@ void run(Computation computation,
 #endif
           GlobalScheduler::get_scheduler().submit(task);
         }
+#elif defined(RECOMPUTE_NOTHING_DEL)
+        Task* task = static_cast<Task*>(task_pool::malloc());
+        // Task *task = (Task*) malloc(sizeof(Task));
+
+        task->task_type = ON_UPDATE;
+        // task->timestamp_logical = g->get_incremented_global_logical_ts();
+        task->g = g;
+        task->src = u.src;
+        task->dst = u.dst;
+        task->edge_f = computation.on_remove_edge;
+
+#if defined(PRINT_TEST)
+        std::cout << "(submitting task) ON_UPDATE-REMOVE\t\t" << u.src << " "
+                  << u.dst << std::endl;
+#endif
+        GlobalScheduler::get_scheduler().submit(task);
 #endif
       }
     }
