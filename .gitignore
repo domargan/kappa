@@ -44,6 +44,5 @@ build
 lib/*
 bin/*
 
-# Text, csv, etc files
-*.txt
-*.csv
+# tmp dir
+tmp
