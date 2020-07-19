@@ -10,14 +10,14 @@ state_t get_min_distance(Digraph* g, vertex_id_t v) {
 
 #if defined(PRINT_TEST)
   std::cout << "MIN DISTANCE CALLED FOR " << v << std::endl;
-#endif
-
   std::cout << g->get_in_neighborhood(v).size() << std::endl;
+#endif
 
   for (auto neighbour : g->get_in_neighborhood(v)) {
     state_t neighbour_state = g->get_state(neighbour);
+#if defined(PRINT_TEST)
     std::cout << "NBOUR STATE: " << neighbour_state << std::endl;
-
+#endif
     if (neighbour_state < min) {
       min = neighbour_state;
     }
