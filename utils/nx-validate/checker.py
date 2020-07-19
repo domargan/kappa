@@ -9,8 +9,8 @@ if __name__ == '__main__':
             nx_id, nx_state = nx_line.split()
             kappa_id, kappa_state = kappa_line.split()
 
-            # nx_state = int(nx_state)
-            # kappa_state = int(kappa_state)
+            nx_state = float(nx_state)
+            kappa_state = float(kappa_state)
 
             if nx_state != kappa_state:
                 print('nx    {} ({})'.format(nx_state, nx_id))
