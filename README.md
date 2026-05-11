@@ -2,7 +2,7 @@
  
 Kappa is an in-memory, update-centric stream graph processing system for multi-core NUMA machines. It maintains a dynamic directed graph in memory, applies batches of edge updates, and schedules user-defined algorithm-specific computation over the parts of the graph affected by those updates.
 
-The central idea is that graph computation should be driven by **changes in topology**, not by repeatedly treating the whole graph as a static input. An edge insertion or deletion enters the system as an update. The selected algorithm decides whether that update changes vertex state. If it does, the runtime schedules further vertex activations until the change stops propagating.
+The central idea is that graph computation should be driven by **changes in topology**, not by repeatedly treating the whole graph as a static input. An edge insertion or deletion enters the system as an update. Kappa's update-centric programming model allows graph analytics algorithms to control whether that update changes vertex state. If it does, the runtime schedules further vertex computations until the change stops propagating.
 
 Kappa is an experimental systems research prototype. It is not packaged as a general-purpose graph-processing library, but it contains a complete prototype runtime, graph representation, task scheduler, dynamic graph algorithms, dataset-loading utilities, and experiment support code.
 
@@ -22,7 +22,7 @@ In short:
 
 > Kappa is an update-centric dynamic graph processing system whose runtime maintains weakly connected-component labels to support affected-region recomputation, especially after edge deletions.
 
-## Current execution model
+## Execution model
 
 The current executable is defined in:
 
@@ -33,9 +33,6 @@ src/init.cpp
 At a high level, the current execution path is:
 
 ```text
-command-line arguments
-        |
-        v
 initialise Scheduler and NUMA-pinned workers
         |
         v
@@ -45,7 +42,7 @@ load core graph from edge-list file
 preload initial vertex states
         |
         v
-load update stream from edge-list file
+ingest update stream from edge-list file
         |
         v
 split updates into batches
@@ -71,9 +68,9 @@ For example:
 
 The first argument controls the number of worker threads. The second controls the maximum number of update records processed per batch.
 
-The current executable uses hard-coded dataset paths and graph-size constants inside `src/init.cpp`. Before running the project on another machine, those paths should be updated.
+TODO Fix: The current executable uses hard-coded dataset paths and graph-size constants inside `src/init.cpp`.
 
-## Current selected algorithm
+## Current runtime dynamic graph analytics algorithms
 
 The current `src/init.cpp` constructs three dynamic computation definitions:
 
@@ -192,7 +189,7 @@ A `Digraph` owns:
 * `computation`, the selected algorithm callback table;
 * a global logical timestamp counter.
 
-The graph is currently preallocated from a maximum vertex count supplied to the constructor. The constructor creates one vertex slot per possible vertex ID, plus one extra slot.
+The graph is preallocated from a maximum vertex count supplied to the constructor. The constructor creates one vertex slot per possible vertex ID, plus one extra slot.
 
 This design makes vertex access direct by ID:
 
@@ -226,7 +223,7 @@ Insertions::edge_insertion(g, src, dst) -> g->add_edge(src, dst)
 Deletions::edge_deletion(g, src, dst)   -> g->remove_edge(src, dst)
 ```
 
-Note: A reachability analysis was planned around insertion and deletion handling, but the current behaviour delegates directly to the graph.
+Note: A reachability analysis is planned around insertion and deletion handling, but the current behaviour delegates directly to the graph.
 
 ### `add_edge`
 
@@ -286,7 +283,7 @@ The runtime does not hard-code PageRank, SSSP, or WCC behaviour. It only knows h
 
 Work in Kappa is represented as a `Task`.
 
-The current task types are:
+The task types are:
 
 ```cpp
 typedef enum { ON_ACTIVATE, ON_UPDATE, UPDATE } task_type_t;
@@ -452,7 +449,7 @@ This should not be confused with the user-level dynamic WCC algorithm. The runti
 
 ## Deletion strategies
 
-`CMakeLists.txt` currently defines:
+`CMakeLists.txt` defines:
 
 ```cmake
 -DUPDATES_NO_TASKS
@@ -467,7 +464,7 @@ The relevant deletion strategies in the runtime are:
 | `RECOMPUTE_ONLY_BREAKAGES_DEL` | Recompute affected components only when deletion separates `src` and `dst` into different weakly connected components.      |
 | `RECOMPUTE_NOTHING_DEL`        | Do not perform component-level recomputation; call the algorithm's remove-edge callback directly.                           |
 
-The currently compiled strategy is `RECOMPUTE_ONLY_BREAKAGES_DEL`.
+The default compiled strategy is `RECOMPUTE_ONLY_BREAKAGES_DEL`.
 
 ## Implemented dynamic algorithms
 
@@ -611,7 +608,7 @@ The update loader memory-maps the file, splits each line on spaces, and stores u
 
 ### Preloaded vertex states
 
-The current executable preloads vertex states from a separate file. The loader reads a configurable line range and separator, then parses:
+The executable preloads vertex states from a separate file. The loader reads a configurable line range and separator, then parses:
 
 ```text
 vertex_id state
@@ -642,7 +639,7 @@ This indexing reflects the line-marker convention used by the batching utility.
 
 ## Output files
 
-The current executable/runtime may produce:
+The executable/runtime may produce:
 
 ```text
 measurements.csv
