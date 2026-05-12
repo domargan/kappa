@@ -4,18 +4,18 @@ Kappa is an in-memory, update-centric stream graph processing system for multi-c
 
 The central idea is that graph computation should be driven by **changes in topology**, not by repeatedly treating the whole graph as a static input. An edge insertion or deletion enters the system as an update. Kappa's update-centric programming model allows graph analytics algorithms to control whether that update changes vertex state. If it does, the runtime schedules further vertex computations until the change stops propagating.
 
-Kappa is an experimental systems research prototype. It is not packaged as a general-purpose graph-processing library, but it contains a complete prototype runtime, graph representation, task scheduler, dynamic graph algorithms, dataset-loading utilities, and experiment support code.
+Kappa is an experimental systems research prototype. It is not packaged as a general-purpose graph-processing library, but it contains a complete end-to-end runtime, implementations of several dynamic and static graph algorithms, data-ingestion utilities, and experiment support code.
 
-## What Kappa explores
+## What Kappa does
 
-Kappa explores dynamic graph processing on a single large-memory machine. It focuses on questions such as:
+Kappa's design and implementation explore dynamic graph processing on a single large-memory machine. It focuses on questions such as:
 
 * how to express graph algorithms over a changing graph;
 * how to trigger computation from graph updates rather than from full graph iterations;
 * how to propagate only the work caused by an edge insertion or deletion;
 * how to batch update streams;
-* how to schedule graph-update and computation tasks across worker threads;
-* how to use weakly connected components to restrict recomputation after deletions;
+* how to schedule graph updates and computation tasks across worker threads in a NUMA environment;
+* how to use weakly connected components to safely restrict recomputation after edge deletions;
 * how to evaluate dynamic graph workloads using preprocessed edge-list datasets.
 
 In short:
