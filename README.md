@@ -1,6 +1,6 @@
 # Kappa
  
-Kappa is an in-memory, update-centric stream graph processing system for multi-core NUMA machines. It maintains a dynamic directed graph in memory, applies batches of edge updates, and schedules user-defined algorithm-specific computation over the parts of the graph affected by those updates.
+Kappa is an in-memory, update-centric stream graph processing system. It maintains a dynamic directed graph in memory, applies batches of edge updates, and schedules user-defined algorithm-specific computation over the parts of the graph affected by those updates.
 
 The central idea is that graph computation should be driven by **changes in topology**, not by repeatedly treating the whole graph as a static input. An edge insertion or deletion enters the system as an update. Kappa's update-centric programming model allows graph analytics algorithms to control whether that update changes vertex state. If it does, the runtime schedules further vertex computations until the change stops propagating.
 
